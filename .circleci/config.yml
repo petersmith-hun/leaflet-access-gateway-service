@@ -1,0 +1,203 @@
+version: 2.1
+
+orbs:
+  jira: circleci/jira@1.1.2
+
+# Common parameters for CircleCI build config
+parameters:
+  app_name:
+    type: string
+    default: "lags"
+  release_tag_pattern:
+    type: string
+    default: 's/v[0-9]+\.[0-9]+\.[0-9]+\.([0-9]+)-release/\1/'
+  executable_file:
+    type: string
+    default: "leaflet-access-gateway-exec.jar"
+  executable_source_dir:
+    type: string
+    default: "web/target/"
+  workspace_dir:
+    type: string
+    default: "/tmp/ws_store"
+  version_file:
+    type: string
+    default: "version"
+
+# Reusable commands
+commands:
+
+  # Command definition for publishing GitHub releases/tags
+  github_release:
+    parameters:
+      release-type:
+        type: enum
+        default: "rc"
+        enum: ["rc", "release"]
+    steps:
+      - attach_workspace:
+          at: << pipeline.parameters.workspace_dir >>
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            [[ "<< parameters.release-type >>" = "release" ]] && VERSION_QUALIFIER="-release" || VERSION_QUALIFIER=""
+            VERSION=v$(cat << pipeline.parameters.workspace_dir >>/<< pipeline.parameters.version_file >>)$VERSION_QUALIFIER
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} << pipeline.parameters.workspace_dir >>/<< pipeline.parameters.executable_file >>
+
+jobs:
+
+  # Leaflet Access Gateway Service - Build and test application
+  build:
+    docker:
+      - image: cimg/openjdk:11.0.12
+    steps:
+      - checkout
+      - run:
+          command: |
+            case $CIRCLE_BRANCH in
+              master) echo 'export BUILD_NUMBER="rc.<< pipeline.number >>"' >> $BASH_ENV ;;
+              deploy) echo 'export BUILD_NUMBER=$((`git fetch --tags && git tag --sort=-taggerdate | grep release | sed -E "<< pipeline.parameters.release_tag_pattern >>" | sort -nr | head -n 1` + 1))' >> $BASH_ENV ;;
+              *) echo 'export BUILD_NUMBER="snapshot"' >> $BASH_ENV ;;
+            esac
+            source $BASH_ENV
+            echo "Determined BUILD_NUMBER=$BUILD_NUMBER"
+          name: Set build number
+      - run:
+          command: mvn build-helper:parse-version versions:set -DnewVersion="\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.${BUILD_NUMBER}" -s .circleci/settings.xml
+          name: Set project version
+      - run:
+          command: echo 'export PROJECT_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout --non-recursive -s .circleci/settings.xml`' >> $BASH_ENV
+          name: Extract project version
+      - setup_remote_docker:
+          version: 19.03.12
+      - run:
+          command: mvn clean deploy -s .circleci/settings.xml
+          name: Build
+      - run:
+          command: |
+            mkdir -p << pipeline.parameters.workspace_dir >>
+            cp ./<< pipeline.parameters.executable_source_dir >><< pipeline.parameters.executable_file >> << pipeline.parameters.workspace_dir >>/<< pipeline.parameters.executable_file >>
+            echo $PROJECT_VERSION >> << pipeline.parameters.workspace_dir >>/<< pipeline.parameters.version_file >>
+          name: Prepare workspace shared storage
+      - persist_to_workspace:
+          root: << pipeline.parameters.workspace_dir >>
+          paths:
+            - << pipeline.parameters.executable_file >>
+            - << pipeline.parameters.version_file >>
+      - store_artifacts:
+          path: << pipeline.parameters.executable_source_dir >><< pipeline.parameters.executable_file >>
+      - store_test_results:
+          path: web/target/surefire-reports
+      - store_test_results:
+          path: core/target/surefire-reports
+
+  # Leaflet Access Gateway Service - Deploy to production
+  deploy:
+    docker:
+      - image: cimg/openjdk:11.0.12
+    steps:
+      - attach_workspace:
+          at: << pipeline.parameters.workspace_dir >>
+      - run:
+          command: echo 'export PROJECT_VERSION="$(cat << pipeline.parameters.workspace_dir >>/<< pipeline.parameters.version_file >>)"' >> $BASH_ENV
+          name: Set project version
+      - run:
+          command: |
+            set +e
+
+            domino_deploy_response=$(curl \
+                 --silent --write-out "%{http_code}" --output /dev/null \
+                 --request PUT \
+                 --header "Authorization: Bearer ${LEAFLET_CI_DOMINO_AUTH_TOKEN}" \
+                 "${LEAFLET_CI_DOMINO_HOST}/lifecycle/<< pipeline.parameters.app_name >>/deploy/${PROJECT_VERSION}")
+
+            case $domino_deploy_response in
+              201 | 202) echo "Domino deployment request was successful, deployment may continue" ;;
+              *) echo "Domino deployment request returned with status_code=$domino_deploy_response" && exit 1 ;;
+            esac
+
+            domino_start_response=$(curl \
+                 --silent --write-out "%{http_code}" --output /dev/null \
+                 --request PUT \
+                 --header "Authorization: Bearer ${LEAFLET_CI_DOMINO_AUTH_TOKEN}" \
+                 "${LEAFLET_CI_DOMINO_HOST}/lifecycle/<< pipeline.parameters.app_name >>/start")
+
+            case $domino_start_response in
+              201 | 202) exit 0 ;;
+              *) echo "Domino application start request returned with status_code=$domino_start_response" && exit 1 ;;
+            esac
+
+          name: Instruct Domino to start deployment and spin up the application
+
+  # Leaflet Access Gateway Service - Publish tag (and release) on GitHub for RC versions
+  publish-github-rc:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - github_release:
+          release-type: rc
+
+  # Leaflet Access Gateway Service - Publish tag (and release) on GitHub for RELEASE versions
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - github_release:
+          release-type: release
+
+workflows:
+
+  leaflet-lags-rc:
+    jobs:
+
+      - build:
+         context: leaflet_ci
+         filters:
+          branches:
+            only:
+               - master
+         post-steps:
+           - jira/notify:
+               environment_type: development
+               job_type: build
+
+      - publish-github-rc:
+          context: leaflet_ci
+          requires:
+            - build
+
+  leaflet-lags-release:
+    jobs:
+
+      - build:
+          context: leaflet_ci
+          filters:
+            branches:
+              only:
+                - deploy
+          post-steps:
+            - jira/notify:
+                environment_type: development
+                job_type: build
+
+      - deploy-approval:
+          context: leaflet_ci
+          type: approval
+          requires:
+            - build
+
+      - deploy:
+          context: leaflet_ci
+          requires:
+            - deploy-approval
+          post-steps:
+            - jira/notify:
+                environment_type: production
+                job_type: deployment
+
+      - publish-github-release:
+          context: leaflet_ci
+          requires:
+            - deploy
+
+  version: 2
