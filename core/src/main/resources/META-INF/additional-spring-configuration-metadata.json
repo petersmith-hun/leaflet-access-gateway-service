@@ -1,0 +1,40 @@
+{
+  "properties": [
+    {
+      "name": "oauth2-config.token",
+      "type": "hu.psprog.leaflet.lags.core.domain.OAuthTokenSettings",
+      "description": "OAuth2 JWT token configuration parameters.",
+      "sourceType": "hu.psprog.leaflet.lags.core.domain.OAuthConfigurationProperties"
+    },
+    {
+      "name": "oauth2-config.clients",
+      "type": "java.util.List<hu.psprog.leaflet.lags.core.domain.OAuthClient>",
+      "description": "OAuth2 client registrations.",
+      "sourceType": "hu.psprog.leaflet.lags.core.domain.OAuthConfigurationProperties"
+    },
+    {
+      "name": "oauth2-config.token.expiration",
+      "type": "java.lang.Long",
+      "description": "Token expiration time in seconds.",
+      "sourceType": "hu.psprog.leaflet.lags.core.domain.OAuthTokenSettings"
+    },
+    {
+      "name": "oauth2-config.token.issuer",
+      "type": "java.lang.String",
+      "description": "Token issuer URI.",
+      "sourceType": "hu.psprog.leaflet.lags.core.domain.OAuthTokenSettings"
+    },
+    {
+      "name": "oauth2-config.token.private-key-file",
+      "type": "java.lang.String",
+      "description": "Path of the private RSA key file to sign the tokens with.",
+      "sourceType": "hu.psprog.leaflet.lags.core.domain.OAuthTokenSettings"
+    },
+    {
+      "name": "oauth2-config.clients.client-name",
+      "type": "java.lang.String",
+      "description": "Client name (internal identifier of the registration).",
+      "sourceType": "hu.psprog.leaflet.lags.core.domain.OAuthClient"
+    }
+  ]
+}

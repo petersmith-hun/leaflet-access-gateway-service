@@ -1,5 +1,6 @@
 .idea/
 logs/
+rsa_keys/
 target/
 *.iml
 application.yml
