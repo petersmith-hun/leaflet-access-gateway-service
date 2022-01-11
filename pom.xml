@@ -6,7 +6,7 @@
 
     <artifactId>leaflet-access-gateway-service</artifactId>
     <packaging>pom</packaging>
-    <version>0.1.0-dev</version>
+    <version>0.2.0-dev</version>
 
     <modules>
         <module>core</module>
@@ -96,8 +96,10 @@
                 <version>${jacoco-maven-plugin.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/domain/**</exclude>
                         <exclude>**/config/**</exclude>
+                        <exclude>**/domain/**</exclude>
+                        <exclude>**/model/**</exclude>
+                        <exclude>**/LeafletAccessGatewayApplication.*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
