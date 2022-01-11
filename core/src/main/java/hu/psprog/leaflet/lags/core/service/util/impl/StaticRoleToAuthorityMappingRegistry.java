@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -59,6 +60,6 @@ public class StaticRoleToAuthorityMappingRegistry implements RoleToAuthorityMapp
 
     @Override
     public List<GrantedAuthority> getAuthoritiesForRole(Role role) {
-        return ROLE_TO_AUTHORITY_LIST_MAP.get(role);
+        return ROLE_TO_AUTHORITY_LIST_MAP.getOrDefault(role, Collections.emptyList());
     }
 }
