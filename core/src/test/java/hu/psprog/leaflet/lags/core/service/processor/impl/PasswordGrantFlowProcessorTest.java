@@ -2,8 +2,6 @@ package hu.psprog.leaflet.lags.core.service.processor.impl;
 
 import hu.psprog.leaflet.lags.core.domain.ExtendedUser;
 import hu.psprog.leaflet.lags.core.domain.GrantType;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
-import hu.psprog.leaflet.lags.core.domain.OAuthClientAllowRelation;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
@@ -24,11 +22,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static hu.psprog.leaflet.lags.core.service.processor.impl.GrantFlowProcessorTestHelper.INVALID_TARGET_O_AUTH_CLIENT;
+import static hu.psprog.leaflet.lags.core.service.processor.impl.GrantFlowProcessorTestHelper.SOURCE_O_AUTH_CLIENT;
+import static hu.psprog.leaflet.lags.core.service.processor.impl.GrantFlowProcessorTestHelper.TARGET_O_AUTH_CLIENT;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,9 +42,6 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class PasswordGrantFlowProcessorTest {
 
-    private static final OAuthClient SOURCE_O_AUTH_CLIENT = prepareSourceOAuthClient();
-    private static final OAuthClient TARGET_O_AUTH_CLIENT = prepareTargetOAuthClient(true);
-    private static final OAuthClient INVALID_TARGET_O_AUTH_CLIENT = prepareTargetOAuthClient(false);
     private static final OAuthTokenRequest VALID_O_AUTH_TOKEN_REQUEST = prepareValidOAuthTokenRequest(true);
     private static final OAuthTokenRequest VALID_O_AUTH_TOKEN_REQUEST_WITHOUT_SCOPE = prepareValidOAuthTokenRequest(false);
     private static final UsernamePasswordAuthenticationToken EXPECTED_USER_AUTH_TOKEN = prepareExpectedUserAuthenticationToken();
@@ -216,32 +213,6 @@ class PasswordGrantFlowProcessorTest {
 
         // then
         assertThat(result, equalTo(GrantType.PASSWORD));
-    }
-
-    private static OAuthClient prepareSourceOAuthClient() {
-
-        return new OAuthClient(
-                "source-service-1",
-                "dummy-source-service-1",
-                "secret1",
-                "source-service-audience",
-                Collections.emptyList(),
-                Collections.emptyList());
-    }
-
-    private static OAuthClient prepareTargetOAuthClient(boolean validRelation) {
-
-        OAuthClientAllowRelation relation = new OAuthClientAllowRelation(
-                validRelation ? "source-service-1" : "source-service-2",
-                Arrays.asList("read:items", "write:item:self", "default1", "default2", "default3"));
-
-        return new OAuthClient(
-                "target-service-1",
-                "dummy-target-service-1",
-                "secret2",
-                "target-service-audience",
-                Arrays.asList("read:items", "write:item:all", "write:item:self", "admin:item", "default1", "default2", "default3"),
-                Collections.singletonList(relation));
     }
 
     private static OAuthTokenRequest prepareValidOAuthTokenRequest(boolean withScope) {
