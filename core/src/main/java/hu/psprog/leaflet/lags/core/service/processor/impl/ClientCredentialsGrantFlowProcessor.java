@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * {@link AbstractGrantFlowProcessor} implementation for client credentials grant OAuth2 authorization flow processing.
  * Since the common ({@link AbstractGrantFlowProcessor}) implementation does all the necessary checks,
- * this processor only needs to some scope verification.
+ * this processor only needs to do scope verification.
  *
  * @author Peter Smith
  */
