@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="hu">
+    <head>
+        <title>PSProg.hu :: Sign in</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+        <script src="https://kit.fontawesome.com/f780792cbe.js" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <div class="container d-flex">
+            <div class="row justify-content-center">
+                <div class="col-md-4 shadow-lg min-vh-100" style="background: #fff;">
+                    <div class="row justify-content-center mt-1">
+                        <div class="col-md-4 mt-3 mb-3">
+                            <svg id="leaflet-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 148.18836 171.18995">
+                                <path d="M212.87009,107.76641l1.95236.001-.00862,76.72232-5.8638,3.38546-3.90471-.002.00637-75.59283Zm-24.74134,14.28442-.00638,75.59283,3.90472.002,5.8638-3.38547.00861-76.72232-1.95235-.001Zm-16.92295,9.77046-.00637,75.59283,3.90472.002,5.8638-3.38547.00861-76.72232-1.95236-.001Zm-16.92294,9.77047-.00637,75.59283,3.90471.002,5.8638-3.38546.00862-76.72232-1.95236-.001Zm-16.92295,9.77047-.00553,74.14825,2.50292,1.44312,1.401.00346,5.8638-3.38547.00861-76.72232-1.95236-.001Zm-16.88909,9.75092.4007,54.881,5.1468,2.97409,4.65108-.034-.4594-62.34966-1.92078.01462Zm-16.98218,9.80466-.18378,34.93353,7.1285,4.12019,2.62257.00893.23016-43.56845-1.97905-.00815Zm-16.906,9.7607-.04614,15.49421,7.44071,4.28968,2.30749.01032.07358-24.2987-1.9657-.00458ZM73.1458,188.43626,76.43365,190.34l2.58.24786.40553-4.18283-2.35573-.23067ZM71,174l1.42188-73.19922,68.14941-39.3457,66.47949,37.8291-66.56933,38.43359L100,118l-3.39648-.54492L140.501,142.3252l74.59277-43.06641-74.53613-42.415L69.417,97.917l-1.00488.58106.36328,81.78222Z"
+                                      transform="translate(-67.91083 -56.26744)" fill="#009c43"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-5">
+                            <img src="../resources/images/logo.png" th:src="@{/images/logo.png}" alt="psprog.hu logo" />
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-11 mt-3" style="text-align: center;">
+                            <h3>Sign in to psprog.hu</h3>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-11">
+                            <form th:action="@{/login}" action="#" method="post" class="w-100">
+                                <div class="mb-3">
+                                    <label for="emailInput">Email</label>
+                                    <input type="text" class="form-control" placeholder="Email" name="email" id="emailInput" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="passwordInput">Password</label>
+                                    <input type="password" class="form-control" placeholder="Password" name="password" id="passwordInput" />
+                                </div>
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary w-100 align-middle">Sign In</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-11">
+                            <hr />
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-11" style="text-align: center;">
+                            <h5>I sign in with a social account</h5>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-5">
+                            <a class="btn btn-secondary w-100 align-middle" href="/"><i class="fab fa-github"></i> GitHub</a>
+                        </div>
+                        <div class="col-md-5">
+                            <a class="btn btn-secondary w-100 align-middle" href="/"><i class="fab fa-google"></i> Google</a>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-11">
+                            <hr />
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-11">
+                            <a class="btn btn-secondary w-100 align-middle" href="/">I don't have an account yet</a>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center mt-3">
+                        <div class="col-md-11">
+                            <a class="btn btn-secondary w-100 align-middle" href="/">I forgot my password</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

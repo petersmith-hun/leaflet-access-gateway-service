@@ -16,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.context.NullSecurityContextRepository;
 
 /**
  * OAuth2 security configuration.
@@ -27,6 +26,14 @@ import org.springframework.security.web.context.NullSecurityContextRepository;
 @EnableWebSecurity
 @EnableConfigurationProperties(OAuthConfigurationProperties.class)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    private static final String PATH_OAUTH_ROOT = "/oauth/**";
+    private static final String PATH_LOGIN = "/login";
+    private static final String PATH_LOGIN_FAILURE = "/login?auth=fail";
+    private static final String USERNAME_PARAMETER = "email";
+    private static final String RESOURCE_IMAGES = "/images/**";
+    private static final String RESOURCE_CSS = "/css/**";
+    private static final String RESOURCE_JS = "/js/**";
 
     private final UserDetailsService localUserUserDetailsService;
     private final UserDetailsService oAuthClientUserDetailsService;
@@ -65,19 +72,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http
-                .securityContext()
-                    .securityContextRepository(new NullSecurityContextRepository())
-                .and()
 
                 .authorizeRequests()
-                    .antMatchers("/oauth/token").fullyAuthenticated()
-                .and()
+                    .antMatchers(PATH_OAUTH_ROOT)
+                        .fullyAuthenticated()
+                    .antMatchers(PATH_LOGIN, RESOURCE_IMAGES, RESOURCE_CSS, RESOURCE_JS)
+                        .permitAll()
+                    .and()
 
                 .httpBasic()
-                .and()
+                    .and()
+
+                .formLogin()
+                    .loginPage(PATH_LOGIN)
+                    .failureUrl(PATH_LOGIN_FAILURE)
+                    .usernameParameter(USERNAME_PARAMETER)
+                    .and()
 
                 .csrf()
-                    .disable()
+                    .ignoringAntMatchers(PATH_OAUTH_ROOT)
+                    .and()
 
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.NEVER);
