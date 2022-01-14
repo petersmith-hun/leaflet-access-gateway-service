@@ -1,7 +1,10 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
 import hu.psprog.leaflet.lags.core.domain.GrantType;
+import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
+import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.OAuthRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
@@ -42,6 +45,15 @@ public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService 
     }
 
     @Override
+    public OAuthAuthorizationResponse authorize(OAuthAuthorizationRequest oAuthAuthorizationRequest) {
+
+        OAuthClient oAuthClient = getOAuthClient(oAuthAuthorizationRequest);
+
+        return getResponsibleGrantFlowProcessor(oAuthAuthorizationRequest)
+                .authorizeRequest(oAuthAuthorizationRequest, oAuthClient);
+    }
+
+    @Override
     public OAuthTokenResponse authorize(OAuthTokenRequest oAuthTokenRequest) {
 
         OAuthClient oAuthClient = getOAuthClient(oAuthTokenRequest);
@@ -51,17 +63,17 @@ public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService 
         return tokenGenerator.generateToken(oAuthTokenRequest, claims);
     }
 
-    private OAuthClient getOAuthClient(OAuthTokenRequest oAuthTokenRequest) {
+    private OAuthClient getOAuthClient(OAuthRequest oAuthRequest) {
 
-        return oAuthClientRegistry.getClientByClientID(oAuthTokenRequest.getClientID())
-                .orElseThrow(() -> new OAuthAuthorizationException(String.format("OAuth client by ID [%s] is not registered", oAuthTokenRequest.getClientID())));
+        return oAuthClientRegistry.getClientByClientID(oAuthRequest.getClientID())
+                .orElseThrow(() -> new OAuthAuthorizationException(String.format("OAuth client by ID [%s] is not registered", oAuthRequest.getClientID())));
     }
 
-    private GrantFlowProcessor getResponsibleGrantFlowProcessor(OAuthTokenRequest oAuthTokenRequest) {
+    private GrantFlowProcessor getResponsibleGrantFlowProcessor(OAuthRequest oAuthRequest) {
 
-        GrantFlowProcessor grantFlowProcessor = grantFlowProcessorMap.get(oAuthTokenRequest.getGrantType());
+        GrantFlowProcessor grantFlowProcessor = grantFlowProcessorMap.get(oAuthRequest.getGrantType());
         if (Objects.isNull(grantFlowProcessor)) {
-            throw new OAuthAuthorizationException(String.format("OAuth authorization flow [%s] is not supported", oAuthTokenRequest.getGrantType()));
+            throw new OAuthAuthorizationException(String.format("OAuth authorization flow [%s] is not supported", oAuthRequest.getGrantType()));
         }
 
         return grantFlowProcessor;

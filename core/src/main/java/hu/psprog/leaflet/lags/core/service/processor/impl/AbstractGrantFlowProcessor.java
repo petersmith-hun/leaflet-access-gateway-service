@@ -1,5 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
+import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
+import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.OAuthClient;
 import hu.psprog.leaflet.lags.core.domain.OAuthClientAllowRelation;
 import hu.psprog.leaflet.lags.core.domain.OAuthConstants;
@@ -32,6 +34,11 @@ abstract class AbstractGrantFlowProcessor implements GrantFlowProcessor {
 
     protected AbstractGrantFlowProcessor(OAuthClientRegistry oAuthClientRegistry) {
         this.oAuthClientRegistry = oAuthClientRegistry;
+    }
+
+    @Override
+    public OAuthAuthorizationResponse authorizeRequest(OAuthAuthorizationRequest oAuthAuthorizationRequest, OAuthClient oAuthClient) {
+        throw new UnsupportedOperationException("Authorization is not supported on this grant flow.");
     }
 
     @Override

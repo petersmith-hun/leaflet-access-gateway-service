@@ -17,6 +17,10 @@ public interface OAuthConstants {
         String PASSWORD = "password";
         String AUDIENCE = "audience";
         String SCOPE = "scope";
+        String CODE = "code";
+        String RESPONSE_TYPE = "response_type";
+        String REDIRECT_URI = "redirect_uri";
+        String STATE = "state";
     }
 
     /**

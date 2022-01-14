@@ -11,7 +11,7 @@ import java.util.stream.Stream;
  */
 public enum GrantType {
 
-    AUTHORIZATION_CODE("code"),
+    AUTHORIZATION_CODE("authorization_code"),
     CLIENT_CREDENTIALS("client_credentials"),
     PASSWORD("password");
 

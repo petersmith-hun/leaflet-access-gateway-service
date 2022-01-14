@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
+import hu.psprog.leaflet.lags.core.domain.ApplicationType;
 import hu.psprog.leaflet.lags.core.domain.GrantType;
 import hu.psprog.leaflet.lags.core.domain.OAuthClient;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
@@ -39,7 +40,7 @@ class OAuthAuthorizationServiceImplTest {
             .grantType(GrantType.AUTHORIZATION_CODE)
             .clientID("client-2")
             .build();
-    private static final OAuthClient O_AUTH_CLIENT = new OAuthClient("Client 1", "client-1", null, null, null, null);
+    private static final OAuthClient O_AUTH_CLIENT = new OAuthClient("Client 1", ApplicationType.SERVICE, "client-1", null, null, null, null, null);
     private static final Map<String, Object> CLAIMS = Map.of("aud", "audience-1");
     private static final OAuthTokenResponse DUMMY_O_AUTH_TOKEN_RESPONSE = OAuthTokenResponse.builder()
             .accessToken("token-1")

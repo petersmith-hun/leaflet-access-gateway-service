@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Data
 @Builder
-public class OAuthTokenRequest {
+public class OAuthTokenRequest implements OAuthRequest {
 
     private final GrantType grantType;
     private final String clientID;
@@ -20,4 +20,6 @@ public class OAuthTokenRequest {
     private final String password;
     private final String audience;
     private final List<String> scope;
+    private final String authorizationCode;
+    private final String redirectURI;
 }

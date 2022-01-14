@@ -1,6 +1,8 @@
 package hu.psprog.leaflet.lags.core.config;
 
 import hu.psprog.leaflet.lags.core.domain.OAuthConfigurationProperties;
+import hu.psprog.leaflet.lags.core.security.RequestSavingLogoutSuccessHandler;
+import hu.psprog.leaflet.lags.core.security.ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -30,6 +32,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String PATH_OAUTH_ROOT = "/oauth/**";
     private static final String PATH_LOGIN = "/login";
     private static final String PATH_LOGIN_FAILURE = "/login?auth=fail";
+    private static final String PATH_LOGOUT = "/logout";
     private static final String USERNAME_PARAMETER = "email";
     private static final String RESOURCE_IMAGES = "/images/**";
     private static final String RESOURCE_CSS = "/css/**";
@@ -87,6 +90,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .loginPage(PATH_LOGIN)
                     .failureUrl(PATH_LOGIN_FAILURE)
                     .usernameParameter(USERNAME_PARAMETER)
+                    .successHandler(new ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler())
+                    .and()
+
+                .logout()
+                    .logoutUrl(PATH_LOGOUT)
+                    .logoutSuccessUrl(PATH_LOGIN)
+                    .logoutSuccessHandler(getLogoutSuccessHandler())
                     .and()
 
                 .csrf()
@@ -95,6 +105,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.NEVER);
+    }
+
+    private RequestSavingLogoutSuccessHandler getLogoutSuccessHandler() {
+
+        RequestSavingLogoutSuccessHandler requestSavingLogoutSuccessHandler = new RequestSavingLogoutSuccessHandler();
+        requestSavingLogoutSuccessHandler.setDefaultTargetUrl(PATH_LOGIN);
+
+        return requestSavingLogoutSuccessHandler;
     }
 
     private AuthenticationProvider createAuthenticationProvider(PasswordEncoder passwordEncoder,

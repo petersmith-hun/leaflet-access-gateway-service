@@ -51,6 +51,8 @@ public class OAuthTokenRequestFactory {
                 .username(requestParameters.get(OAuthConstants.Request.USERNAME))
                 .password(requestParameters.get(OAuthConstants.Request.PASSWORD))
                 .audience(requestParameters.get(OAuthConstants.Request.AUDIENCE))
+                .authorizationCode(requestParameters.get(OAuthConstants.Request.CODE))
+                .redirectURI(requestParameters.get(OAuthConstants.Request.REDIRECT_URI))
                 .scope(extractScope(requestParameters))
                 .build();
     }

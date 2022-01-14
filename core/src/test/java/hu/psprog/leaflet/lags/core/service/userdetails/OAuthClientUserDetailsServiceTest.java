@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.userdetails;
 
+import hu.psprog.leaflet.lags.core.domain.ApplicationType;
 import hu.psprog.leaflet.lags.core.domain.OAuthClient;
 import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
 import org.junit.jupiter.api.Test;
@@ -70,10 +71,12 @@ class OAuthClientUserDetailsServiceTest {
 
         return new OAuthClient(
                 "client-name",
+                ApplicationType.SERVICE,
                 "client1",
                 "client-secret-1234",
                 "audience1",
                 Arrays.asList("read:all", "write:all"),
+                Collections.emptyList(),
                 Collections.emptyList()
         );
     }

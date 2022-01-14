@@ -6,6 +6,7 @@ import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.service.token.TokenGenerator;
 import hu.psprog.leaflet.lags.core.service.util.KeyRegistry;
+import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,7 @@ public class JWTTokenGenerator implements TokenGenerator {
         Date issuedAt = new Date();
 
         return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setClaims(claims)
                 .setAudience(oAuthTokenRequest.getAudience())
                 .setExpiration(generateExpiration(issuedAt))

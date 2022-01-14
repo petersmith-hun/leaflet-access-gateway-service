@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class BaseController {
 
+    static final String PATH_LOGIN = "/login";
+    static final String PATH_OAUTH_TOKEN = "/oauth/token";
+    static final String PATH_OAUTH_AUTHORIZE = "/oauth/authorize";
+
     /**
      * Exception handler for {@link OAuthAuthorizationException}s.
      * Logs the exception and wraps the message into a JSON response, along with an HTTP 401 Unauthorized status code.
