@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
@@ -32,15 +33,10 @@ class StaticRoleToAuthorityMappingRegistryTest {
 
         // then
         assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
-                "read:categories:public",
-                "read:comments:public",
-                "read:documents:public",
-                "read:entries:public",
-                "read:tags:public",
-                "read:users:self",
-                "write:comments:create",
-                "write:comments:edit:self",
-                "write:users:self"
+                "read:users:own",
+                "write:comments:own",
+                "write:reclaim",
+                "write:users:own"
         )));
     }
 
@@ -52,26 +48,20 @@ class StaticRoleToAuthorityMappingRegistryTest {
 
         // then
         assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
-                "read:categories:public",
-                "read:comments:public",
-                "read:documents:public",
-                "read:entries:public",
-                "read:tags:public",
-                "read:users:self",
-                "write:comments:create",
-                "write:comments:edit:self",
-                "write:users:self",
-                "read:categories:all",
-                "read:comments:all",
-                "read:documents:all",
-                "read:entries:all",
-                "read:tags:all",
-                "read:users:all",
-                "write:categories:edit:all",
-                "write:comments:edit:all",
-                "write:documents:edit:all",
-                "write:entries:edit:all",
-                "write:tags:edit:all"
+                "read:users:own",
+                "write:comments:own",
+                "write:reclaim",
+                "write:users:own",
+                "read:categories",
+                "read:comments",
+                "read:documents",
+                "read:entries",
+                "read:tags",
+                "write:categories",
+                "write:comments",
+                "write:documents",
+                "write:entries",
+                "write:tags"
         )));
     }
 
@@ -83,33 +73,34 @@ class StaticRoleToAuthorityMappingRegistryTest {
 
         // then
         assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
-                "read:categories:public",
-                "read:comments:public",
-                "read:documents:public",
-                "read:entries:public",
-                "read:tags:public",
-                "read:users:self",
-                "write:comments:create",
-                "write:comments:edit:self",
-                "write:users:self",
-                "read:categories:all",
-                "read:comments:all",
-                "read:documents:all",
-                "read:entries:all",
-                "read:tags:all",
-                "read:users:all",
-                "write:categories:edit:all",
-                "write:comments:edit:all",
-                "write:documents:edit:all",
-                "write:entries:edit:all",
-                "write:tags:edit:all",
-                "read:admin:all",
-                "write:admin:all"
+                "read:users:own",
+                "write:comments:own",
+                "write:reclaim",
+                "write:users:own",
+                "read:categories",
+                "read:comments",
+                "read:documents",
+                "read:entries",
+                "read:tags",
+                "write:categories",
+                "write:comments",
+                "write:documents",
+                "write:entries",
+                "write:tags",
+                "read:admin",
+                "read:users",
+                "write:admin",
+                "write:users"
         )));
     }
 
     @Test
     public void shouldGetAuthoritiesForRoleReturnEmptyAuthorityListForNonConfiguredRole() {
 
+        // when
+        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.NO_LOGIN);
+
+        // then
+        assertThat(result.isEmpty(), is(true));
     }
 }

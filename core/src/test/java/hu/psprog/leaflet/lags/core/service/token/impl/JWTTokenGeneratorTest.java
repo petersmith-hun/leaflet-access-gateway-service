@@ -75,6 +75,7 @@ class JWTTokenGeneratorTest {
         int expectedExpiration = O_AUTH_CONFIGURATION_PROPERTIES.getToken().getExpiration();
 
         assertThat(header.get("alg"), equalTo("RS256"));
+        assertThat(header.get("typ"), equalTo("JWT"));
         assertThat(payload.get("sub"), equalTo(CLAIMS.get("sub")));
         assertThat(payload.get("aud"), equalTo(O_AUTH_TOKEN_REQUEST.getAudience()));
         assertThat(payload.get("scope"), equalTo(CLAIMS.get("scope")));

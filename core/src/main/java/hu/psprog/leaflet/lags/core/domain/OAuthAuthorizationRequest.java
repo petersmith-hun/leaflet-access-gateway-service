@@ -2,6 +2,7 @@ package hu.psprog.leaflet.lags.core.domain;
 
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * OAuth2 authorization request model.
@@ -21,5 +22,9 @@ public class OAuthAuthorizationRequest implements OAuthRequest {
     @Override
     public GrantType getGrantType() {
         return GrantType.AUTHORIZATION_CODE;
+    }
+
+    public String[] getScopeAsArray() {
+        return scope.split(StringUtils.SPACE);
     }
 }

@@ -154,7 +154,7 @@ public class AuthorizationCodeGrantFlowProcessor extends AbstractGrantFlowProces
 
         if (!StringUtils.isEmpty(oAuthAuthorizationRequest.getScope())) {
             ExtendedUser userDetails = getUserDetails();
-            List<GrantedAuthority> requestedScopes = AuthorityUtils.createAuthorityList(oAuthAuthorizationRequest.getScope().split("\\."));
+            List<GrantedAuthority> requestedScopes = AuthorityUtils.createAuthorityList(oAuthAuthorizationRequest.getScopeAsArray());
 
             if (!userDetails.getAuthorities().containsAll(requestedScopes)) {
                 throw new OAuthAuthorizationException("Requested scope is broader than the user's authority range.");
@@ -200,7 +200,7 @@ public class AuthorizationCodeGrantFlowProcessor extends AbstractGrantFlowProces
             }
 
         } else {
-            scope = Arrays.asList(oAuthAuthorizationRequest.getScope().split("\\."));
+            scope = Arrays.asList(oAuthAuthorizationRequest.getScopeAsArray());
         }
 
         return scope;

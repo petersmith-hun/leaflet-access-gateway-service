@@ -1,9 +1,14 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
+import hu.psprog.leaflet.lags.core.domain.AuthorizationResponseType;
+import hu.psprog.leaflet.lags.core.domain.ExtendedUser;
 import hu.psprog.leaflet.lags.core.domain.GrantType;
+import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
+import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
+import hu.psprog.leaflet.lags.web.factory.OAuthAuthorizationRequestFactory;
 import hu.psprog.leaflet.lags.web.factory.OAuthTokenRequestFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Base64;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -38,9 +46,19 @@ class OAuth2AuthenticationControllerTest {
     private static final OAuthTokenResponse O_AUTH_TOKEN_RESPONSE = OAuthTokenResponse.builder()
             .accessToken("token1")
             .build();
+    private static final ExtendedUser EXTENDED_USER = ExtendedUser.builder()
+            .name("name1")
+            .username("email@dev.local")
+            .build();
+    private static final String REQUEST_URL = "https://dev.local:9999/authorize";
+    private static final String QUERY_STRING = "response_type=code&client_id=client-1";
+    private static final String EXPECTED_LOGOUT_REF = REQUEST_URL + "?" + QUERY_STRING;
 
     @Mock
     private OAuthTokenRequestFactory oAuthTokenRequestFactory;
+
+    @Mock
+    private OAuthAuthorizationRequestFactory oAuthAuthorizationRequestFactory;
 
     @Mock
     private OAuthAuthorizationService oAuthAuthorizationService;
@@ -51,8 +69,53 @@ class OAuth2AuthenticationControllerTest {
     @Mock
     private UserDetails userDetails;
 
+    @Mock
+    private HttpServletRequest request;
+
     @InjectMocks
     private OAuth2AuthenticationController oAuth2AuthenticationController;
+
+    @Test
+    public void shouldRenderAuthorizationFormReturnPopulatedModelAndView() {
+
+        // given
+        given(authentication.getPrincipal()).willReturn(EXTENDED_USER);
+        given(request.getRequestURL()).willReturn(new StringBuffer(REQUEST_URL));
+        given(request.getQueryString()).willReturn(QUERY_STRING);
+
+        // when
+        ModelAndView result = oAuth2AuthenticationController.renderAuthorizationForm(request, authentication);
+
+        // then
+        assertThat(result.getViewName(), equalTo("authorize"));
+        assertThat(result.getModel().get("name"), equalTo(EXTENDED_USER.getName()));
+        assertThat(result.getModel().get("email"), equalTo(EXTENDED_USER.getUsername()));
+        assertLogoutRef(result);
+    }
+
+    @Test
+    public void shouldProcessAuthorizationRequestReturnProperRedirectionModelAndView() {
+
+        // given
+        Map<String, String> requestParameters = Map.of("response_type", "code");
+        OAuthAuthorizationRequest oAuthAuthorizationRequest = OAuthAuthorizationRequest.builder()
+                .responseType(AuthorizationResponseType.CODE)
+                .build();
+        OAuthAuthorizationResponse oAuthAuthorizationResponse = OAuthAuthorizationResponse.builder()
+                .code("code-1")
+                .state("state-1")
+                .redirectURI("https://dev.local:9999/callback")
+                .build();
+
+        given(oAuthAuthorizationRequestFactory.createAuthorizationRequest(requestParameters)).willReturn(oAuthAuthorizationRequest);
+        given(oAuthAuthorizationService.authorize(oAuthAuthorizationRequest)).willReturn(oAuthAuthorizationResponse);
+
+        // when
+        ModelAndView result = oAuth2AuthenticationController.processAuthorizationRequest(requestParameters);
+
+        // then
+        assertThat(result.getViewName(), equalTo("redirect:https://dev.local:9999/callback?code=code-1&state=state-1"));
+    }
 
     @Test
     public void shouldClaimTokenProcessRequest() {
@@ -71,5 +134,13 @@ class OAuth2AuthenticationControllerTest {
         assertThat(result.getHeaders().getFirst("Content-Type"), equalTo("application/json"));
         assertThat(result.getHeaders().getFirst("Pragma"), equalTo("no-cache"));
         assertThat(result.getBody(), equalTo(O_AUTH_TOKEN_RESPONSE));
+    }
+
+    private void assertLogoutRef(ModelAndView result) {
+
+        String encodedLogoutRef = result.getModel().get("logoutRef").toString();
+        String decodedLogoutRef = new String(Base64.getDecoder().decode(encodedLogoutRef.getBytes()));
+
+        assertThat(decodedLogoutRef, equalTo(EXPECTED_LOGOUT_REF));
     }
 }
