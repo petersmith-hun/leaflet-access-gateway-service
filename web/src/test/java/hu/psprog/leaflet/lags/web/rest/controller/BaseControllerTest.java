@@ -35,7 +35,7 @@ class BaseControllerTest {
         ResponseEntity<AuthorizationError> result = baseController.handleAuthorizationException(exception);
 
         // then
-        assertThat(result.getStatusCode(), equalTo(HttpStatus.UNAUTHORIZED));
+        assertThat(result.getStatusCode(), equalTo(HttpStatus.FORBIDDEN));
         assertThat(result.getBody(), equalTo(expectedAuthorizationError));
     }
 }
