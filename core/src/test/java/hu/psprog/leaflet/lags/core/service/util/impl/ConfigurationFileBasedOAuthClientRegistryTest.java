@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.util.impl;
 
+import hu.psprog.leaflet.lags.core.domain.ApplicationType;
 import hu.psprog.leaflet.lags.core.domain.OAuthClient;
 import hu.psprog.leaflet.lags.core.domain.OAuthConfigurationProperties;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,7 +78,7 @@ class ConfigurationFileBasedOAuthClientRegistryTest {
     }
 
     private static OAuthClient prepareOAuthClient(String clientName, String clientId, String audience) {
-        return new OAuthClient(clientName, clientId, null, audience, Collections.emptyList(), Collections.emptyList());
+        return new OAuthClient(clientName, ApplicationType.SERVICE, clientId, null, audience, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     private static OAuthConfigurationProperties prepareOAuthConfigurationProperties() {

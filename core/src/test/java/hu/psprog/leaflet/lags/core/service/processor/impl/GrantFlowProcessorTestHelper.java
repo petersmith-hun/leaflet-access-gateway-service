@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
+import hu.psprog.leaflet.lags.core.domain.ApplicationType;
 import hu.psprog.leaflet.lags.core.domain.OAuthClient;
 import hu.psprog.leaflet.lags.core.domain.OAuthClientAllowRelation;
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
@@ -22,9 +23,11 @@ class GrantFlowProcessorTestHelper {
 
         return new OAuthClient(
                 "source-service-1",
+                ApplicationType.SERVICE,
                 "dummy-source-service-1",
                 "secret1",
                 "source-service-audience",
+                Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList());
     }
@@ -37,10 +40,12 @@ class GrantFlowProcessorTestHelper {
 
         return new OAuthClient(
                 "target-service-1",
+                ApplicationType.SERVICE,
                 "dummy-target-service-1",
                 "secret2",
                 "target-service-audience",
                 Arrays.asList("read:items", "write:item:all", "write:item:self", "admin:item", "default1", "default2", "default3"),
-                Collections.singletonList(relation));
+                Collections.singletonList(relation),
+                Collections.emptyList());
     }
 }

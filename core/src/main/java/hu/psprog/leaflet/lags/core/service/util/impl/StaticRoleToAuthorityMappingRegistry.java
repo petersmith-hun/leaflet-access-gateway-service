@@ -22,34 +22,30 @@ import java.util.stream.Stream;
 public class StaticRoleToAuthorityMappingRegistry implements RoleToAuthorityMappingRegistry {
 
     private static final String[] USER_AUTHORITIES = {
-            "read:categories:public",
-            "read:comments:public",
-            "read:documents:public",
-            "read:entries:public",
-            "read:tags:public",
-            "read:users:self",
-            "write:comments:create",
-            "write:comments:edit:self",
-            "write:users:self"
+            "read:users:own",
+            "write:comments:own",
+            "write:reclaim",
+            "write:users:own"
     };
 
     private static final String[] EDITOR_AUTHORITIES = Stream.concat(Stream.of(USER_AUTHORITIES), Stream.of(
-            "read:categories:all",
-            "read:comments:all",
-            "read:documents:all",
-            "read:entries:all",
-            "read:tags:all",
-            "read:users:all",
-            "write:categories:edit:all",
-            "write:comments:edit:all",
-            "write:documents:edit:all",
-            "write:entries:edit:all",
-            "write:tags:edit:all"
+            "read:categories",
+            "read:comments",
+            "read:documents",
+            "read:entries",
+            "read:tags",
+            "write:categories",
+            "write:comments",
+            "write:documents",
+            "write:entries",
+            "write:tags"
     )).collect(Collectors.toList()).toArray(String[]::new);
 
     private static final String[] ADMIN_AUTHORITIES = Stream.concat(Stream.of(EDITOR_AUTHORITIES), Stream.of(
-            "read:admin:all",
-            "write:admin:all"
+            "read:admin",
+            "read:users",
+            "write:admin",
+            "write:users"
     )).collect(Collectors.toList()).toArray(String[]::new);
 
     private static final Map<Role, List<GrantedAuthority>> ROLE_TO_AUTHORITY_LIST_MAP = Map.of(

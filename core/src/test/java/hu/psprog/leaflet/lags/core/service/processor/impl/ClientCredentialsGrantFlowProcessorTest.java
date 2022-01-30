@@ -60,7 +60,6 @@ class ClientCredentialsGrantFlowProcessorTest {
         )));
     }
 
-
     @ParameterizedTest
     @MethodSource("missingFieldDataProvider")
     public void shouldVerifyRequestThrowExceptionIfMandatoryFieldsAreMissing(String missingFieldName, OAuthTokenRequest oAuthTokenRequest) {

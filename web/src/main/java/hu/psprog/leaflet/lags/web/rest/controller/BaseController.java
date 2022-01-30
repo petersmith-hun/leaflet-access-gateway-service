@@ -18,12 +18,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class BaseController {
 
+    static final String PATH_LOGIN = "/login";
+    static final String PATH_OAUTH_TOKEN = "/oauth/token";
+    static final String PATH_OAUTH_AUTHORIZE = "/oauth/authorize";
+
     /**
      * Exception handler for {@link OAuthAuthorizationException}s.
-     * Logs the exception and wraps the message into a JSON response, along with an HTTP 401 Unauthorized status code.
+     * Logs the exception and wraps the message into a JSON response, along with an HTTP 403 Forbidden status code.
      *
      * @param exception {@link OAuthAuthorizationException} object
-     * @return response entity object containing the error message in {@link AuthorizationError object
+     * @return response entity object containing the error message in {@link AuthorizationError} object
      */
     @ExceptionHandler(OAuthAuthorizationException.class)
     public ResponseEntity<AuthorizationError> handleAuthorizationException(OAuthAuthorizationException exception) {
@@ -31,7 +35,7 @@ public class BaseController {
         log.error(exception.getMessage());
 
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
+                .status(HttpStatus.FORBIDDEN)
                 .body(new AuthorizationError(exception.getMessage()));
     }
 }

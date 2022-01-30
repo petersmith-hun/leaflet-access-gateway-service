@@ -20,6 +20,12 @@ public class OAuthClient {
     private final String clientName;
 
     /**
+     * Type of this application. "UI" client applications must use authorization code flow,
+     * "service" client applications can use client credentials flow.
+     */
+    private final ApplicationType applicationType;
+
+    /**
      * OAuth2 client ID.
      */
     private final String clientId;
@@ -43,4 +49,9 @@ public class OAuthClient {
      * List of the consumer services allowed to access this client.
      */
     private final List<OAuthClientAllowRelation> allowedClients;
+
+    /**
+     * List of allowed callbacks (for UI applications).
+     */
+    private final List<String> allowedCallbacks;
 }
