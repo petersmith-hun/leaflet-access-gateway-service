@@ -18,9 +18,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class BaseController {
 
-    static final String PATH_LOGIN = "/login";
-    static final String PATH_OAUTH_TOKEN = "/oauth/token";
-    static final String PATH_OAUTH_AUTHORIZE = "/oauth/authorize";
+    public static final String PATH_LOGIN = "/login";
+    public static final String PATH_SIGNUP = "/signup";
+    public static final String PATH_OAUTH_TOKEN = "/oauth/token";
+    public static final String PATH_OAUTH_AUTHORIZE = "/oauth/authorize";
 
     /**
      * Exception handler for {@link OAuthAuthorizationException}s.

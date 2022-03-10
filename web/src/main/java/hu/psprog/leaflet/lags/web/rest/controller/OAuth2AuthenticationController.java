@@ -37,7 +37,7 @@ import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAU
 @RestController
 public class OAuth2AuthenticationController {
 
-    private static final String VIEW_AUTHORIZE = "authorize";
+    private static final String VIEW_AUTHORIZE = "views/authorize";
     private static final String REDIRECT_URL_TEMPLATE = "redirect:%s?code=%s&state=%s";
     private static final String LOGOUT_REFERENCE_URL_TEMPLATE = "%s?%s";
 

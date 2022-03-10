@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Leaflet System Event Notification</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+        body {
+            max-width: 600px;
+            margin: auto;
+            font-family: Calibri;
+        }
+
+        h1 {
+            color: #00638A;
+            border-bottom: 2px solid #eee;
+            padding: 10px 20px;
+        }
+
+        h2 {
+            color: #B0B0B0;
+            padding-left: 30px;
+            font-size: 14px;
+        }
+
+        #content {
+            border-left: 2px solid #eee;
+            margin-left: 30px;
+            margin-top: 30px;
+            padding: 10px 0px 20px 20px;
+        }
+
+        #genDate {
+            margin-top: 60px;
+            font-style: italic;
+            color: #B0B0B0;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+<h1 th:text="#{mail.user.signup.confirm.title}">title</h1>
+<h2 th:text="#{mail.user.signup.confirm.sub}">sub</h2>
+<div id="content">
+    <p style="font-weight: bold; margin-bottom: 10px;" th:text="#{mail.user.signup.confirm.greeting(${username})}">greeting</p>
+    <th:block th:text="#{mail.user.signup.confirm.content}">content</th:block>
+    <p id="genDate" th:text="#{mail.user.signup.confirm.timestamp(${generatedAt})}">timestamp</p>
+</div>
+</body>
+</html>

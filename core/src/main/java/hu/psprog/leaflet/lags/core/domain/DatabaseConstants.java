@@ -19,6 +19,7 @@ public final class DatabaseConstants {
     static final String COLUMN_ROLE = "role";
     static final String COLUMN_PASSWORD = "password";
     static final String COLUMN_DEFAULT_LOCALE = "default_locale";
+    static final String COLUMN_ACCOUNT_TYPE = "account_type";
     static final String COLUMN_DATE_LAST_LOGIN = "date_last_login";
 
     static final String UK_USER_EMAIL = "UK_USER_EMAIL";

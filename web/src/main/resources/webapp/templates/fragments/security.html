@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- ReCaptcha widget -->
+<div th:fragment="recaptcha-widget">
+    <label for="recaptcha" th:text="#{form.recaptcha.label.confirm}">placeholder:confirm</label>
+    <div id="recaptchaWidgetWrapper">
+        <div style="display: inline-block;" id="recaptcha" class="g-recaptcha" th:data-sitekey="${recaptchaSiteKey}" data-callback="populateTokenField"></div>
+    </div>
+    <input type="hidden" id="recaptchaToken" name="recaptchaToken" required="required" />
+    <span class="validationError" th:if="${#fields.hasErrors('recaptchaToken')}" th:text="#{form.recaptcha.validation.error.token}">placeholder:val_err_token</span>
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script type="text/javascript">
+        function populateTokenField(token) {
+            document.getElementById('recaptchaToken').value = token;
+        }
+    </script>
+</div>
+
+</body>
