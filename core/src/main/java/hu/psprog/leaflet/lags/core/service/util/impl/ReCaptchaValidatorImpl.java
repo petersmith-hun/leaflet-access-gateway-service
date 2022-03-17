@@ -6,6 +6,7 @@ import hu.psprog.leaflet.lags.core.domain.ReCaptchaProtectedRequest;
 import hu.psprog.leaflet.lags.core.service.util.ReCaptchaValidator;
 import hu.psprog.leaflet.recaptcha.api.client.ReCaptchaClient;
 import hu.psprog.leaflet.recaptcha.api.domain.ReCaptchaRequest;
+import hu.psprog.leaflet.recaptcha.api.domain.ReCaptchaResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,9 +44,12 @@ public class ReCaptchaValidatorImpl implements ReCaptchaValidator {
 
         boolean successful = false;
         try {
-            successful = reCaptchaClient
-                    .validate(reCaptchaRequest)
-                    .isSuccessful();
+            ReCaptchaResponse recaptchaVerificationResponse = reCaptchaClient.validate(reCaptchaRequest);
+            successful = recaptchaVerificationResponse.isSuccessful();
+
+            if (!successful) {
+                log.error("Failed to verify ReCaptcha token - verification service response: {}", recaptchaVerificationResponse.getErrorCodes());
+            }
         } catch (CommunicationFailureException e) {
             log.error("Failed to contact ReCaptcha verification service.", e);
         }
