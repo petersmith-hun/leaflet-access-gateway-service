@@ -12,16 +12,27 @@
     <body>
         <div class="container">
 
-            <th:block th:if="${validationError}">
-                <div class="modal fade show" id="signUpValidationErrorModal" tabindex="-1" aria-labelledby="signUpValidationErrorModalLabel" aria-hidden="true">
+            <th:block th:if="${validationError or param.signup_status != null}">
+                <div class="modal fade show" id="signUpErrorModal" tabindex="-1" aria-labelledby="signUpErrorModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="signUpValidationErrorModalLabel">Sign-up failed</h5>
+                                <h5 class="modal-title" id="signUpErrorModalLabel">Sign-up failed</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                You've provided incorrect information, please check and try again
+                                <th:block th:if="${validationError}">
+                                    You've provided incorrect information, please check and try again
+                                </th:block>
+                                <th:block th:if="${#strings.equals(param.signup_status, 'ADDRESS_IN_USE')}">
+                                    The email address you've provided is already in use. Please try a different one.
+                                </th:block>
+                                <th:block th:if="${#strings.equals(param.signup_status, 'RE_CAPTCHA_VERIFICATION_FAILED')}">
+                                    Failed to verify ReCaptcha challenge - it might've expired. Please try again.
+                                </th:block>
+                                <th:block th:if="${#strings.equals(param.signup_status, 'FAILURE')}">
+                                    Failed to register your account due to an unknown reason. Please try again later.
+                                </th:block>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
@@ -30,7 +41,7 @@
                     </div>
                 </div>
                 <script>
-					new bootstrap.Modal(document.getElementById('signUpValidationErrorModal'), {}).toggle();
+					new bootstrap.Modal(document.getElementById('signUpErrorModal'), {}).toggle();
                 </script>
             </th:block>
 

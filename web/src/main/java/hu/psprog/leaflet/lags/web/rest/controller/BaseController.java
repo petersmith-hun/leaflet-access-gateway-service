@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class BaseController {
 
-    public static final String PATH_LOGIN = "/login";
-    public static final String PATH_SIGNUP = "/signup";
     public static final String PATH_OAUTH_TOKEN = "/oauth/token";
     public static final String PATH_OAUTH_AUTHORIZE = "/oauth/authorize";
 

@@ -1,6 +1,5 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
-import hu.psprog.leaflet.lags.core.domain.OAuthConstants;
 import hu.psprog.leaflet.lags.core.domain.SignUpRequestModel;
 import hu.psprog.leaflet.lags.core.domain.SignUpResult;
 import hu.psprog.leaflet.lags.core.domain.SignUpStatus;
@@ -44,14 +43,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public SignUpResult signUp(SignUpRequestModel signUpRequestModel, HttpServletRequest request) {
 
-        String redirectURI = request.getParameter(OAuthConstants.Request.REDIRECT_URI);
-
-        return new SignUpResult(redirectURI, reCaptchaValidator.isValid(signUpRequestModel, request)
+        return reCaptchaValidator.isValid(signUpRequestModel, request)
                 ? processSignUp(signUpRequestModel)
-                : SignUpStatus.RE_CAPTCHA_VERIFICATION_FAILED);
+                : SignUpResult.createByStatus(SignUpStatus.RE_CAPTCHA_VERIFICATION_FAILED);
     }
 
-    private SignUpStatus processSignUp(SignUpRequestModel signUpRequestModel) {
+    private SignUpResult processSignUp(SignUpRequestModel signUpRequestModel) {
 
         User user = conversionService.convert(signUpRequestModel, User.class);
         SignUpStatus status;
@@ -72,7 +69,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             log.error("User account creation failed with an unknown reason", exception);
         }
 
-        return status;
+        return SignUpResult.createByStatus(status);
     }
 
     private void sendConfirmationMail(SignUpRequestModel signUpRequestModel) {

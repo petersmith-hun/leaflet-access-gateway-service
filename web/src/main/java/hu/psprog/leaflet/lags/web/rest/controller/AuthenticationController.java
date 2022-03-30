@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
-import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_LOGIN;
-import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_SIGNUP;
+import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_LOGIN;
+import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_SIGNUP;
 
 /**
  * Controller for authentication related operations.

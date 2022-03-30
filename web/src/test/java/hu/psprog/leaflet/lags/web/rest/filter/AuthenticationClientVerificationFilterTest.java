@@ -1,9 +1,6 @@
 package hu.psprog.leaflet.lags.web.rest.filter;
 
-import hu.psprog.leaflet.lags.core.domain.ApplicationType;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
-import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,16 +8,16 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -36,16 +33,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 @ExtendWith(MockitoExtension.class)
 class AuthenticationClientVerificationFilterTest {
 
-    private static final String CLIENT_1_ID = "client-1";
-    private static final String CLIENT_1_REDIRECT_URI = "https://dev.local:443/signup/callback";
-    private static final String INVALID_REDIRECT_URI = "https://invalid.local:443/some/path";
-    private static final OAuthClient VALID_CLIENT = new OAuthClient("client-name-1", ApplicationType.UI,
-            CLIENT_1_ID, "secret-1", "aud-1", null, null,
-            Arrays.asList(CLIENT_1_REDIRECT_URI, "https://dev.local:443/oauth/callback"));
     private static final String SIGNUP_PATH = "/signup";
-
-    @Mock
-    private OAuthClientRegistry oAuthClientRegistry;
 
     @Mock
     private HttpServletRequest request;
@@ -54,60 +42,46 @@ class AuthenticationClientVerificationFilterTest {
     private HttpServletResponse response;
 
     @Mock
+    private HttpSession session;
+
+    @Mock
+    private SavedRequest savedRequest;
+
+    @Mock
     private FilterChain filterChain;
 
     @InjectMocks
     private AuthenticationClientVerificationFilter authenticationClientVerificationFilter;
 
     @Test
-    public void shouldVerifyRedirectionSuccessfully() throws ServletException, IOException {
+    public void shouldVerifySavedRequestPresenceSuccessfully() throws ServletException, IOException {
 
         // given
-        given(request.getParameter("client_id")).willReturn(CLIENT_1_ID);
-        given(request.getParameter("redirect_uri")).willReturn(CLIENT_1_REDIRECT_URI);
-        given(oAuthClientRegistry.getClientByClientID(CLIENT_1_ID)).willReturn(Optional.of(VALID_CLIENT));
+        given(request.getSession(false)).willReturn(session);
+        given(session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")).willReturn(savedRequest);
 
         // when
         authenticationClientVerificationFilter.doFilterInternal(request, response, filterChain);
 
         // then
         // silent fallthrough expected
-        verify(oAuthClientRegistry).getClientByClientID(CLIENT_1_ID);
         verify(filterChain).doFilter(request, response);
     }
 
     @Test
-    public void shouldVerifyRedirectionThrowExceptionOnMissingClient() {
+    public void shouldVerifySavedRequestPresenceThrowExceptionOnMissingSavedRequest() {
 
         // given
-        given(request.getParameter("client_id")).willReturn(CLIENT_1_ID);
-        given(request.getParameter("redirect_uri")).willReturn(CLIENT_1_REDIRECT_URI);
-        given(oAuthClientRegistry.getClientByClientID(CLIENT_1_ID)).willReturn(Optional.empty());
+        given(request.getSession(false)).willReturn(session);
+        given(session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")).willReturn(null);
 
         // when
-        assertThrows(AuthenticationException.class, () -> authenticationClientVerificationFilter.doFilterInternal(request, response, filterChain));
+        Throwable result = assertThrows(AuthenticationException.class, () -> authenticationClientVerificationFilter.doFilterInternal(request, response, filterChain));
 
         // then
         // exception expected
-        verify(oAuthClientRegistry).getClientByClientID(CLIENT_1_ID);
         verifyNoInteractions(filterChain);
-    }
-
-    @Test
-    public void shouldVerifyRedirectionThrowExceptionOnNonRegisteredRedirectURI() {
-
-        // given
-        given(request.getParameter("client_id")).willReturn(CLIENT_1_ID);
-        given(request.getParameter("redirect_uri")).willReturn(INVALID_REDIRECT_URI);
-        given(oAuthClientRegistry.getClientByClientID(CLIENT_1_ID)).willReturn(Optional.of(VALID_CLIENT));
-
-        // when
-        assertThrows(AuthenticationException.class, () -> authenticationClientVerificationFilter.doFilterInternal(request, response, filterChain));
-
-        // then
-        // exception expected
-        verify(oAuthClientRegistry).getClientByClientID(CLIENT_1_ID);
-        verifyNoInteractions(filterChain);
+        assertThat(result.getMessage(), equalTo("Sign up was not started via OAuth authorization request."));
     }
 
     @ParameterizedTest

@@ -1,9 +1,9 @@
 package hu.psprog.leaflet.lags.web.rest.filter;
 
-import hu.psprog.leaflet.lags.core.domain.OAuthConstants;
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
-import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -11,15 +11,16 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
+import java.util.Objects;
 
-import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_SIGNUP;
+import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_SIGNUP;
 
 /**
- * Filter implementation to verify if the authentication related request (such as sign-up) was started by a registered OAuth client.
- * An authentication request like this must contain a registered client ID (client_id) and the requested redirection URI (redirect_uri)
- * parameters as query parameters. An unknown client ID or a non-registered redirect URI will trigger an {@link AuthenticationException}.
+ * Filter implementation to verify if the authentication related request (such as sign-up) was started by an authorization request.
+ * This means the currently processed request should contain a saved request (caused by the redirection from the /authorize endpoint).
+ *
+ * In case the request does not contain a saved request, it will trigger an {@link AuthenticationException}.
  *
  * The filter activates only on the following endpoints:
  *  - /signup
@@ -29,17 +30,17 @@ import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_SIG
 @Component
 public class AuthenticationClientVerificationFilter extends OncePerRequestFilter {
 
-    private final OAuthClientRegistry oAuthClientRegistry;
+    private final RequestCache requestCache;
 
     @Autowired
-    public AuthenticationClientVerificationFilter(OAuthClientRegistry oAuthClientRegistry) {
-        this.oAuthClientRegistry = oAuthClientRegistry;
+    public AuthenticationClientVerificationFilter() {
+        this.requestCache = new HttpSessionRequestCache();
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        verifyRedirection(request);
+        verifySavedRequestPresence(request, response);
         filterChain.doFilter(request, response);
     }
 
@@ -48,21 +49,10 @@ public class AuthenticationClientVerificationFilter extends OncePerRequestFilter
         return !PATH_SIGNUP.equals(request.getServletPath());
     }
 
-    private void verifyRedirection(HttpServletRequest request) {
+    private void verifySavedRequestPresence(HttpServletRequest request, HttpServletResponse response) {
 
-        String clientID = request.getParameter(OAuthConstants.Request.CLIENT_ID);
-        String redirectURI = request.getParameter(OAuthConstants.Request.REDIRECT_URI);
-        boolean validRedirection = isValidRedirection(clientID, redirectURI);
-
-        if (!validRedirection) {
-            throw new AuthenticationException("Invalid redirect URI.");
+        if (Objects.isNull(requestCache.getRequest(request, response))) {
+            throw new AuthenticationException("Sign up was not started via OAuth authorization request.");
         }
-    }
-
-    private boolean isValidRedirection(String clientID, String redirectURI) {
-
-        return oAuthClientRegistry.getClientByClientID(clientID)
-                .filter(oAuthClient -> oAuthClient.getAllowedCallbacks().contains(redirectURI))
-                .isPresent();
     }
 }

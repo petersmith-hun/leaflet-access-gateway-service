@@ -18,6 +18,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_LOGIN;
+import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_SIGNUP;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -36,7 +38,6 @@ class AuthenticationServiceImplTest {
     private static final long USER_ID = 1234L;
     private static final String USERNAME = "Local User 1";
     private static final String EMAIL = "user@dev.local";
-    private static final String REDIRECT_URI = "https://dev.local:443/signup/callback";
     private static final SignUpRequestModel SIGN_UP_REQUEST_MODEL = new SignUpRequestModel();
     private static final SignUpConfirmation EXPECTED_SIGN_UP_CONFIRMATION = new SignUpConfirmation(USERNAME, EMAIL);
     private static final User CONVERTED_USER = User.builder()
@@ -73,13 +74,12 @@ class AuthenticationServiceImplTest {
         // given
         given(reCaptchaValidator.isValid(SIGN_UP_REQUEST_MODEL, request)).willReturn(true);
         given(conversionService.convert(SIGN_UP_REQUEST_MODEL, User.class)).willReturn(CONVERTED_USER);
-        given(request.getParameter("redirect_uri")).willReturn(REDIRECT_URI);
 
         // when
         SignUpResult result = authenticationService.signUp(SIGN_UP_REQUEST_MODEL, request);
 
         // then
-        assertThat(result.getRedirectURI(), equalTo(REDIRECT_URI));
+        assertThat(result.getRedirectURI(), equalTo(PATH_LOGIN));
         assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.SUCCESS));
 
         verify(userDAO).save(CONVERTED_USER);
@@ -91,13 +91,12 @@ class AuthenticationServiceImplTest {
 
         // given
         given(reCaptchaValidator.isValid(SIGN_UP_REQUEST_MODEL, request)).willReturn(false);
-        given(request.getParameter("redirect_uri")).willReturn(REDIRECT_URI);
 
         // when
         SignUpResult result = authenticationService.signUp(SIGN_UP_REQUEST_MODEL, request);
 
         // then
-        assertThat(result.getRedirectURI(), equalTo(REDIRECT_URI));
+        assertThat(result.getRedirectURI(), equalTo(PATH_SIGNUP));
         assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.RE_CAPTCHA_VERIFICATION_FAILED));
 
         verifyNoInteractions(userDAO, notificationAdapter);
@@ -109,14 +108,13 @@ class AuthenticationServiceImplTest {
         // given
         given(reCaptchaValidator.isValid(SIGN_UP_REQUEST_MODEL, request)).willReturn(true);
         given(conversionService.convert(SIGN_UP_REQUEST_MODEL, User.class)).willReturn(CONVERTED_USER);
-        given(request.getParameter("redirect_uri")).willReturn(REDIRECT_URI);
         doThrow(DataIntegrityViolationException.class).when(userDAO).save(CONVERTED_USER);
 
         // when
         SignUpResult result = authenticationService.signUp(SIGN_UP_REQUEST_MODEL, request);
 
         // then
-        assertThat(result.getRedirectURI(), equalTo(REDIRECT_URI));
+        assertThat(result.getRedirectURI(), equalTo(PATH_SIGNUP));
         assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.ADDRESS_IN_USE));
 
         verifyNoInteractions(notificationAdapter);
@@ -128,14 +126,13 @@ class AuthenticationServiceImplTest {
         // given
         given(reCaptchaValidator.isValid(SIGN_UP_REQUEST_MODEL, request)).willReturn(true);
         given(conversionService.convert(SIGN_UP_REQUEST_MODEL, User.class)).willReturn(CONVERTED_USER);
-        given(request.getParameter("redirect_uri")).willReturn(REDIRECT_URI);
         doThrow(IllegalArgumentException.class).when(userDAO).save(CONVERTED_USER);
 
         // when
         SignUpResult result = authenticationService.signUp(SIGN_UP_REQUEST_MODEL, request);
 
         // then
-        assertThat(result.getRedirectURI(), equalTo(REDIRECT_URI));
+        assertThat(result.getRedirectURI(), equalTo(PATH_SIGNUP));
         assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.FAILURE));
 
         verifyNoInteractions(notificationAdapter);

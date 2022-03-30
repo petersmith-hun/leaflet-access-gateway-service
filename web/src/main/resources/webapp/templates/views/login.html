@@ -33,6 +33,28 @@
                 </script>
             </th:block>
 
+            <th:block th:if="${param.signup_status != null}">
+                <div class="modal fade show" id="signUpSuccessfulModal" tabindex="-1" aria-labelledby="signUpSuccessfulModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="signUpSuccessfulModalLabel">Sign-up successful</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Your account was successfully created, you may now sign in.
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+					new bootstrap.Modal(document.getElementById('signUpSuccessfulModal'), {}).toggle();
+                </script>
+            </th:block>
+
             <div class="row d-flex justify-content-center">
                 <div class="col-md-4 shadow-lg min-vh-100" style="background: #fff;">
                     <div class="row mt-1 d-flex justify-content-center">
