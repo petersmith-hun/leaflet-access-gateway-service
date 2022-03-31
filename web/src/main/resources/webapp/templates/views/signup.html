@@ -71,14 +71,14 @@
                                 <div class="mb-3">
                                     <label for="username" th:text="#{form.signup.label.username}">placeholder:username</label>
                                     <input name="username"
-                                           th:value="${!(validatedModel == null || #fields.hasErrors('username')) ? validatedModel.username : null}"
+                                           th:value="${!(signUpRequestModel.username == null || #fields.hasErrors('username')) ? signUpRequestModel.username : null}"
                                            class="form-control" required="required" th:placeholder="#{form.signup.placeholder.username}" maxlength="255" type="text" id="username" />
                                     <span class="validationError" th:if="${#fields.hasErrors('username')}" th:text="#{form.signup.validation.error.username}">placeholder:val_err_email</span>
                                 </div>
                                 <div class="mb-3">
                                     <label for="email" th:text="#{form.signup.label.email}">placeholder:email</label>
                                     <input name="email"
-                                           th:value="${!(validatedModel == null || #fields.hasErrors('email')) ? validatedModel.email : null}"
+                                           th:value="${!(signUpRequestModel.email == null || #fields.hasErrors('email')) ? signUpRequestModel.email : null}"
                                            class="form-control" required="required" th:placeholder="#{form.signup.placeholder.email}" maxlength="255" type="text" id="email" />
                                     <span class="validationError" th:if="${#fields.hasErrors('email')}" th:text="#{form.signup.validation.error.email}">placeholder:val_err_email</span>
                                 </div>
