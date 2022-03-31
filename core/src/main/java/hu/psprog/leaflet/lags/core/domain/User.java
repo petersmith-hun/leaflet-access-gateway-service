@@ -1,6 +1,9 @@
 package hu.psprog.leaflet.lags.core.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +30,9 @@ import java.util.Date;
         uniqueConstraints = @UniqueConstraint(
                 columnNames = DatabaseConstants.COLUMN_EMAIL,
                 name = DatabaseConstants.UK_USER_EMAIL))
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -54,6 +60,10 @@ public class User {
 
     @Column(name = DatabaseConstants.COLUMN_DEFAULT_LOCALE)
     private String defaultLocale;
+
+    @Column(name = DatabaseConstants.COLUMN_ACCOUNT_TYPE)
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
 
     @Column(name = DatabaseConstants.COLUMN_DATE_LAST_LOGIN)
     private Date lastLogin;

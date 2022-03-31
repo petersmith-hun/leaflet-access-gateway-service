@@ -19,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_LOGIN;
+
 /**
  * OAuth2 security configuration.
  *
@@ -30,7 +32,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String PATH_OAUTH_ROOT = "/oauth/**";
-    private static final String PATH_LOGIN = "/login";
     private static final String PATH_LOGIN_FAILURE = "/login?auth=fail";
     private static final String PATH_LOGOUT = "/logout";
     private static final String USERNAME_PARAMETER = "email";

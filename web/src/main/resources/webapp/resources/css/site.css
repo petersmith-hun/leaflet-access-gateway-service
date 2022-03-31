@@ -1,0 +1,9 @@
+.validationError {
+    color: #f00;
+    text-align: right;
+    display: block;
+}
+
+.validationError:before {
+    content: '* ';
+}

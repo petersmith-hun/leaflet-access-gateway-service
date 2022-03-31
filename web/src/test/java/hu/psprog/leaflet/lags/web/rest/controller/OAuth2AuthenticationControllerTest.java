@@ -87,7 +87,7 @@ class OAuth2AuthenticationControllerTest {
         ModelAndView result = oAuth2AuthenticationController.renderAuthorizationForm(request, authentication);
 
         // then
-        assertThat(result.getViewName(), equalTo("authorize"));
+        assertThat(result.getViewName(), equalTo("views/authorize"));
         assertThat(result.getModel().get("name"), equalTo(EXTENDED_USER.getName()));
         assertThat(result.getModel().get("email"), equalTo(EXTENDED_USER.getUsername()));
         assertLogoutRef(result);
