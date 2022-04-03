@@ -31,6 +31,12 @@
       "sourceType": "hu.psprog.leaflet.lags.core.domain.OAuthTokenSettings"
     },
     {
+      "name": "oauth2-config.token.public-key-file",
+      "type": "java.lang.String",
+      "description": "Path of the public RSA key file to verify the tokens with.",
+      "sourceType": "hu.psprog.leaflet.lags.core.domain.OAuthTokenSettings"
+    },
+    {
       "name": "oauth2-config.clients.client-name",
       "type": "java.lang.String",
       "description": "Client name (internal identifier of the registration).",

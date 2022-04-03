@@ -4,6 +4,7 @@ import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
+import hu.psprog.leaflet.lags.core.domain.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 
 /**
@@ -32,4 +33,14 @@ public interface OAuthAuthorizationService {
      * @throws OAuthAuthorizationException if token request processing fails for any reason
      */
     OAuthTokenResponse authorize(OAuthTokenRequest oAuthTokenRequest);
+
+    /**
+     * Verifies if the given token is followed by LAGS.
+     * If so, the status and some additional information of the token are returned.
+     * Otherwise, the result object always indicates an inactive token.
+     *
+     * @param accessToken the token to be introspected
+     * @return introspection result as {@link TokenIntrospectionResult}
+     */
+    TokenIntrospectionResult introspect(String accessToken);
 }

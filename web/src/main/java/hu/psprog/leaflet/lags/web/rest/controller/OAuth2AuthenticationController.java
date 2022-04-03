@@ -5,6 +5,7 @@ import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
+import hu.psprog.leaflet.lags.core.domain.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
 import hu.psprog.leaflet.lags.web.factory.OAuthAuthorizationRequestFactory;
 import hu.psprog.leaflet.lags.web.factory.OAuthTokenRequestFactory;
@@ -27,6 +28,7 @@ import java.util.Base64;
 import java.util.Map;
 
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_AUTHORIZE;
+import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_INTROSPECT;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_TOKEN;
 
 /**
@@ -109,6 +111,18 @@ public class OAuth2AuthenticationController {
         OAuthTokenResponse oAuthTokenResponse = oAuthAuthorizationService.authorize(oAuthTokenRequest);
 
         return createResponse(oAuthTokenResponse);
+    }
+
+    /**
+     * POST /oauth/introspect
+     * Processes a token introspection request. Introspection can be used to check if the given token is tracked and is not yet revoked.
+     *
+     * @param token access token to be introspected
+     * @return introspection results as {@link TokenIntrospectionResult} object wrapped in {@link ResponseEntity}
+     */
+    @PostMapping(PATH_OAUTH_INTROSPECT)
+    public ResponseEntity<TokenIntrospectionResult> introspectToken(@RequestParam String token) {
+        return ResponseEntity.ok(oAuthAuthorizationService.introspect(token));
     }
 
     private String createLogoutReference(HttpServletRequest request) {

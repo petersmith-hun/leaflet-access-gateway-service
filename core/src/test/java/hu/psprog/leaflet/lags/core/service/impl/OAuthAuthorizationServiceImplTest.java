@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
+import hu.psprog.leaflet.lags.core.domain.AccessTokenInfo;
 import hu.psprog.leaflet.lags.core.domain.ApplicationType;
 import hu.psprog.leaflet.lags.core.domain.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.GrantType;
@@ -8,10 +9,16 @@ import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.OAuthClient;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
+import hu.psprog.leaflet.lags.core.domain.StoreAccessTokenInfoRequest;
+import hu.psprog.leaflet.lags.core.domain.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.TokenIntrospectionResult;
+import hu.psprog.leaflet.lags.core.domain.TokenStatus;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
-import hu.psprog.leaflet.lags.core.service.token.TokenGenerator;
+import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
+import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,13 +26,20 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Unit tests for {@link OAuthAuthorizationServiceImpl}.
@@ -55,6 +69,13 @@ class OAuthAuthorizationServiceImplTest {
     private static final OAuthAuthorizationResponse DUMMY_O_AUTH_AUTHORIZATION_RESPONSE = OAuthAuthorizationResponse.builder()
             .code("code-1")
             .build();
+    private static final String ACCESS_TOKEN = "jwt-token-1";
+    private static final TokenClaims TOKEN_CLAIMS = TokenClaims.builder()
+            .tokenID(UUID.randomUUID().toString())
+            .clientID("client-1")
+            .username("username-1")
+            .expiration(new Date())
+            .build();
 
     @Mock
     private GrantFlowProcessor grantFlowProcessor1;
@@ -66,7 +87,10 @@ class OAuthAuthorizationServiceImplTest {
     private OAuthClientRegistry oAuthClientRegistry;
 
     @Mock
-    private TokenGenerator tokenGenerator;
+    private TokenHandler tokenHandler;
+
+    @Mock
+    private AccessTokenDAO accessTokenDAO;
 
     private OAuthAuthorizationServiceImpl oAuthAuthorizationService;
 
@@ -77,7 +101,7 @@ class OAuthAuthorizationServiceImplTest {
         given(grantFlowProcessor2.forGrantType()).willReturn(GrantType.AUTHORIZATION_CODE);
 
         oAuthAuthorizationService = new OAuthAuthorizationServiceImpl(Arrays.asList(grantFlowProcessor1, grantFlowProcessor2),
-                oAuthClientRegistry, tokenGenerator);
+                oAuthClientRegistry, tokenHandler, accessTokenDAO);
     }
 
     @Test
@@ -114,7 +138,7 @@ class OAuthAuthorizationServiceImplTest {
         // given
         given(oAuthClientRegistry.getClientByClientID(SUPPORTED_O_AUTH_TOKEN_REQUEST.getClientID())).willReturn(Optional.of(O_AUTH_CLIENT));
         given(grantFlowProcessor1.verifyRequest(SUPPORTED_O_AUTH_TOKEN_REQUEST, O_AUTH_CLIENT)).willReturn(CLAIMS);
-        given(tokenGenerator.generateToken(SUPPORTED_O_AUTH_TOKEN_REQUEST, CLAIMS)).willReturn(DUMMY_O_AUTH_TOKEN_RESPONSE);
+        given(tokenHandler.generateToken(SUPPORTED_O_AUTH_TOKEN_REQUEST, CLAIMS)).willReturn(DUMMY_O_AUTH_TOKEN_RESPONSE);
 
         // when
         OAuthTokenResponse result = oAuthAuthorizationService.authorize(SUPPORTED_O_AUTH_TOKEN_REQUEST);
@@ -149,5 +173,84 @@ class OAuthAuthorizationServiceImplTest {
         // then
         // exception expected
         assertThat(result.getMessage(), equalTo("OAuth authorization flow [PASSWORD] is not supported"));
+    }
+
+    @Test
+    public void shouldIntrospectReturnIntrospectionResultWithActiveStatusFlag() {
+
+        // given
+        given(tokenHandler.parseToken(ACCESS_TOKEN)).willReturn(TOKEN_CLAIMS);
+        given(accessTokenDAO.retrieveByJTI(TOKEN_CLAIMS.getTokenID())).willReturn(prepareAccessTokenInfo(TokenStatus.ACTIVE));
+
+        // when
+        TokenIntrospectionResult result = oAuthAuthorizationService.introspect(ACCESS_TOKEN);
+
+        // then
+        assertThat(result.isActive(), is(true));
+        assertThat(result.getClientID(), equalTo(TOKEN_CLAIMS.getClientID()));
+        assertThat(result.getUsername(), equalTo(TOKEN_CLAIMS.getUsername()));
+        assertThat(result.getExpiration(), equalTo(TOKEN_CLAIMS.getExpiration()));
+    }
+
+    @Test
+    public void shouldIntrospectReturnIntrospectionResultWithInactiveStatusFlagDueToMissingTrackingInfo() {
+
+        // given
+        given(tokenHandler.parseToken(ACCESS_TOKEN)).willReturn(TOKEN_CLAIMS);
+        given(accessTokenDAO.retrieveByJTI(TOKEN_CLAIMS.getTokenID())).willReturn(prepareAccessTokenInfo(null));
+
+        // when
+        TokenIntrospectionResult result = oAuthAuthorizationService.introspect(ACCESS_TOKEN);
+
+        // then
+        assertThat(result.isActive(), is(false));
+        assertThat(result.getClientID(), equalTo(TOKEN_CLAIMS.getClientID()));
+        assertThat(result.getUsername(), equalTo(TOKEN_CLAIMS.getUsername()));
+        assertThat(result.getExpiration(), equalTo(TOKEN_CLAIMS.getExpiration()));
+    }
+
+    @Test
+    public void shouldIntrospectReturnIntrospectionResultWithInactiveStatusFlagDueToRevokedStatusInTrackingInfo() {
+
+        // given
+        given(tokenHandler.parseToken(ACCESS_TOKEN)).willReturn(TOKEN_CLAIMS);
+        given(accessTokenDAO.retrieveByJTI(TOKEN_CLAIMS.getTokenID())).willReturn(prepareAccessTokenInfo(TokenStatus.REVOKED));
+
+        // when
+        TokenIntrospectionResult result = oAuthAuthorizationService.introspect(ACCESS_TOKEN);
+
+        // then
+        assertThat(result.isActive(), is(false));
+        assertThat(result.getClientID(), equalTo(TOKEN_CLAIMS.getClientID()));
+        assertThat(result.getUsername(), equalTo(TOKEN_CLAIMS.getUsername()));
+        assertThat(result.getExpiration(), equalTo(TOKEN_CLAIMS.getExpiration()));
+    }
+
+    @Test
+    public void shouldIntrospectReturnIntrospectionResultWithInactiveStatusOnInvalidToken() {
+
+        // given
+        doThrow(JwtException.class).when(tokenHandler).parseToken(ACCESS_TOKEN);
+
+        // when
+        TokenIntrospectionResult result = oAuthAuthorizationService.introspect(ACCESS_TOKEN);
+
+        // then
+        assertThat(result.isActive(), is(false));
+        assertThat(result.getClientID(), nullValue());
+        assertThat(result.getUsername(), nullValue());
+        assertThat(result.getExpiration(), nullValue());
+        verifyNoInteractions(accessTokenDAO);
+    }
+
+    private Optional<AccessTokenInfo> prepareAccessTokenInfo(TokenStatus status) {
+
+        AccessTokenInfo accessTokenInfo = null;
+        if (Objects.nonNull(status)) {
+            accessTokenInfo = new AccessTokenInfo(StoreAccessTokenInfoRequest.builder().build());
+            accessTokenInfo.setStatus(status);
+        }
+
+        return Optional.ofNullable(accessTokenInfo);
     }
 }

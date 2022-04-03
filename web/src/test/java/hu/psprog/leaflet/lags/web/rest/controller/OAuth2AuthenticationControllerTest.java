@@ -7,6 +7,7 @@ import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
+import hu.psprog.leaflet.lags.core.domain.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
 import hu.psprog.leaflet.lags.web.factory.OAuthAuthorizationRequestFactory;
 import hu.psprog.leaflet.lags.web.factory.OAuthTokenRequestFactory;
@@ -23,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -53,6 +55,11 @@ class OAuth2AuthenticationControllerTest {
     private static final String REQUEST_URL = "https://dev.local:9999/authorize";
     private static final String QUERY_STRING = "response_type=code&client_id=client-1";
     private static final String EXPECTED_LOGOUT_REF = REQUEST_URL + "?" + QUERY_STRING;
+    private static final String ACCESS_TOKEN = "access-token-1";
+    private static final TokenIntrospectionResult TOKEN_INTROSPECTION_RESULT = TokenIntrospectionResult.builder()
+            .active(true)
+            .expiration(new Date())
+            .build();
 
     @Mock
     private OAuthTokenRequestFactory oAuthTokenRequestFactory;
@@ -134,6 +141,20 @@ class OAuth2AuthenticationControllerTest {
         assertThat(result.getHeaders().getFirst("Content-Type"), equalTo("application/json"));
         assertThat(result.getHeaders().getFirst("Pragma"), equalTo("no-cache"));
         assertThat(result.getBody(), equalTo(O_AUTH_TOKEN_RESPONSE));
+    }
+
+    @Test
+    public void shouldIntrospectTokenProcessRequest() {
+
+        // given
+        given(oAuthAuthorizationService.introspect(ACCESS_TOKEN)).willReturn(TOKEN_INTROSPECTION_RESULT);
+
+        // when
+        ResponseEntity<TokenIntrospectionResult> result = oAuth2AuthenticationController.introspectToken(ACCESS_TOKEN);
+
+        // then
+        assertThat(result.getStatusCode(), equalTo(HttpStatus.OK));
+        assertThat(result.getBody(), equalTo(TOKEN_INTROSPECTION_RESULT));
     }
 
     private void assertLogoutRef(ModelAndView result) {

@@ -2,17 +2,20 @@ package hu.psprog.leaflet.lags.core.service.token;
 
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
+import hu.psprog.leaflet.lags.core.domain.TokenClaims;
+import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 
 import java.util.Map;
 
 /**
- * OAuth2 access token generator.
+ * Handler for generating and parsing tokens OAuth2 access tokens.
  * Implementations should be able to generate an OAuth2 compatible access token and wrap them as {@link OAuthTokenResponse}
- * object, that is supposed to be converted to an OAuth2 compatible token response.
+ * object, that is supposed to be converted to an OAuth2 compatible token response. Implementations also must be able to
+ * parse a given OAuth2 compatible token.
  *
  * @author Peter Smith
  */
-public interface TokenGenerator {
+public interface TokenHandler {
 
     /**
      * Generates an OAuth2 access token based on the given {@link OAuthTokenRequest} and the formerly generated custom claims.
@@ -22,4 +25,13 @@ public interface TokenGenerator {
      * @return generated access token wrapped as {@link OAuthTokenResponse}
      */
     OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims);
+
+    /**
+     * Parses the given access token. On success, returns the payload contents of the token (i.e. the claims).
+     *
+     * @param accessToken the access token to be parsed
+     * @return the extracted claims as {@link TokenClaims}
+     * @throws AuthenticationException when the token cannot be parsed for some reason
+     */
+    TokenClaims parseToken(String accessToken);
 }
