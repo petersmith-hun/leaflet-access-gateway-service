@@ -33,5 +33,6 @@ public interface OAuthConstants {
         String ROLE = "rol";
         String NAME = "name";
         String USER_ID = "uid";
+        String EXPIRATION = "exp";
     }
 }

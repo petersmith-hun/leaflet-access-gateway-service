@@ -20,6 +20,7 @@ public class BaseController {
 
     public static final String PATH_OAUTH_TOKEN = "/oauth/token";
     public static final String PATH_OAUTH_AUTHORIZE = "/oauth/authorize";
+    public static final String PATH_OAUTH_INTROSPECT = "/oauth/introspect";
 
     /**
      * Exception handler for {@link OAuthAuthorizationException}s.

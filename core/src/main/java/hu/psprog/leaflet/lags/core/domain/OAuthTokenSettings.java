@@ -28,4 +28,9 @@ public class OAuthTokenSettings {
      * Path of the private RSA key file to sign the tokens with.
      */
     private final Path privateKeyFile;
+
+    /**
+     * Path of the public RSA key file to sign the tokens with.
+     */
+    private final Path publicKeyFile;
 }
