@@ -1,6 +1,18 @@
+.main-shadow-box {
+    background: #fff;
+    max-width: 450px !important;
+}
+
+.leaflet-logo-container {
+    width: 125px !important;
+}
+
+.psprog-logo-container {
+    width: 162px !important;
+}
+
 .validationError {
     color: #f00;
-    text-align: right;
     display: block;
 }
 
