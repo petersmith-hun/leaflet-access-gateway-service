@@ -19,3 +19,16 @@
 .validationError:before {
     content: '* ';
 }
+
+body {
+    background: rgb(46,121,177);
+    background: linear-gradient(117deg,
+        rgba(46,121,177,1) 0%,
+        rgba(17,106,150,1) 14%,
+        rgba(158,223,255,1) 16%,
+        rgba(50,83,98,1) 21%,
+        rgba(0,111,153,1) 39%,
+        rgba(17,82,108,1) 65%,
+        rgba(110,186,207,1) 69%,
+        rgba(0,63,106,1) 81%);
+}
