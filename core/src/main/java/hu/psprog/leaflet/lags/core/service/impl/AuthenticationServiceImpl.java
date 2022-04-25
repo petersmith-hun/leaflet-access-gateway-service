@@ -1,18 +1,17 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
+import hu.psprog.leaflet.lags.core.domain.PasswordResetConfirmationRequestModel;
+import hu.psprog.leaflet.lags.core.domain.PasswordResetRequestModel;
+import hu.psprog.leaflet.lags.core.domain.ReCaptchaProtectedRequest;
 import hu.psprog.leaflet.lags.core.domain.SignUpRequestModel;
 import hu.psprog.leaflet.lags.core.domain.SignUpResult;
 import hu.psprog.leaflet.lags.core.domain.SignUpStatus;
-import hu.psprog.leaflet.lags.core.domain.User;
-import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
+import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import hu.psprog.leaflet.lags.core.service.AuthenticationService;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.SignUpConfirmation;
-import hu.psprog.leaflet.lags.core.service.util.NotificationAdapter;
+import hu.psprog.leaflet.lags.core.service.account.AccountRequestHandler;
 import hu.psprog.leaflet.lags.core.service.util.ReCaptchaValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,55 +25,49 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    private final UserDAO userDAO;
-    private final ConversionService conversionService;
     private final ReCaptchaValidator reCaptchaValidator;
-    private final NotificationAdapter notificationAdapter;
+    private final AccountRequestHandler<SignUpRequestModel, SignUpResult> signUpRequestAccountRequestHandler;
+    private final AccountRequestHandler<PasswordResetRequestModel, Void> passwordResetRequestAccountRequestHandler;
+    private final AccountRequestHandler<PasswordResetConfirmationRequestModel, Void> passwordResetConfirmationAccountRequestHandler;
 
     @Autowired
-    public AuthenticationServiceImpl(UserDAO userDAO, ConversionService conversionService,
-                                     ReCaptchaValidator reCaptchaValidator, NotificationAdapter notificationAdapter) {
-        this.userDAO = userDAO;
-        this.conversionService = conversionService;
+    public AuthenticationServiceImpl(ReCaptchaValidator reCaptchaValidator,
+                                     AccountRequestHandler<SignUpRequestModel, SignUpResult> signUpRequestAccountRequestHandler,
+                                     AccountRequestHandler<PasswordResetRequestModel, Void> passwordResetRequestAccountRequestHandler,
+                                     AccountRequestHandler<PasswordResetConfirmationRequestModel, Void> passwordResetConfirmationAccountRequestHandler) {
+
         this.reCaptchaValidator = reCaptchaValidator;
-        this.notificationAdapter = notificationAdapter;
+        this.signUpRequestAccountRequestHandler = signUpRequestAccountRequestHandler;
+        this.passwordResetRequestAccountRequestHandler = passwordResetRequestAccountRequestHandler;
+        this.passwordResetConfirmationAccountRequestHandler = passwordResetConfirmationAccountRequestHandler;
     }
 
     @Override
     public SignUpResult signUp(SignUpRequestModel signUpRequestModel, HttpServletRequest request) {
 
         return reCaptchaValidator.isValid(signUpRequestModel, request)
-                ? processSignUp(signUpRequestModel)
+                ? signUpRequestAccountRequestHandler.processAccountRequest(signUpRequestModel)
                 : SignUpResult.createByStatus(SignUpStatus.RE_CAPTCHA_VERIFICATION_FAILED);
     }
 
-    private SignUpResult processSignUp(SignUpRequestModel signUpRequestModel) {
+    @Override
+    public void requestPasswordReset(PasswordResetRequestModel passwordResetRequestModel, HttpServletRequest request) {
 
-        User user = conversionService.convert(signUpRequestModel, User.class);
-        SignUpStatus status;
-
-        try {
-            userDAO.save(user);
-            status = SignUpStatus.SUCCESS;
-            log.info("User account successfully created with userID=[{}].", user.getId());
-
-            sendConfirmationMail(signUpRequestModel);
-
-        } catch (DataIntegrityViolationException exception) {
-            status = SignUpStatus.ADDRESS_IN_USE;
-            log.error("User account creation failed with data integrity violation - is email address already in use?", exception);
-
-        } catch (Exception exception) {
-            status = SignUpStatus.FAILURE;
-            log.error("User account creation failed with an unknown reason", exception);
-        }
-
-        return SignUpResult.createByStatus(status);
+        verifyReCaptcha(passwordResetRequestModel, request);
+        passwordResetRequestAccountRequestHandler.processAccountRequest(passwordResetRequestModel);
     }
 
-    private void sendConfirmationMail(SignUpRequestModel signUpRequestModel) {
+    @Override
+    public void confirmPasswordReset(PasswordResetConfirmationRequestModel passwordResetConfirmationRequestModel, HttpServletRequest request) {
 
-        SignUpConfirmation signUpConfirmation = new SignUpConfirmation(signUpRequestModel.getUsername(), signUpRequestModel.getEmail());
-        notificationAdapter.signUpConfirmation(signUpConfirmation);
+        verifyReCaptcha(passwordResetConfirmationRequestModel, request);
+        passwordResetConfirmationAccountRequestHandler.processAccountRequest(passwordResetConfirmationRequestModel);
+    }
+
+    private void verifyReCaptcha(ReCaptchaProtectedRequest reCaptchaProtectedRequest, HttpServletRequest request) {
+
+        if (!reCaptchaValidator.isValid(reCaptchaProtectedRequest, request)) {
+            throw new AuthenticationException("Failed to verify ReCaptcha");
+        }
     }
 }

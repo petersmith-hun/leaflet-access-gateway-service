@@ -1,7 +1,11 @@
 package hu.psprog.leaflet.lags.core.service.util.impl;
 
+import hu.psprog.leaflet.lags.core.domain.PasswordResetRequest;
+import hu.psprog.leaflet.lags.core.domain.PasswordResetSuccess;
 import hu.psprog.leaflet.lags.core.service.mailing.domain.SignUpConfirmation;
 import hu.psprog.leaflet.lags.core.service.mailing.impl.MailFactoryRegistry;
+import hu.psprog.leaflet.lags.core.service.mailing.impl.PasswordResetRequestMailFactory;
+import hu.psprog.leaflet.lags.core.service.mailing.impl.PasswordResetSuccessMailFactory;
 import hu.psprog.leaflet.lags.core.service.mailing.impl.SignUpConfirmationMailFactory;
 import hu.psprog.leaflet.lags.core.service.mailing.observer.ObserverHandler;
 import hu.psprog.leaflet.lags.core.service.util.NotificationAdapter;
@@ -35,9 +39,31 @@ public class MailerComponentBasedNotificationAdapter implements NotificationAdap
 
     @Override
     public void signUpConfirmation(SignUpConfirmation signUpConfirmation) {
+
         Mail mail = mailFactoryRegistry
                 .getFactory(SignUpConfirmationMailFactory.class)
                 .buildMail(signUpConfirmation, signUpConfirmation.getEmail());
+
+        sendMailAndAttachObserver(mail);
+    }
+
+    @Override
+    public void passwordResetRequested(PasswordResetRequest passwordResetRequest) {
+
+        Mail mail = mailFactoryRegistry
+                .getFactory(PasswordResetRequestMailFactory.class)
+                .buildMail(passwordResetRequest, passwordResetRequest.getParticipant());
+
+        sendMailAndAttachObserver(mail);
+    }
+
+    @Override
+    public void successfulPasswordReset(PasswordResetSuccess passwordResetSuccess) {
+
+        Mail mail = mailFactoryRegistry
+                .getFactory(PasswordResetSuccessMailFactory.class)
+                .buildMail(passwordResetSuccess.getUsername(), passwordResetSuccess.getParticipant());
+
         sendMailAndAttachObserver(mail);
     }
 

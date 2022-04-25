@@ -16,6 +16,9 @@ public class TokenClaims {
 
     private final String tokenID;
     private final String username;
+    private final String email;
     private final String clientID;
     private final Date expiration;
+    private final String audience;
+    private final String[] scopes;
 }

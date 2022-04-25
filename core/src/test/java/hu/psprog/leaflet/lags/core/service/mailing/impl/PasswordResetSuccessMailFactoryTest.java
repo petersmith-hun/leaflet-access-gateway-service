@@ -1,6 +1,5 @@
 package hu.psprog.leaflet.lags.core.service.mailing.impl;
 
-import hu.psprog.leaflet.lags.core.service.mailing.domain.SignUpConfirmation;
 import hu.psprog.leaflet.mail.domain.Mail;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -18,41 +17,37 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.BDDMockito.given;
 
 /**
- * Unit tests for {@link SignUpConfirmationMailFactory}.
+ * Unit tests for {@link PasswordResetSuccessMailFactory}.
  *
  * @author Peter Smith
  */
 @ExtendWith(MockitoExtension.class)
-public class SignUpConfirmationMailFactoryTest {
+public class PasswordResetSuccessMailFactoryTest {
 
-    private static final String SUBJECT = "mail.user.signup.confirm.subject";
-    private static final String TRANSLATED_SUBJECT = "Successful sign-up";
-    private static final String TEMPLATE = "signup_confirm.html";
+    private static final String SUBJECT = "mail.user.pwreset.confirm.subject";
+    private static final String TRANSLATED_SUBJECT = "Password successfully reset";
+    private static final String TEMPLATE = "pw_reset_confirm.html";
     private static final String RECIPIENT = "test@local.dev";
 
     private static final String GENERATED_AT = "generatedAt";
     private static final String USERNAME = "username";
-    private static final SignUpConfirmation SIGN_UP_CONFIRMATION = SignUpConfirmation.builder()
-            .username(USERNAME)
-            .email(RECIPIENT)
-            .build();
     private static final Locale FORCED_LOCALE = Locale.ENGLISH;
 
     @Mock
     private MessageSource messageSource;
 
     @InjectMocks
-    private SignUpConfirmationMailFactory signUpConfirmationMailFactory;
+    private PasswordResetSuccessMailFactory passwordResetSuccessMailFactory;
 
     @Test
     public void shouldBuildMail() {
 
         // given
-        signUpConfirmationMailFactory.setForcedLocale(FORCED_LOCALE);
+        passwordResetSuccessMailFactory.setForcedLocale(FORCED_LOCALE);
         given(messageSource.getMessage(SUBJECT, null, SUBJECT, FORCED_LOCALE)).willReturn(TRANSLATED_SUBJECT);
 
         // when
-        Mail result = signUpConfirmationMailFactory.buildMail(SIGN_UP_CONFIRMATION, RECIPIENT);
+        Mail result = passwordResetSuccessMailFactory.buildMail(USERNAME, RECIPIENT);
 
         // then
         assertThat(result, notNullValue());
@@ -67,7 +62,7 @@ public class SignUpConfirmationMailFactoryTest {
     public void shouldThrowExceptionOnNullRecipient() {
 
         // given
-        Assertions.assertThrows(IllegalArgumentException.class, () -> signUpConfirmationMailFactory.buildMail(SIGN_UP_CONFIRMATION));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> passwordResetSuccessMailFactory.buildMail(USERNAME));
 
         // then
         // exception expected
@@ -77,8 +72,7 @@ public class SignUpConfirmationMailFactoryTest {
     public void shouldThrowExceptionOnMultipleRecipients() {
 
         // given
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> signUpConfirmationMailFactory.buildMail(SIGN_UP_CONFIRMATION, RECIPIENT, RECIPIENT));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> passwordResetSuccessMailFactory.buildMail(USERNAME, RECIPIENT, RECIPIENT));
 
         // then
         // exception expected

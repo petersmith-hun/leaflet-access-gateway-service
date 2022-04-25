@@ -1,6 +1,8 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
+import hu.psprog.leaflet.lags.core.domain.PasswordResetConfirmationRequestModel;
+import hu.psprog.leaflet.lags.core.domain.PasswordResetRequestModel;
 import hu.psprog.leaflet.lags.core.domain.SignUpRequestModel;
 import hu.psprog.leaflet.lags.core.domain.SignUpResult;
 import hu.psprog.leaflet.lags.core.domain.SignUpStatus;
@@ -21,6 +23,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
@@ -126,9 +129,156 @@ class AuthenticationControllerTest {
         verifyNoInteractions(authenticationService);
     }
 
+    @Test
+    public void shouldRenderPasswordResetRequestForm() {
+
+        // given
+        PasswordResetRequestModel passwordResetRequestModel = new PasswordResetRequestModel();
+
+        // when
+        ModelAndView result = authenticationController.renderPasswordResetRequestForm(passwordResetRequestModel);
+
+        // then
+        assertPasswordResetRequestModelAndView(result, false);
+    }
+
+    @Test
+    public void shouldRenderPasswordResetRequestFormAfterValidationError() {
+
+        // given
+        PasswordResetRequestModel passwordResetRequestModel = new PasswordResetRequestModel();
+        passwordResetRequestModel.setValidationFailed(true);
+
+        // when
+        ModelAndView result = authenticationController.renderPasswordResetRequestForm(passwordResetRequestModel);
+
+        // then
+        assertPasswordResetRequestModelAndView(result, true);
+    }
+
+    @Test
+    public void shouldProcessPasswordResetRequestWithSuccess() {
+
+        // given
+        PasswordResetRequestModel passwordResetRequestModel = new PasswordResetRequestModel();
+        passwordResetRequestModel.setEmail("email");
+
+        given(bindingResult.hasErrors()).willReturn(false);
+
+        // when
+        ModelAndView result = authenticationController.processPasswordResetRequest(passwordResetRequestModel, bindingResult, request);
+
+        // then
+        assertThat(result.getViewName(), equalTo("views/pw_reset_ack"));
+        assertThat(result.getModel().isEmpty(), is(true));
+
+        verify(authenticationService).requestPasswordReset(passwordResetRequestModel, request);
+    }
+
+    @Test
+    public void shouldProcessPasswordResetRequestRenderFormOnValidationError() {
+
+        // given
+        PasswordResetRequestModel passwordResetRequestModel = new PasswordResetRequestModel();
+        passwordResetRequestModel.setEmail("email");
+        passwordResetRequestModel.setValidationFailed(false);
+
+        given(bindingResult.hasErrors()).willReturn(true);
+
+        // when
+        ModelAndView result = authenticationController.processPasswordResetRequest(passwordResetRequestModel, bindingResult, request);
+
+        // then
+        assertThat(passwordResetRequestModel.isValidationFailed(), is(true));
+        assertPasswordResetRequestModelAndView(result, true);
+
+        verifyNoInteractions(authenticationService);
+    }
+
+    @Test
+    public void shouldRenderPasswordResetConfirmationFormWithSuccess() {
+
+        // given
+        PasswordResetConfirmationRequestModel passwordResetConfirmationRequestModel = new PasswordResetConfirmationRequestModel();
+        passwordResetConfirmationRequestModel.setPassword("pw1");
+
+        // when
+        ModelAndView result = authenticationController.renderPasswordResetConfirmationForm(passwordResetConfirmationRequestModel);
+
+        // then
+        assertPasswordResetConfirmationModelAndView(result, false);
+    }
+
+    @Test
+    public void shouldRenderPasswordResetConfirmationFormWithSuccessAfterValidationError() {
+
+        // given
+        PasswordResetConfirmationRequestModel passwordResetConfirmationRequestModel = new PasswordResetConfirmationRequestModel();
+        passwordResetConfirmationRequestModel.setPassword("pw1");
+        passwordResetConfirmationRequestModel.setValidationFailed(true);
+
+        // when
+        ModelAndView result = authenticationController.renderPasswordResetConfirmationForm(passwordResetConfirmationRequestModel);
+
+        // then
+        assertPasswordResetConfirmationModelAndView(result, true);
+    }
+
+    @Test
+    public void shouldProcessPasswordResetConfirmationWithSuccess() {
+
+        // given
+        PasswordResetConfirmationRequestModel passwordResetConfirmationRequestModel = new PasswordResetConfirmationRequestModel();
+        passwordResetConfirmationRequestModel.setPassword("pw1");
+
+        // when
+        ModelAndView result = authenticationController.processPasswordResetConfirmation(passwordResetConfirmationRequestModel, bindingResult, request);
+
+        // then
+        assertThat(result.getViewName(), equalTo("redirect:/login?pwreset_status=success"));
+        assertThat(result.getModel().isEmpty(), is(true));
+
+        verify(authenticationService).confirmPasswordReset(passwordResetConfirmationRequestModel, request);
+    }
+
+    @Test
+    public void shouldProcessPasswordResetConfirmationRenderFormOnValidationError() {
+
+        // given
+        PasswordResetConfirmationRequestModel passwordResetConfirmationRequestModel = new PasswordResetConfirmationRequestModel();
+        passwordResetConfirmationRequestModel.setPassword("pw1");
+
+        given(bindingResult.hasErrors()).willReturn(true);
+
+        // when
+        ModelAndView result = authenticationController.processPasswordResetConfirmation(passwordResetConfirmationRequestModel, bindingResult, request);
+
+        // then
+        assertPasswordResetConfirmationModelAndView(result, true);
+
+        verifyNoInteractions(authenticationService);
+    }
+
     private void assertSignUpModelAndView(ModelAndView result, boolean expectValidationError) {
 
         assertThat(result.getViewName(), equalTo("views/signup"));
+        assertCommonModelEntries(result, expectValidationError);
+    }
+
+    private void assertPasswordResetRequestModelAndView(ModelAndView result, boolean expectValidationError) {
+
+        assertThat(result.getViewName(), equalTo("views/pw_reset_request"));
+        assertCommonModelEntries(result, expectValidationError);
+    }
+
+    private void assertPasswordResetConfirmationModelAndView(ModelAndView result, boolean expectValidationError) {
+
+        assertThat(result.getViewName(), equalTo("views/pw_reset_confirm"));
+        assertCommonModelEntries(result, expectValidationError);
+    }
+
+    private void assertCommonModelEntries(ModelAndView result, boolean expectValidationError) {
+
         assertThat(result.getModel().size(), equalTo(2));
         assertThat(result.getModel().get("recaptchaSiteKey"), equalTo(RECAPTCHA_SITE_KEY));
         assertThat(result.getModel().get("validationError"), is(expectValidationError));

@@ -27,6 +27,16 @@ public interface TokenHandler {
     OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims);
 
     /**
+     * Generates an OAuth2 access token based on the given {@link OAuthTokenRequest} and the formerly generated custom claims.
+     *
+     * @param oAuthTokenRequest authorization request model as {@link OAuthTokenRequest}
+     * @param claims custom token claims as map
+     * @param customExpirationInSeconds expiration time in seconds to override the default value
+     * @return generated access token wrapped as {@link OAuthTokenResponse}
+     */
+    OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims, int customExpirationInSeconds);
+
+    /**
      * Parses the given access token. On success, returns the payload contents of the token (i.e. the claims).
      *
      * @param accessToken the access token to be parsed
