@@ -49,6 +49,8 @@ class JWTTokenHandlerTest {
     private static final OAuthTokenRequest O_AUTH_TOKEN_REQUEST = prepareValidOAuthTokenRequest();
     private static final Map<String, Object> CLAIMS = prepareClaims();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final String EMAIL = "user@dev.local";
+    private static final String AUDIENCE = "target-svc-aud-1";
 
     private JWTTokenHandler jwtTokenHandler;
 
@@ -80,6 +82,23 @@ class JWTTokenHandlerTest {
     }
 
     @Test
+    public void shouldGenerateTokenSuccessfullyCreateJWTTokenWithCustomExpiration() throws IOException {
+
+        // given
+        int customExpirationInSeconds = 600;
+
+        // when
+        OAuthTokenResponse result = jwtTokenHandler.generateToken(O_AUTH_TOKEN_REQUEST, CLAIMS, customExpirationInSeconds);
+
+        // then
+        assertToken(result.getAccessToken());
+        assertThat(result.getScope(), equalTo(CLAIMS.get("scope")));
+        assertThat(result.getTokenType(), equalTo("Bearer"));
+        assertThat(result.getExpiresIn(), equalTo(customExpirationInSeconds));
+        assertStoreAccessTokenRequest();
+    }
+
+    @Test
     public void shouldParseTokenExtractClaims() {
 
         // given
@@ -93,6 +112,9 @@ class JWTTokenHandlerTest {
         assertThat(System.currentTimeMillis() - result.getExpiration().getTime() < 1000, is(true));
         assertThat(result.getClientID(), equalTo(CLAIMS.get("sub")));
         assertThat(result.getUsername(), equalTo("null"));
+        assertThat(result.getEmail(), equalTo(EMAIL));
+        assertThat(result.getAudience(), equalTo(AUDIENCE));
+        assertThat(result.getScopes(), equalTo(new String[] {"read:all", "write:all"}));
     }
 
     @Test
@@ -179,7 +201,7 @@ class JWTTokenHandlerTest {
         return OAuthTokenRequest.builder()
                 .grantType(GrantType.CLIENT_CREDENTIALS)
                 .clientID("client1")
-                .audience("audience1")
+                .audience(AUDIENCE)
                 .scope(Arrays.asList("read:all", "write:all"))
                 .build();
     }
@@ -188,7 +210,8 @@ class JWTTokenHandlerTest {
 
         return new HashMap<>(Map.of(
                 "scope", "read:all write:all",
-                "sub", "dummy-source-service-1"
+                "sub", "dummy-source-service-1",
+                "usr", EMAIL
         ));
     }
 }

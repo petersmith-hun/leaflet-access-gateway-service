@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="hu" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/default}">
+    <head>
+        <title>PSProg.hu :: Password reset instructions delivered</title>
+    </head>
+    <body>
+        <th:block layout:fragment="content">
+            <div class="row justify-content-center">
+                <div class="col-12 mt-3" style="text-align: center;">
+                    <h3 class="" th:text="#{form.pwreset.title}">placeholder:pwreset</h3>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="mb-3">
+                        Please wait for the verification email to arrive to the specified email address. Then click on the received link to finalize resetting your password.
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </body>
+</html>

@@ -15,6 +15,7 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,11 +45,16 @@ public class JWTTokenHandler implements TokenHandler {
 
     @Override
     public OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims) {
+        return generateToken(oAuthTokenRequest, claims, oAuthConfigurationProperties.getToken().getExpiration());
+    }
+
+    @Override
+    public OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims, int customExpirationInSeconds) {
 
         return OAuthTokenResponse.builder()
                 .accessToken(createToken(oAuthTokenRequest, claims))
                 .scope(claims.get(OAuthConstants.Request.SCOPE).toString())
-                .expiresIn(oAuthConfigurationProperties.getToken().getExpiration())
+                .expiresIn(customExpirationInSeconds)
                 .build();
     }
 
@@ -65,8 +71,11 @@ public class JWTTokenHandler implements TokenHandler {
             return TokenClaims.builder()
                     .tokenID(claims.getId())
                     .username(String.valueOf(claims.get(OAuthConstants.Token.NAME)))
+                    .email(String.valueOf(claims.get(OAuthConstants.Token.USER)))
                     .clientID(claims.get(OAuthConstants.Token.SUBJECT).toString())
+                    .scopes(extractScopes(claims))
                     .expiration(claims.getExpiration())
+                    .audience(claims.getAudience())
                     .build();
         } catch (JwtException e) {
             throw new AuthenticationException("Failed to parse JWT token", e);
@@ -108,5 +117,12 @@ public class JWTTokenHandler implements TokenHandler {
         calendar.add(Calendar.SECOND, oAuthConfigurationProperties.getToken().getExpiration());
 
         return calendar.getTime();
+    }
+
+    private String[] extractScopes(Claims claims) {
+
+        return claims.get(OAuthConstants.Token.SCOPE)
+                .toString()
+                .split(StringUtils.SPACE);
     }
 }

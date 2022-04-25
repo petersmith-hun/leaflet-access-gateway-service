@@ -1,20 +1,18 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
+import hu.psprog.leaflet.lags.core.domain.PasswordResetConfirmationRequestModel;
+import hu.psprog.leaflet.lags.core.domain.PasswordResetRequestModel;
 import hu.psprog.leaflet.lags.core.domain.SignUpRequestModel;
 import hu.psprog.leaflet.lags.core.domain.SignUpResult;
 import hu.psprog.leaflet.lags.core.domain.SignUpStatus;
-import hu.psprog.leaflet.lags.core.domain.User;
-import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.SignUpConfirmation;
-import hu.psprog.leaflet.lags.core.service.util.NotificationAdapter;
+import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
+import hu.psprog.leaflet.lags.core.service.account.AccountRequestHandler;
 import hu.psprog.leaflet.lags.core.service.util.ReCaptchaValidator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,8 +20,8 @@ import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_LOGIN;
 import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_SIGNUP;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -35,45 +33,40 @@ import static org.mockito.Mockito.verifyNoInteractions;
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceImplTest {
 
-    private static final long USER_ID = 1234L;
-    private static final String USERNAME = "Local User 1";
-    private static final String EMAIL = "user@dev.local";
     private static final SignUpRequestModel SIGN_UP_REQUEST_MODEL = new SignUpRequestModel();
-    private static final SignUpConfirmation EXPECTED_SIGN_UP_CONFIRMATION = new SignUpConfirmation(USERNAME, EMAIL);
-    private static final User CONVERTED_USER = User.builder()
-            .id(USER_ID)
-            .username(USERNAME)
-            .build();
-
-    static {
-        SIGN_UP_REQUEST_MODEL.setUsername(USERNAME);
-        SIGN_UP_REQUEST_MODEL.setEmail(EMAIL);
-    }
-
-    @Mock
-    private UserDAO userDAO;
-
-    @Mock
-    private ConversionService conversionService;
+    private static final SignUpResult SIGN_UP_RESULT = new SignUpResult(PATH_LOGIN, SignUpStatus.SUCCESS);
+    private static final PasswordResetRequestModel PASSWORD_RESET_REQUEST_MODEL = new PasswordResetRequestModel();
+    private static final PasswordResetConfirmationRequestModel PASSWORD_RESET_CONFIRMATION_REQUEST_MODEL = new PasswordResetConfirmationRequestModel();
 
     @Mock
     private ReCaptchaValidator reCaptchaValidator;
 
     @Mock
-    private NotificationAdapter notificationAdapter;
-
-    @Mock
     private HttpServletRequest request;
 
-    @InjectMocks
+    @Mock
+    private AccountRequestHandler<SignUpRequestModel, SignUpResult> signUpRequestAccountRequestHandler;
+
+    @Mock
+    private AccountRequestHandler<PasswordResetRequestModel, Void> passwordResetRequestAccountRequestHandler;
+
+    @Mock
+    private AccountRequestHandler<PasswordResetConfirmationRequestModel, Void> passwordResetConfirmationAccountRequestHandler;
+
     private AuthenticationServiceImpl authenticationService;
+
+    @BeforeEach
+    public void setup() {
+        authenticationService = new AuthenticationServiceImpl(reCaptchaValidator, signUpRequestAccountRequestHandler,
+                passwordResetRequestAccountRequestHandler, passwordResetConfirmationAccountRequestHandler);
+    }
 
     @Test
     public void shouldHandleSignUpWithSuccess() {
 
         // given
         given(reCaptchaValidator.isValid(SIGN_UP_REQUEST_MODEL, request)).willReturn(true);
-        given(conversionService.convert(SIGN_UP_REQUEST_MODEL, User.class)).willReturn(CONVERTED_USER);
+        given(signUpRequestAccountRequestHandler.processAccountRequest(SIGN_UP_REQUEST_MODEL)).willReturn(SIGN_UP_RESULT);
 
         // when
         SignUpResult result = authenticationService.signUp(SIGN_UP_REQUEST_MODEL, request);
@@ -81,9 +74,6 @@ class AuthenticationServiceImplTest {
         // then
         assertThat(result.getRedirectURI(), equalTo(PATH_LOGIN));
         assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.SUCCESS));
-
-        verify(userDAO).save(CONVERTED_USER);
-        verify(notificationAdapter).signUpConfirmation(EXPECTED_SIGN_UP_CONFIRMATION);
     }
 
     @Test
@@ -99,42 +89,58 @@ class AuthenticationServiceImplTest {
         assertThat(result.getRedirectURI(), equalTo(PATH_SIGNUP));
         assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.RE_CAPTCHA_VERIFICATION_FAILED));
 
-        verifyNoInteractions(userDAO, notificationAdapter);
+        verifyNoInteractions(signUpRequestAccountRequestHandler);
     }
 
     @Test
-    public void shouldSignUpReturnAddressAlreadyInUseStatusIfEmailAddressIsAlreadyUsed() {
+    public void shouldRequestPasswordResetProcessTheRequestWithSuccess() {
 
         // given
-        given(reCaptchaValidator.isValid(SIGN_UP_REQUEST_MODEL, request)).willReturn(true);
-        given(conversionService.convert(SIGN_UP_REQUEST_MODEL, User.class)).willReturn(CONVERTED_USER);
-        doThrow(DataIntegrityViolationException.class).when(userDAO).save(CONVERTED_USER);
+        given(reCaptchaValidator.isValid(PASSWORD_RESET_REQUEST_MODEL, request)).willReturn(true);
 
         // when
-        SignUpResult result = authenticationService.signUp(SIGN_UP_REQUEST_MODEL, request);
+        authenticationService.requestPasswordReset(PASSWORD_RESET_REQUEST_MODEL, request);
 
-        // then
-        assertThat(result.getRedirectURI(), equalTo(PATH_SIGNUP));
-        assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.ADDRESS_IN_USE));
-
-        verifyNoInteractions(notificationAdapter);
+        // verify
+        verify(passwordResetRequestAccountRequestHandler).processAccountRequest(PASSWORD_RESET_REQUEST_MODEL);
     }
 
     @Test
-    public void shouldSignUpReturnFailureStatusOnUnexpectedException() {
+    public void shouldRequestPasswordResetThrowExceptionOnFailedReCaptchaVerification() {
 
         // given
-        given(reCaptchaValidator.isValid(SIGN_UP_REQUEST_MODEL, request)).willReturn(true);
-        given(conversionService.convert(SIGN_UP_REQUEST_MODEL, User.class)).willReturn(CONVERTED_USER);
-        doThrow(IllegalArgumentException.class).when(userDAO).save(CONVERTED_USER);
+        given(reCaptchaValidator.isValid(PASSWORD_RESET_REQUEST_MODEL, request)).willReturn(false);
 
         // when
-        SignUpResult result = authenticationService.signUp(SIGN_UP_REQUEST_MODEL, request);
+        assertThrows(AuthenticationException.class, () -> authenticationService.requestPasswordReset(PASSWORD_RESET_REQUEST_MODEL, request));
 
-        // then
-        assertThat(result.getRedirectURI(), equalTo(PATH_SIGNUP));
-        assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.FAILURE));
+        // verify
+        // exception expected
+    }
 
-        verifyNoInteractions(notificationAdapter);
+    @Test
+    public void shouldConfirmPasswordResetProcessTheRequestWithSuccess() {
+
+        // given
+        given(reCaptchaValidator.isValid(PASSWORD_RESET_CONFIRMATION_REQUEST_MODEL, request)).willReturn(true);
+
+        // when
+        authenticationService.confirmPasswordReset(PASSWORD_RESET_CONFIRMATION_REQUEST_MODEL, request);
+
+        // verify
+        verify(passwordResetConfirmationAccountRequestHandler).processAccountRequest(PASSWORD_RESET_CONFIRMATION_REQUEST_MODEL);
+    }
+
+    @Test
+    public void shouldConfirmPasswordResetThrowExceptionOnFailedReCaptchaVerification() {
+
+        // given
+        given(reCaptchaValidator.isValid(PASSWORD_RESET_CONFIRMATION_REQUEST_MODEL, request)).willReturn(false);
+
+        // when
+        assertThrows(AuthenticationException.class, () -> authenticationService.confirmPasswordReset(PASSWORD_RESET_CONFIRMATION_REQUEST_MODEL, request));
+
+        // verify
+        // exception expected
     }
 }

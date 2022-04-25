@@ -26,4 +26,13 @@ public class AuthenticationConfig {
     private Locale defaultLocale = Locale.forLanguageTag("HU");
     private String recaptchaSecret;
     private String recaptchaSiteKey;
+    private PasswordResetConfig passwordReset;
+
+    @Data
+    public static class PasswordResetConfig {
+
+        private String audience;
+        private int tokenExpiration;
+        private String returnUrl;
+    }
 }

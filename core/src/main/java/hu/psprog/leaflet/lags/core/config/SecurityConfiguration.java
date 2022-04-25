@@ -1,13 +1,16 @@
 package hu.psprog.leaflet.lags.core.config;
 
 import hu.psprog.leaflet.lags.core.domain.OAuthConfigurationProperties;
+import hu.psprog.leaflet.lags.core.security.PasswordResetAuthenticationFilter;
 import hu.psprog.leaflet.lags.core.security.RequestSavingLogoutSuccessHandler;
 import hu.psprog.leaflet.lags.core.security.ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler;
+import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,8 +21,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_LOGIN;
+import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_PASSWORD_RESET;
+import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
+import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.RECLAIM_AUTHORITY;
 
 /**
  * OAuth2 security configuration.
@@ -41,12 +48,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService localUserUserDetailsService;
     private final UserDetailsService oAuthClientUserDetailsService;
+    private final AuthenticationProvider accessTokenAuthenticationProvider;
+    private final TokenHandler tokenHandler;
 
     @Autowired
     public SecurityConfiguration(@Qualifier("localUserUserDetailsService") UserDetailsService localUserUserDetailsService,
-                                 @Qualifier("OAuthClientUserDetailsService") UserDetailsService oAuthClientUserDetailsService) {
+                                 @Qualifier("OAuthClientUserDetailsService") UserDetailsService oAuthClientUserDetailsService,
+                                 AuthenticationProvider accessTokenAuthenticationProvider, TokenHandler tokenHandler) {
         this.localUserUserDetailsService = localUserUserDetailsService;
         this.oAuthClientUserDetailsService = oAuthClientUserDetailsService;
+        this.accessTokenAuthenticationProvider = accessTokenAuthenticationProvider;
+        this.tokenHandler = tokenHandler;
     }
 
     @Bean
@@ -64,23 +76,33 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return createAuthenticationProvider(passwordEncoder, localUserUserDetailsService);
     }
 
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
 
         auth
                 .authenticationProvider(oAuthClientAuthenticationProvider(passwordEncoder()))
-                .authenticationProvider(localUserAuthenticationProvider(passwordEncoder()));
+                .authenticationProvider(localUserAuthenticationProvider(passwordEncoder()))
+                .authenticationProvider(accessTokenAuthenticationProvider);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http
+                .addFilterBefore(passwordResetAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeRequests()
                     .antMatchers(PATH_OAUTH_ROOT)
                         .fullyAuthenticated()
-                    .antMatchers(PATH_LOGIN, RESOURCE_IMAGES, RESOURCE_CSS, RESOURCE_JS)
+                    .antMatchers(PATH_PASSWORD_RESET_CONFIRMATION)
+                        .hasAuthority(RECLAIM_AUTHORITY.getAuthority())
+                    .antMatchers(PATH_LOGIN, PATH_PASSWORD_RESET, RESOURCE_IMAGES, RESOURCE_CSS, RESOURCE_JS)
                         .permitAll()
                     .and()
 
@@ -124,5 +146,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         authenticationProvider.setUserDetailsService(userDetailsService);
 
         return authenticationProvider;
+    }
+
+    private PasswordResetAuthenticationFilter passwordResetAuthenticationFilter() throws Exception {
+
+        PasswordResetAuthenticationFilter filter = new PasswordResetAuthenticationFilter(tokenHandler);
+        filter.setAuthenticationManager(authenticationManagerBean());
+
+        return filter;
     }
 }

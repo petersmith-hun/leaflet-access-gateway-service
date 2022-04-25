@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.mailing.domain;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * @author Peter Smith
  */
 @Data
+@Builder
 public class SignUpConfirmation {
 
     private final String username;
