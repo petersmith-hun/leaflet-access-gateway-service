@@ -47,6 +47,18 @@ management:
       exposure:
         include: health,info
 
+mail:
+  smtp:
+    host: placeholder
+    port: 0
+    username: placeholder
+    password: placeholder
+  notification: placeholder@dev.local
+  sender:
+    address: placeholder@dev.local
+    name: placeholder
+  renderer: hu.psprog.leaflet.mail.client.renderer.impl.ThymeleafMailRenderer
+
 authentication-config:
   user-enabled-by-default: true
   default-locale: HU

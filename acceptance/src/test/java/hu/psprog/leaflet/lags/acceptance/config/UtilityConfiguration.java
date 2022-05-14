@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.acceptance.config;
 
+import hu.psprog.leaflet.bridge.client.BridgeClient;
 import hu.psprog.leaflet.bridge.client.exception.CommunicationFailureException;
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.recaptcha.api.client.ReCaptchaClient;
@@ -73,6 +74,12 @@ public class UtilityConfiguration implements ApplicationContextAware {
         given(reCaptchaClient.validate(createReCaptchaRequest("invalidToken"))).willReturn(getReCaptchaResponse(false));
 
         return reCaptchaClient;
+    }
+
+    @Bean
+    @Primary
+    public BridgeClient grc() {
+        return Mockito.mock(BridgeClient.class);
     }
 
     @Override
