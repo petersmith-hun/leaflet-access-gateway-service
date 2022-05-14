@@ -74,6 +74,9 @@ jobs:
           command: mvn clean deploy -s .circleci/settings.xml
           name: Build
       - run:
+          command: mvn -pl acceptance -Pacceptance verify -s .circleci/settings.xml
+          name: Run acceptance tests
+      - run:
           command: |
             mkdir -p << pipeline.parameters.workspace_dir >>
             cp ./<< pipeline.parameters.executable_source_dir >><< pipeline.parameters.executable_file >> << pipeline.parameters.workspace_dir >>/<< pipeline.parameters.executable_file >>
