@@ -22,7 +22,7 @@
         <!-- Cucumber dependencies -->
         <dependency>
             <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-java</artifactId>
+            <artifactId>cucumber-java8</artifactId>
             <version>${cucumber-java.version}</version>
         </dependency>
         <dependency>
@@ -68,6 +68,18 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -94,6 +106,7 @@
                     <properties>
                         <configurationParameters>
                             cucumber.junit-platform.naming-strategy=long
+                            cucumber.filter.tags=not @Ignore
                         </configurationParameters>
                     </properties>
                 </configuration>

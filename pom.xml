@@ -49,7 +49,7 @@
         <docker.skip>true</docker.skip>
 
         <!-- test dependency versions -->
-        <cucumber-java.version>7.3.2</cucumber-java.version>
+        <cucumber-java.version>7.3.3</cucumber-java.version>
         <junit-platform-suite.version>1.8.2</junit-platform-suite.version>
 
     </properties>
