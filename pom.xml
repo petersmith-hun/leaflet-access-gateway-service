@@ -13,6 +13,15 @@
         <module>web</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>acceptance</id>
+            <modules>
+                <module>acceptance</module>
+            </modules>
+        </profile>
+    </profiles>
+
     <parent>
         <groupId>hu.psprog.leaflet</groupId>
         <artifactId>leaflet-stack-base-bom</artifactId>
@@ -38,6 +47,10 @@
         <docker.repository>${LEAFLET_DOCKER_REGISTRY_HOST}</docker.repository>
         <docker.image-name>lags</docker.image-name>
         <docker.skip>true</docker.skip>
+
+        <!-- test dependency versions -->
+        <cucumber-java.version>7.3.3</cucumber-java.version>
+        <junit-platform-suite.version>1.8.2</junit-platform-suite.version>
 
     </properties>
 

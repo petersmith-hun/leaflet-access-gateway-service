@@ -1,0 +1,209 @@
+server:
+  port: 9285
+  address: localhost
+  servlet:
+    context-path: /lags
+
+spring:
+  mvc:
+    servlet:
+      load-on-startup: 1
+  thymeleaf:
+    mode: HTML
+    prefix: classpath:/webapp/templates/
+    cache: false
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:acceptance;MODE=MySQL
+    username: acceptance
+    password: acceptance
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    generate-ddl: true
+    defer-datasource-initialization: true
+  main:
+    allow-bean-definition-overriding: true
+
+tms:
+  enabled: false
+  packs: lcfa,mail
+  forced-locale: hu_HU
+
+bridge:
+  clients:
+    tms:
+      host-url: http://localhost:9290/mock/tms
+
+info:
+  app:
+    name: "Leaflet Access Gateway Service"
+    abbreviation: LAGS
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+authentication-config:
+  user-enabled-by-default: true
+  default-locale: HU
+  recaptcha-secret: placeholder
+  recaptcha-site-key: placeholder
+  password-reset:
+    audience: dummy:acceptance:svc:lags:test
+    token-expiration: 15
+    return-url: ${oauth2-config.token.issuer}/password-reset/confirmation
+
+oauth2-config:
+  token:
+    expiration: 30
+    issuer: http://localhost:9285/lags
+    private-key-file: classpath:/testkeys/lags_unit_tests_jwt_rsa_prv_pkcs8.pem
+    public-key-file: classpath:/testkeys/lags_unit_tests_jwt_rsa_pub.pem
+  clients:
+
+    - client-name: testapp1
+      application-type: ui
+      client-id: dummy_test_app_1
+      client-secret: dummyapplicationpw5678
+      audience: dummy:acceptance:app:dummyapp:test
+      registered-scopes:
+        - read:admin
+        - write:admin
+      allowed-callbacks:
+        - http://localhost:9290/mock/external-app/dummy-callback
+
+    - client-name: lmsmock
+      application-type: ui
+      client-id: mock_lms
+      client-secret: mocklms1234
+      audience: dummy:acceptance:app:mocklms:test
+      registered-scopes:
+        - read:users:own
+        - write:comments:own
+        - write:users:own
+        - read:categories
+        - read:comments
+        - read:documents
+        - read:entries
+        - read:tags
+        - read:users
+        - write:categories
+        - write:comments
+        - write:documents
+        - write:entries
+        - write:tags
+        - read:admin
+        - write:admin
+        - write:users
+      allowed-callbacks:
+        - http://localhost:9291/mock/admin
+
+    - client-name: leafletmock
+      application-type: service
+      client-id: mock_leaflet
+      client-secret: mockleaflet1234
+      audience: dummy:acceptance:svc:mockleaflet:test
+      registered-scopes:
+        - read:users:own
+        - write:comments:own
+        - write:users:own
+        - read:categories
+        - read:comments
+        - read:documents
+        - read:entries
+        - read:tags
+        - read:users
+        - write:categories
+        - write:comments
+        - write:documents
+        - write:entries
+        - write:tags
+        - read:admin
+        - write:admin
+        - write:users
+      allowed-clients:
+        - name: lmsmock
+          allowed-scopes:
+            - read:users:own
+            - write:comments:own
+            - write:users:own
+            - read:categories
+            - read:comments
+            - read:documents
+            - read:entries
+            - read:tags
+            - read:users
+            - write:categories
+            - write:comments
+            - write:documents
+            - write:entries
+            - write:tags
+            - read:admin
+            - write:admin
+            - write:users
+
+    - client-name: testsvc1
+      application-type: service
+      client-id: dummy_test_service_1
+      client-secret: dummyservicepw1234
+      audience: dummy:acceptance:svc:dummysvc:test
+      registered-scopes:
+        - write:entries
+        - read:entries
+      allowed-clients:
+        - name: testapp1
+          allowed-scopes:
+            - read:entries
+            - write:entries
+
+    - client-name: testsvc2
+      application-type: service
+      client-id: dummy_test_service_2
+      client-secret: dummyservicepw9876
+      audience: dummy:acceptance:svc:othersvc:test
+      registered-scopes:
+        - read:schedule
+        - write:schedule
+      allowed-clients:
+        - name: testsvc1
+          allowed-scopes:
+            - read:schedule
+            - write:schedule
+        - name: testapp1
+          allowed-scopes:
+            - read:schedule
+
+    - client-name: testsvc3
+      application-type: service
+      client-id: dummy_test_service_3
+      client-secret: dummyservicepw4455
+      audience: dummy:acceptance:svc:thirdsvc:test
+      registered-scopes:
+        - read:admin
+        - write:admin
+      allowed-clients:
+        - name: testapp1
+          allowed-scopes:
+            - read:admin
+            - write:admin
+        - name: testsvc2
+          allowed-scopes:
+            - read:admin
+
+    - client-name: testsvc4
+      application-type: service
+      client-id: dummy_test_service_4
+      client-secret: dummyservicepw9977
+      audience: dummy:acceptance:svc:fourthsvc:test
+      registered-scopes:
+        - read:accounts
+        - write:accounts
+      allowed-clients:
+        - name: testsvc2
+          allowed-scopes:
+            - read:accounts
+            - write:accounts
