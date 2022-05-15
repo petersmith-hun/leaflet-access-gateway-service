@@ -52,7 +52,7 @@ public class JWTTokenHandler implements TokenHandler {
     public OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims, int customExpirationInSeconds) {
 
         return OAuthTokenResponse.builder()
-                .accessToken(createToken(oAuthTokenRequest, claims))
+                .accessToken(createToken(oAuthTokenRequest, claims, customExpirationInSeconds))
                 .scope(claims.get(OAuthConstants.Request.SCOPE).toString())
                 .expiresIn(customExpirationInSeconds)
                 .build();
@@ -80,17 +80,16 @@ public class JWTTokenHandler implements TokenHandler {
         } catch (JwtException e) {
             throw new AuthenticationException("Failed to parse JWT token", e);
         }
-
     }
 
-    private String createToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims) {
+    private String createToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims, int expirationInSeconds) {
 
         Date issuedAt = new Date();
         StoreAccessTokenInfoRequest storeAccessTokenInfoRequest = StoreAccessTokenInfoRequest.builder()
                 .id(UUID.randomUUID().toString())
                 .subject(claims.get(OAuthConstants.Token.SUBJECT).toString())
                 .issuedAt(issuedAt)
-                .expiresAt(generateExpiration(issuedAt))
+                .expiresAt(generateExpiration(issuedAt, expirationInSeconds))
                 .build();
 
         tokenTracker.storeTokenInfo(storeAccessTokenInfoRequest);
@@ -108,13 +107,13 @@ public class JWTTokenHandler implements TokenHandler {
                 .compact();
     }
 
-    private Date generateExpiration(Date issuedAt) {
+    private Date generateExpiration(Date issuedAt, int expirationInSeconds) {
 
         Calendar calendar = new Calendar.Builder()
                 .setInstant(issuedAt)
                 .build();
 
-        calendar.add(Calendar.SECOND, oAuthConfigurationProperties.getToken().getExpiration());
+        calendar.add(Calendar.SECOND, expirationInSeconds);
 
         return calendar.getTime();
     }

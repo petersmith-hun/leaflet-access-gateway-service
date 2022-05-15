@@ -6,11 +6,13 @@ import hu.psprog.leaflet.lags.acceptance.model.HealthCheckResponse;
 import hu.psprog.leaflet.lags.acceptance.model.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.lags.acceptance.model.TokenIntrospectionResult;
+import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -251,6 +253,12 @@ public class LAGSClient {
                             .params(formData)
                             .with(csrf()))
                     .andReturn();
+
+        } catch (AuthenticationException exception) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(exception.getMessage());
+
         } catch (Exception exception) {
             fail(String.format("Password reset confirmation request attempt failed: %s", exception.getMessage()));
         }
