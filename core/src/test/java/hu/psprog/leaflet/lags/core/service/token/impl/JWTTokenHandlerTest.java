@@ -70,15 +70,17 @@ class JWTTokenHandlerTest {
     @Test
     public void shouldGenerateTokenSuccessfullyCreateJWTToken() throws IOException {
 
+        int expirationInSeconds = O_AUTH_CONFIGURATION_PROPERTIES.getToken().getExpiration();
+
         // when
         OAuthTokenResponse result = jwtTokenHandler.generateToken(O_AUTH_TOKEN_REQUEST, CLAIMS);
 
         // then
-        assertToken(result.getAccessToken());
+        assertToken(result.getAccessToken(), expirationInSeconds);
         assertThat(result.getScope(), equalTo(CLAIMS.get("scope")));
         assertThat(result.getTokenType(), equalTo("Bearer"));
         assertThat(result.getExpiresIn(), equalTo(3600));
-        assertStoreAccessTokenRequest();
+        assertStoreAccessTokenRequest(expirationInSeconds);
     }
 
     @Test
@@ -91,11 +93,11 @@ class JWTTokenHandlerTest {
         OAuthTokenResponse result = jwtTokenHandler.generateToken(O_AUTH_TOKEN_REQUEST, CLAIMS, customExpirationInSeconds);
 
         // then
-        assertToken(result.getAccessToken());
+        assertToken(result.getAccessToken(), customExpirationInSeconds);
         assertThat(result.getScope(), equalTo(CLAIMS.get("scope")));
         assertThat(result.getTokenType(), equalTo("Bearer"));
         assertThat(result.getExpiresIn(), equalTo(customExpirationInSeconds));
-        assertStoreAccessTokenRequest();
+        assertStoreAccessTokenRequest(customExpirationInSeconds);
     }
 
     @Test
@@ -132,14 +134,13 @@ class JWTTokenHandlerTest {
         assertThat(result.getMessage(), equalTo("Failed to parse JWT token"));
     }
 
-    private void assertToken(String token) throws IOException {
+    private void assertToken(String token, int expectedExpiration) throws IOException {
 
         String[] tokenParts = token.split("\\.");
         assertThat(tokenParts.length, equalTo(3));
 
         Map<String, Object> header = readTokenPart(tokenParts[0]);
         Map<String, Object> payload = readTokenPart(tokenParts[1]);
-        int expectedExpiration = O_AUTH_CONFIGURATION_PROPERTIES.getToken().getExpiration();
 
         assertThat(header.get("alg"), equalTo("RS256"));
         assertThat(header.get("typ"), equalTo("JWT"));
@@ -154,7 +155,7 @@ class JWTTokenHandlerTest {
         assertThat(expiration > expectedExpiration - 2 && expiration <= expectedExpiration, is(true));
     }
 
-    private void assertStoreAccessTokenRequest() {
+    private void assertStoreAccessTokenRequest(int expirationInSeconds) {
 
         verify(tokenTracker).storeTokenInfo(storeAccessTokenInfoRequestArgumentCaptor.capture());
 
@@ -163,7 +164,7 @@ class JWTTokenHandlerTest {
         assertThat(request.getSubject(), equalTo(CLAIMS.get("sub")));
         assertThat(request.getExpiresAt(), notNullValue());
         assertThat(request.getIssuedAt(), notNullValue());
-        assertThat(request.getExpiresAt().getTime() - request.getIssuedAt().getTime() == 3_600_000, is(true));
+        assertThat(request.getExpiresAt().getTime() - request.getIssuedAt().getTime() == expirationInSeconds * 1000L, is(true));
     }
 
     private void verifyJTI(String jti) {
