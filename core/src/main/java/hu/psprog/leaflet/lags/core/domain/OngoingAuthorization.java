@@ -21,5 +21,4 @@ public class OngoingAuthorization {
     private final UserInfo userInfo;
     private final LocalDateTime expiration;
     private final List<String> scope;
-    private final boolean requestedScope;
 }

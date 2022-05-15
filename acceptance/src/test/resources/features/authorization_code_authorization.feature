@@ -19,7 +19,6 @@ Feature: OAuth2 Authorization Code authorization flow tests
       And the client authenticates with its client secret dummyapplicationpw5678
       And the client chooses authorization_code grant type
       And the client requests access to a service identified by the dummy:acceptance:svc:thirdsvc:test audience
-      And the client requests access for scope write:admin read:admin
       And the client uses the previously claimed authorization code
       And the client uses the specified redirect URI
 
@@ -28,7 +27,7 @@ Feature: OAuth2 Authorization Code authorization flow tests
      Then the application responds with HTTP status OK
       And the response contains a token
       And the returned token expires in 30 seconds
-      And the returned token gives access to scope write:admin read:admin
+      And the returned token gives access to scope read:admin write:admin
       And the returned token is a Bearer type token
 
     Given a client identified by dummy_test_app_1 tries authorization
@@ -146,7 +145,6 @@ Feature: OAuth2 Authorization Code authorization flow tests
      Then the application responds with HTTP status FORBIDDEN
       And the rejection message is Specified redirection URI [http://localhost:7777/possibly/an/attacker] is not registered
 
-  @Ignore # TODO re-enable after LFLT-469
   @NegativeScenario
   Scenario: Rejected UI application authorization for mismatching scope
 
