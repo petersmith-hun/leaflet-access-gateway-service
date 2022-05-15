@@ -71,8 +71,7 @@ class AuthorizationCodeGrantFlowProcessorTest {
             .role(EXTENDED_USER.getRole())
             .build();
     private static final ExtendedUser EXTENDED_USER_WITH_LACK_OF_MANDATORY_SCOPES = prepareExtendedUser(false);
-    private static final OngoingAuthorization ONGOING_AUTHORIZATION = prepareOngoingAuthorization(false);
-    private static final OngoingAuthorization ONGOING_AUTHORIZATION_WITH_REQUESTED_SCOPE = prepareOngoingAuthorization(true);
+    private static final OngoingAuthorization ONGOING_AUTHORIZATION = prepareOngoingAuthorization();
     private static final OAuthTokenRequest O_AUTH_TOKEN_REQUEST = prepareOAuthTokenRequest(false);
     private static final OAuthTokenRequest O_AUTH_TOKEN_REQUEST_WITH_DIFFERENT_SCOPE = prepareOAuthTokenRequest(true);
 
@@ -297,14 +296,14 @@ class AuthorizationCodeGrantFlowProcessorTest {
     public void shouldVerifyRequestThrowExceptionIfDifferentScopeIsRequested() {
 
         // given
-        given(ongoingAuthorizationRepository.getOngoingAuthorizationByCode(AUTHORIZATION_CODE)).willReturn(Optional.of(ONGOING_AUTHORIZATION_WITH_REQUESTED_SCOPE));
+        given(ongoingAuthorizationRepository.getOngoingAuthorizationByCode(AUTHORIZATION_CODE)).willReturn(Optional.of(ONGOING_AUTHORIZATION));
 
         // when
         Throwable result = assertThrows(OAuthAuthorizationException.class, () -> authorizationCodeGrantFlowProcessor.verifyRequest(O_AUTH_TOKEN_REQUEST_WITH_DIFFERENT_SCOPE, SOURCE_O_AUTH_CLIENT));
 
         // then
         // exception expected
-        assertThat(result.getMessage(), equalTo("Requested scope set differs from the authorized scope set."));
+        assertThat(result.getMessage(), equalTo("Token request should not specify scope on Authorization Code flow."));
     }
 
     @Test
@@ -329,7 +328,6 @@ class AuthorizationCodeGrantFlowProcessorTest {
         assertThat(ongoingAuthorization.getScope(), equalTo(withRequestedScope
                 ? Arrays.asList("write:admin", "write:users")
                 : SOURCE_O_AUTH_CLIENT.getRegisteredScopes()));
-        assertThat(ongoingAuthorization.isRequestedScope(), is(withRequestedScope));
 
         long expirationInSeconds = ChronoUnit.SECONDS.between(LocalDateTime.now(), ongoingAuthorization.getExpiration());
         assertThat(expirationInSeconds > 57 && expirationInSeconds <= 60, is(true));
@@ -397,7 +395,7 @@ class AuthorizationCodeGrantFlowProcessorTest {
                 .build();
     }
 
-    private static OngoingAuthorization prepareOngoingAuthorization(boolean withRequestedScope) {
+    private static OngoingAuthorization prepareOngoingAuthorization() {
 
         return OngoingAuthorization.builder()
                 .authorizationCode(AUTHORIZATION_CODE)
@@ -406,7 +404,6 @@ class AuthorizationCodeGrantFlowProcessorTest {
                 .userInfo(USER_INFO)
                 .expiration(LocalDateTime.now().plusMinutes(1L))
                 .scope(SOURCE_O_AUTH_CLIENT.getRegisteredScopes())
-                .requestedScope(withRequestedScope)
                 .build();
     }
 

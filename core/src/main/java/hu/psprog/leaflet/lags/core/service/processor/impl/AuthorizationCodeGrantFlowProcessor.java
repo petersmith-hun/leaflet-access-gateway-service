@@ -179,7 +179,6 @@ public class AuthorizationCodeGrantFlowProcessor extends AbstractGrantFlowProces
                         .build())
                 .expiration(expiration)
                 .scope(getScope(oAuthAuthorizationRequest, oAuthClient))
-                .requestedScope(!StringUtils.isEmpty(oAuthAuthorizationRequest.getScope()))
                 .build();
     }
 
@@ -228,10 +227,10 @@ public class AuthorizationCodeGrantFlowProcessor extends AbstractGrantFlowProces
 
     private void updateScope(OngoingAuthorization ongoingAuthorization, OAuthTokenRequest oAuthTokenRequest) {
 
-        if (oAuthTokenRequest.getScope().isEmpty()) {
-            oAuthTokenRequest.getScope().addAll(ongoingAuthorization.getScope());
-        } else if (ongoingAuthorization.isRequestedScope() && !ongoingAuthorization.getScope().equals(oAuthTokenRequest.getScope())) {
-            throw new OAuthAuthorizationException("Requested scope set differs from the authorized scope set.");
+        if (!oAuthTokenRequest.getScope().isEmpty()) {
+            throw new OAuthAuthorizationException("Token request should not specify scope on Authorization Code flow.");
         }
+
+        oAuthTokenRequest.getScope().addAll(ongoingAuthorization.getScope());
     }
 }
