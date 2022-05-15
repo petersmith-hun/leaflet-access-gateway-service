@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
+import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.web.model.AuthorizationError;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +32,27 @@ public class BaseController {
      */
     @ExceptionHandler(OAuthAuthorizationException.class)
     public ResponseEntity<AuthorizationError> handleAuthorizationException(OAuthAuthorizationException exception) {
+        return handleException(exception, HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * Exception handler for {@link AuthenticationException}s and {@link org.springframework.security.core.AuthenticationException}s.
+     * Logs the exception and wraps the message into a JSON response, along with an HTTP 401 Unauthorized status code.
+     *
+     * @param exception {@link Exception} object
+     * @return response entity object containing the error message in {@link AuthorizationError} object
+     */
+    @ExceptionHandler({AuthenticationException.class, org.springframework.security.core.AuthenticationException.class})
+    public ResponseEntity<AuthorizationError> handleAuthenticationException(Exception exception) {
+        return handleException(exception, HttpStatus.UNAUTHORIZED);
+    }
+
+    private ResponseEntity<AuthorizationError> handleException(Exception exception, HttpStatus httpStatus) {
 
         log.error(exception.getMessage());
 
         return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
+                .status(httpStatus)
                 .body(new AuthorizationError(exception.getMessage()));
     }
 }

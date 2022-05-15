@@ -57,7 +57,6 @@ Feature: Password reset flow tests
      Then the application responds with HTTP status OK
       And the response body contains "You've provided incorrect information, please check and try again"
 
-  @Ignore # TODO re-enable after LFLT-466
   @NegativeScenario
   Scenario: Requesting password reset with failed ReCaptcha
 
