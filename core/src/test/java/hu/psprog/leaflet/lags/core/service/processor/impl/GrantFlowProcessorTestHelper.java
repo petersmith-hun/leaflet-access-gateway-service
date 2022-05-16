@@ -29,6 +29,7 @@ class GrantFlowProcessorTestHelper {
                 "source-service-audience",
                 Collections.emptyList(),
                 Collections.emptyList(),
+                Collections.emptyList(),
                 Collections.emptyList());
     }
 
@@ -45,6 +46,7 @@ class GrantFlowProcessorTestHelper {
                 "secret2",
                 "target-service-audience",
                 Arrays.asList("read:items", "write:item:all", "write:item:self", "admin:item", "default1", "default2", "default3"),
+                Collections.emptyList(),
                 Collections.singletonList(relation),
                 Collections.emptyList());
     }

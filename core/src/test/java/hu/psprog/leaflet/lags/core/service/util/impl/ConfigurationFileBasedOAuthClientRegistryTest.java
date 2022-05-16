@@ -78,7 +78,7 @@ class ConfigurationFileBasedOAuthClientRegistryTest {
     }
 
     private static OAuthClient prepareOAuthClient(String clientName, String clientId, String audience) {
-        return new OAuthClient(clientName, ApplicationType.SERVICE, clientId, null, audience, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        return new OAuthClient(clientName, ApplicationType.SERVICE, clientId, null, audience, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     private static OAuthConfigurationProperties prepareOAuthConfigurationProperties() {

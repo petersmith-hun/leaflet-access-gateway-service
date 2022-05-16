@@ -1,9 +1,10 @@
 package hu.psprog.leaflet.lags.core.domain;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConstructorBinding;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Domain class representing an OAuth2 client.
@@ -11,7 +12,6 @@ import java.util.List;
  * @author Peter Smith
  */
 @Data
-@ConstructorBinding
 public class OAuthClient {
 
     /**
@@ -46,6 +46,11 @@ public class OAuthClient {
     private final List<String> registeredScopes;
 
     /**
+     * (Minimum) required scopes of the registered client.
+     */
+    private final List<String> requiredScopes;
+
+    /**
      * List of the consumer services allowed to access this client.
      */
     private final List<OAuthClientAllowRelation> allowedClients;
@@ -54,4 +59,26 @@ public class OAuthClient {
      * List of allowed callbacks (for UI applications).
      */
     private final List<String> allowedCallbacks;
+
+    public OAuthClient(String clientName, ApplicationType applicationType,
+                       String clientId, String clientSecret, String audience,
+                       List<String> registeredScopes, List<String> requiredScopes,
+                       List<OAuthClientAllowRelation> allowedClients, List<String> allowedCallbacks) {
+        this.clientName = clientName;
+        this.applicationType = applicationType;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.audience = audience;
+        this.registeredScopes = safeInit(registeredScopes);
+        this.requiredScopes = safeInit(requiredScopes);
+        this.allowedClients = safeInit(allowedClients);
+        this.allowedCallbacks = safeInit(allowedCallbacks);
+    }
+
+    private <T> List<T> safeInit(List<T> inputList) {
+
+        return Optional
+                .ofNullable(inputList)
+                .orElseGet(Collections::emptyList);
+    }
 }

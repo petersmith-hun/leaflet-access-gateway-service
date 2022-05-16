@@ -327,7 +327,7 @@ class AuthorizationCodeGrantFlowProcessorTest {
         assertThat(ongoingAuthorization.getUserInfo(), equalTo(USER_INFO));
         assertThat(ongoingAuthorization.getScope(), equalTo(withRequestedScope
                 ? Arrays.asList("write:admin", "write:users")
-                : SOURCE_O_AUTH_CLIENT.getRegisteredScopes()));
+                : Arrays.asList("read:users", "write:users", "read:admin", "write:admin", "write:entries")));
 
         long expirationInSeconds = ChronoUnit.SECONDS.between(LocalDateTime.now(), ongoingAuthorization.getExpiration());
         assertThat(expirationInSeconds > 57 && expirationInSeconds <= 60, is(true));
@@ -341,6 +341,7 @@ class AuthorizationCodeGrantFlowProcessorTest {
                 SOURCE_CLIENT_ID,
                 "client-secret-1",
                 "client-1-aud",
+                Collections.emptyList(),
                 Arrays.asList("read:users", "write:users", "read:admin", "write:admin"),
                 Collections.emptyList(),
                 Collections.singletonList(VALID_REDIRECT_URI));
@@ -357,6 +358,7 @@ class AuthorizationCodeGrantFlowProcessorTest {
                 "client-secret-2",
                 TARGET_CLIENT_AUDIENCE,
                 Arrays.asList("read:users", "write:users", "read:admin", "write:admin", "write:other1", "write:other2"),
+                Collections.emptyList(),
                 Collections.singletonList(relation),
                 Collections.emptyList());
     }
