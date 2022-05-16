@@ -104,24 +104,6 @@ oauth2-config:
         - write:documents
         - write:entries
         - write:tags
-#      registered-scopes:
-#        - read:users:own
-#        - write:comments:own
-#        - write:users:own
-#        - read:categories
-#        - read:comments
-#        - read:documents
-#        - read:entries
-#        - read:tags
-#        - read:users
-#        - write:categories
-#        - write:comments
-#        - write:documents
-#        - write:entries
-#        - write:tags
-#        - read:admin
-#        - write:admin
-#        - write:users
       allowed-callbacks:
         - http://localhost:9291/mock/admin
 
