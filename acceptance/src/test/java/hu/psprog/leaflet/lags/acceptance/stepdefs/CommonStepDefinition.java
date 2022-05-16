@@ -24,6 +24,7 @@ public class CommonStepDefinition implements En {
     public CommonStepDefinition() {
 
         defineCommonSteps();
+        defineConditions();
         defineAssertions();
     }
 
@@ -33,6 +34,11 @@ public class CommonStepDefinition implements En {
         After(scenario -> log.info("Scenario '{}' completed with status {}", scenario.getName(), scenario.getStatus()));
 
         After(ThreadLocalDataRegistry::reset);
+    }
+
+    private void defineConditions() {
+
+        Given("^the ([A-Z_]+) attribute is removed from the data registry$", ThreadLocalDataRegistry::remove);
     }
 
     private void defineAssertions() {

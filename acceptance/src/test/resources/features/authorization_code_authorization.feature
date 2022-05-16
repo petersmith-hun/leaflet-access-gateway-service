@@ -7,6 +7,7 @@ Feature: OAuth2 Authorization Code authorization flow tests
       And the response type is set to code
       And the application requests redirection to http://localhost:9290/mock/external-app/dummy-callback
       And the sent state value is state-1234
+      And the client requests access for scope read:admin write:admin
       And the user is signed in as test-admin@ac-leaflet.local with password testpw01
 
      When the authorization is requested
@@ -21,6 +22,7 @@ Feature: OAuth2 Authorization Code authorization flow tests
       And the client requests access to a service identified by the dummy:acceptance:svc:thirdsvc:test audience
       And the client uses the previously claimed authorization code
       And the client uses the specified redirect URI
+      And the SCOPE attribute is removed from the data registry
 
      When the client requests a token
 
@@ -69,10 +71,9 @@ Feature: OAuth2 Authorization Code authorization flow tests
      Then the application responds with HTTP status OK
       And the response contains a token
       And the returned token expires in 30 seconds
-      And the returned token gives access to scope read:users:own write:comments:own write:users:own read:categories read:comments read:documents read:entries read:tags read:users write:categories write:comments write:documents write:entries write:tags read:admin write:admin write:users
+      And the returned token gives access to scope read:users:own write:comments:own write:users:own read:categories read:comments read:documents read:entries read:tags write:categories write:comments write:documents write:entries write:tags read:admin read:users write:admin write:users
       And the returned token is a Bearer type token
 
-  @Ignore # TODO re-enable after LFLT-468
   @PositiveScenario
   Scenario: Successful admin system authorization for an editor user
 
@@ -101,6 +102,36 @@ Feature: OAuth2 Authorization Code authorization flow tests
       And the response contains a token
       And the returned token expires in 30 seconds
       And the returned token gives access to scope read:users:own write:comments:own write:users:own read:categories read:comments read:documents read:entries read:tags write:categories write:comments write:documents write:entries write:tags
+      And the returned token is a Bearer type token
+
+  @PositiveScenario
+  Scenario: Successful authorization of a basic user
+
+    Given the authorization is requested by application dummy_front_app_1
+      And the response type is set to code
+      And the application requests redirection to http://localhost:9298/frontapp/callback
+      And the sent state value is state-9955
+      And the user is signed in as test-user-1@ac-leaflet.local with password testpw01
+
+     When the authorization is requested
+
+     Then the user is redirected to the specified redirection
+      And the response contains the authorization code
+      And the response contains the sent state
+
+    Given a client identified by dummy_front_app_1 tries authorization
+      And the client authenticates with its client secret frontapp4455
+      And the client chooses authorization_code grant type
+      And the client requests access to a service identified by the dummy:acceptance:svc:mockleaflet:test audience
+      And the client uses the previously claimed authorization code
+      And the client uses the specified redirect URI
+
+     When the client requests a token
+
+     Then the application responds with HTTP status OK
+      And the response contains a token
+      And the returned token expires in 30 seconds
+      And the returned token gives access to scope read:users:own write:comments:own write:users:own
       And the returned token is a Bearer type token
 
   @NegativeScenario

@@ -192,8 +192,8 @@ public class AuthorizationCodeGrantFlowProcessor extends AbstractGrantFlowProces
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
-            if (userAuthorities.containsAll(oAuthClient.getRegisteredScopes())) {
-                scope = oAuthClient.getRegisteredScopes();
+            if (userAuthorities.containsAll(oAuthClient.getRequiredScopes())) {
+                scope = userAuthorities;
             } else {
                 throw new OAuthAuthorizationException("Client requires broader authorities than what the user has.");
             }

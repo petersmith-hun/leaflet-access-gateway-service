@@ -24,7 +24,6 @@ public class StaticRoleToAuthorityMappingRegistry implements RoleToAuthorityMapp
     private static final String[] USER_AUTHORITIES = {
             "read:users:own",
             "write:comments:own",
-            "write:reclaim",
             "write:users:own"
     };
 

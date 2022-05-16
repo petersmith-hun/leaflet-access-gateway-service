@@ -79,6 +79,15 @@ public class ThreadLocalDataRegistry {
     }
 
     /**
+     * Removes the stored value of the given attribute key.
+     *
+     * @param key attribute key as {@link TestConstants.Attribute}
+     */
+    public static void remove(TestConstants.Attribute key) {
+        THREAD_LOCAL_DATA_REGISTRY.get().remove(key.getValue());
+    }
+
+    /**
      * Clears the thread-local data map.
      */
     public static void reset() {

@@ -77,6 +77,7 @@ class OAuthClientUserDetailsServiceTest {
                 "audience1",
                 Arrays.asList("read:all", "write:all"),
                 Collections.emptyList(),
+                Collections.emptyList(),
                 Collections.emptyList()
         );
     }
