@@ -1,9 +1,9 @@
 package hu.psprog.leaflet.lags.core.service.account.impl;
 
-import hu.psprog.leaflet.lags.core.domain.PasswordResetConfirmationRequestModel;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetSuccess;
-import hu.psprog.leaflet.lags.core.domain.TokenClaims;
-import hu.psprog.leaflet.lags.core.domain.User;
+import hu.psprog.leaflet.lags.core.domain.request.PasswordResetConfirmationRequestModel;
+import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetSuccess;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
 import hu.psprog.leaflet.lags.core.service.account.AccountRequestHandler;
 import hu.psprog.leaflet.lags.core.service.util.NotificationAdapter;

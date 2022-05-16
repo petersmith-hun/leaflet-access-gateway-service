@@ -1,10 +1,10 @@
 package hu.psprog.leaflet.lags.core.conversion;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
-import hu.psprog.leaflet.lags.core.domain.AccountType;
-import hu.psprog.leaflet.lags.core.domain.Role;
-import hu.psprog.leaflet.lags.core.domain.SignUpRequestModel;
-import hu.psprog.leaflet.lags.core.domain.User;
+import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.User;
+import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.util.impl;
 
-import hu.psprog.leaflet.lags.core.domain.OAuthConfigurationProperties;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.service.util.KeyRegistry;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;

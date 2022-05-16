@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.util;
 
-import hu.psprog.leaflet.lags.core.domain.AccessTokenInfo;
-import hu.psprog.leaflet.lags.core.domain.StoreAccessTokenInfoRequest;
+import hu.psprog.leaflet.lags.core.domain.internal.AccessTokenInfo;
+import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;
 
 import java.util.Optional;
 

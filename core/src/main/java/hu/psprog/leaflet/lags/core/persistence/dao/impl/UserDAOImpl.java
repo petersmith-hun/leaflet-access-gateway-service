@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.persistence.dao.impl;
 
-import hu.psprog.leaflet.lags.core.domain.User;
+import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
 import hu.psprog.leaflet.lags.core.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

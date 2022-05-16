@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.util.impl;
 
-import hu.psprog.leaflet.lags.core.domain.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1,8 +1,8 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
-import hu.psprog.leaflet.lags.core.domain.GrantType;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.request.GrantType;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
 import org.springframework.beans.factory.annotation.Autowired;

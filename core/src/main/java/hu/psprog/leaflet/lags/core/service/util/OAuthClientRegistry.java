@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.util;
 
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
 
 import java.util.Optional;
 

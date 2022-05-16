@@ -1,8 +1,8 @@
 package hu.psprog.leaflet.lags.core.service.util.impl;
 
-import hu.psprog.leaflet.lags.core.domain.ApplicationType;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
-import hu.psprog.leaflet.lags.core.domain.OAuthConfigurationProperties;
+import hu.psprog.leaflet.lags.core.domain.config.ApplicationType;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

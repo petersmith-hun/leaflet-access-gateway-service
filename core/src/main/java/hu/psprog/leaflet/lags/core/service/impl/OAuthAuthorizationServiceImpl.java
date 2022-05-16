@@ -1,15 +1,15 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
-import hu.psprog.leaflet.lags.core.domain.GrantType;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
-import hu.psprog.leaflet.lags.core.domain.OAuthRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
-import hu.psprog.leaflet.lags.core.domain.TokenClaims;
-import hu.psprog.leaflet.lags.core.domain.TokenIntrospectionResult;
-import hu.psprog.leaflet.lags.core.domain.TokenStatus;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenStatus;
+import hu.psprog.leaflet.lags.core.domain.request.GrantType;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthRequest;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
+import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static hu.psprog.leaflet.lags.core.domain.TokenIntrospectionResult.FAILED_INTROSPECTION_RESULT;
+import static hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult.FAILED_INTROSPECTION_RESULT;
 
 /**
  * Implementation of {@link OAuthAuthorizationService}.

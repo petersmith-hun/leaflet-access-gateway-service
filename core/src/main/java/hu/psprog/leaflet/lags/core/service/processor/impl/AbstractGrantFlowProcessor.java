@@ -1,11 +1,11 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
-import hu.psprog.leaflet.lags.core.domain.OAuthClientAllowRelation;
-import hu.psprog.leaflet.lags.core.domain.OAuthConstants;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClientAllowRelation;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
 import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;

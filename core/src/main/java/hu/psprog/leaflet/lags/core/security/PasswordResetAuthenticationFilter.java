@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.security;
 
-import hu.psprog.leaflet.lags.core.domain.JWTAuthenticationToken;
-import hu.psprog.leaflet.lags.core.domain.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.internal.JWTAuthenticationToken;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.QUERY_PARAMETER_TOKEN;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.QUERY_PARAMETER_TOKEN;
 
 /**
  * {@link AbstractAuthenticationProcessingFilter} implementation to verify and authenticate password reset requests.

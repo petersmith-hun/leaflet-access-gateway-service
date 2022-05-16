@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.QUERY_PARAMETER_TOKEN;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.QUERY_PARAMETER_TOKEN;
 
 /**
  * Utilities for creating specific requests for LAGS.

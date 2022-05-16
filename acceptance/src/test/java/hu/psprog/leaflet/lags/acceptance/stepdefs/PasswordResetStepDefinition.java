@@ -3,14 +3,14 @@ package hu.psprog.leaflet.lags.acceptance.stepdefs;
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.lags.acceptance.utility.LAGSClient;
 import hu.psprog.leaflet.lags.acceptance.utility.ThreadLocalDataRegistry;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetRequest;
-import hu.psprog.leaflet.lags.core.domain.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
+import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import io.cucumber.java8.En;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.RECLAIM_AUTHORITY;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.RECLAIM_AUTHORITY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;

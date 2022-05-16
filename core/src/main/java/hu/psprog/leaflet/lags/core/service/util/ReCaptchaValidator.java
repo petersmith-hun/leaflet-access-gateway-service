@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.util;
 
-import hu.psprog.leaflet.lags.core.domain.ReCaptchaProtectedRequest;
+import hu.psprog.leaflet.lags.core.domain.request.ReCaptchaProtectedRequest;
 
 import javax.servlet.http.HttpServletRequest;
 

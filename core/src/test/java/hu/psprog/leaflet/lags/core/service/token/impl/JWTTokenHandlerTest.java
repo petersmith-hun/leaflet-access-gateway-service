@@ -1,13 +1,13 @@
 package hu.psprog.leaflet.lags.core.service.token.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hu.psprog.leaflet.lags.core.domain.GrantType;
-import hu.psprog.leaflet.lags.core.domain.OAuthConfigurationProperties;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenSettings;
-import hu.psprog.leaflet.lags.core.domain.StoreAccessTokenInfoRequest;
-import hu.psprog.leaflet.lags.core.domain.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings;
+import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.request.GrantType;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import hu.psprog.leaflet.lags.core.service.util.TokenTracker;
 import hu.psprog.leaflet.lags.core.service.util.impl.RSAKeyRegistry;

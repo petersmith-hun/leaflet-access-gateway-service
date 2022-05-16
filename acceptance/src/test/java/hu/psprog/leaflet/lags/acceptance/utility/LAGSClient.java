@@ -22,9 +22,9 @@ import org.springframework.util.MultiValueMap;
 
 import java.net.URI;
 
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_PASSWORD_RESET;
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_SIGNUP;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_SIGNUP;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_AUTHORIZE;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_INTROSPECT;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_TOKEN;

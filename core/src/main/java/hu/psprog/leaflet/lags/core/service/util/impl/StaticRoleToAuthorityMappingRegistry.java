@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.util.impl;
 
-import hu.psprog.leaflet.lags.core.domain.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.service.util.RoleToAuthorityMappingRegistry;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;

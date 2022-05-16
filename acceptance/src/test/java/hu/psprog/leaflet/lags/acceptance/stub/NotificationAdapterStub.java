@@ -2,8 +2,8 @@ package hu.psprog.leaflet.lags.acceptance.stub;
 
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.lags.acceptance.utility.ThreadLocalDataRegistry;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetRequest;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetSuccess;
+import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
+import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetSuccess;
 import hu.psprog.leaflet.lags.core.service.mailing.domain.SignUpConfirmation;
 import hu.psprog.leaflet.lags.core.service.util.NotificationAdapter;
 import org.springframework.context.annotation.Primary;

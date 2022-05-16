@@ -1,14 +1,14 @@
 package hu.psprog.leaflet.lags.core.service.account.impl;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
-import hu.psprog.leaflet.lags.core.domain.OAuthConstants;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetRequest;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetRequestModel;
-import hu.psprog.leaflet.lags.core.domain.SecurityConstants;
-import hu.psprog.leaflet.lags.core.domain.User;
+import hu.psprog.leaflet.lags.core.domain.entity.User;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
+import hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.request.PasswordResetRequestModel;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
+import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import hu.psprog.leaflet.lags.core.service.util.NotificationAdapter;
 import org.junit.jupiter.api.BeforeEach;

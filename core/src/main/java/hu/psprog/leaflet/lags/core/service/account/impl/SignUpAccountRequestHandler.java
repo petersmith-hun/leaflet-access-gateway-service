@@ -1,9 +1,9 @@
 package hu.psprog.leaflet.lags.core.service.account.impl;
 
-import hu.psprog.leaflet.lags.core.domain.SignUpRequestModel;
-import hu.psprog.leaflet.lags.core.domain.SignUpResult;
-import hu.psprog.leaflet.lags.core.domain.SignUpStatus;
-import hu.psprog.leaflet.lags.core.domain.User;
+import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
+import hu.psprog.leaflet.lags.core.domain.response.SignUpResult;
+import hu.psprog.leaflet.lags.core.domain.response.SignUpStatus;
+import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
 import hu.psprog.leaflet.lags.core.service.account.AccountRequestHandler;
 import hu.psprog.leaflet.lags.core.service.mailing.domain.SignUpConfirmation;

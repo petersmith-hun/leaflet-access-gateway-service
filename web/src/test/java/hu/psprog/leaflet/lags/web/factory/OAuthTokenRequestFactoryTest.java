@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.web.factory;
 
-import hu.psprog.leaflet.lags.core.domain.GrantType;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.request.GrantType;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

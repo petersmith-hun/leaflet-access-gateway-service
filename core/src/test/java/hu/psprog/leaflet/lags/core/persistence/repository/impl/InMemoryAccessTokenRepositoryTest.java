@@ -1,8 +1,8 @@
 package hu.psprog.leaflet.lags.core.persistence.repository.impl;
 
-import hu.psprog.leaflet.lags.core.domain.AccessTokenInfo;
-import hu.psprog.leaflet.lags.core.domain.StoreAccessTokenInfoRequest;
-import hu.psprog.leaflet.lags.core.domain.TokenStatus;
+import hu.psprog.leaflet.lags.core.domain.internal.AccessTokenInfo;
+import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -2,7 +2,7 @@ package hu.psprog.leaflet.lags.core.service.util.impl;
 
 import hu.psprog.leaflet.bridge.client.exception.CommunicationFailureException;
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
-import hu.psprog.leaflet.lags.core.domain.SignUpRequestModel;
+import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
 import hu.psprog.leaflet.recaptcha.api.client.ReCaptchaClient;
 import hu.psprog.leaflet.recaptcha.api.domain.ReCaptchaErrorCode;
 import hu.psprog.leaflet.recaptcha.api.domain.ReCaptchaRequest;

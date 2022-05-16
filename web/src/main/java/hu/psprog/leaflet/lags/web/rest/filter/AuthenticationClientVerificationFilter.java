@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_SIGNUP;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_SIGNUP;
 
 /**
  * Filter implementation to verify if the authentication related request (such as sign-up) was started by an authorization request.

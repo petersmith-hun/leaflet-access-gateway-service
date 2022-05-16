@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.persistence.repository;
 
-import hu.psprog.leaflet.lags.core.domain.AccessTokenInfo;
-import hu.psprog.leaflet.lags.core.domain.TokenStatus;
+import hu.psprog.leaflet.lags.core.domain.internal.AccessTokenInfo;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenStatus;
 
 import java.util.List;
 import java.util.Optional;

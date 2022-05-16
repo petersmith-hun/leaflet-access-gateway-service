@@ -1,10 +1,10 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
-import hu.psprog.leaflet.lags.core.domain.PasswordResetConfirmationRequestModel;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetRequestModel;
-import hu.psprog.leaflet.lags.core.domain.SignUpRequestModel;
-import hu.psprog.leaflet.lags.core.domain.SignUpResult;
-import hu.psprog.leaflet.lags.core.domain.SignUpStatus;
+import hu.psprog.leaflet.lags.core.domain.request.PasswordResetConfirmationRequestModel;
+import hu.psprog.leaflet.lags.core.domain.request.PasswordResetRequestModel;
+import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
+import hu.psprog.leaflet.lags.core.domain.response.SignUpResult;
+import hu.psprog.leaflet.lags.core.domain.response.SignUpStatus;
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import hu.psprog.leaflet.lags.core.service.account.AccountRequestHandler;
 import hu.psprog.leaflet.lags.core.service.util.ReCaptchaValidator;
@@ -16,8 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_LOGIN;
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_SIGNUP;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_LOGIN;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_SIGNUP;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;

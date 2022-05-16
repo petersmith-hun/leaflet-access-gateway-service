@@ -1,8 +1,8 @@
 package hu.psprog.leaflet.lags.core.service.userdetails;
 
-import hu.psprog.leaflet.lags.core.domain.ExtendedUser;
-import hu.psprog.leaflet.lags.core.domain.Role;
-import hu.psprog.leaflet.lags.core.domain.User;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.User;
+import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
 import hu.psprog.leaflet.lags.core.service.util.RoleToAuthorityMappingRegistry;
 import org.junit.jupiter.api.Test;

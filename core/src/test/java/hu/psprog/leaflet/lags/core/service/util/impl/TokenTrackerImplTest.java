@@ -1,8 +1,8 @@
 package hu.psprog.leaflet.lags.core.service.util.impl;
 
-import hu.psprog.leaflet.lags.core.domain.AccessTokenInfo;
-import hu.psprog.leaflet.lags.core.domain.StoreAccessTokenInfoRequest;
-import hu.psprog.leaflet.lags.core.domain.TokenStatus;
+import hu.psprog.leaflet.lags.core.domain.internal.AccessTokenInfo;
+import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenStatus;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
 import org.junit.jupiter.api.Test;

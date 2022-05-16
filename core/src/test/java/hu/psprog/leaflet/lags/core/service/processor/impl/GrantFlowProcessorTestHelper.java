@@ -1,8 +1,8 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
-import hu.psprog.leaflet.lags.core.domain.ApplicationType;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
-import hu.psprog.leaflet.lags.core.domain.OAuthClientAllowRelation;
+import hu.psprog.leaflet.lags.core.domain.config.ApplicationType;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClientAllowRelation;
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
 
 import java.util.Arrays;

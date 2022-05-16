@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.persistence.repository.impl;
 
-import hu.psprog.leaflet.lags.core.domain.OngoingAuthorization;
+import hu.psprog.leaflet.lags.core.domain.internal.OngoingAuthorization;
 import hu.psprog.leaflet.lags.core.persistence.repository.OngoingAuthorizationRepository;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.security;
 
-import hu.psprog.leaflet.lags.core.domain.JWTAuthenticationToken;
-import hu.psprog.leaflet.lags.core.domain.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.internal.JWTAuthenticationToken;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +19,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.equalTo;

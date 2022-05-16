@@ -1,16 +1,16 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
-import hu.psprog.leaflet.lags.core.domain.ApplicationType;
-import hu.psprog.leaflet.lags.core.domain.AuthorizationResponseType;
-import hu.psprog.leaflet.lags.core.domain.ExtendedUser;
-import hu.psprog.leaflet.lags.core.domain.GrantType;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
-import hu.psprog.leaflet.lags.core.domain.OAuthConstants;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.domain.OngoingAuthorization;
-import hu.psprog.leaflet.lags.core.domain.UserInfo;
+import hu.psprog.leaflet.lags.core.domain.config.ApplicationType;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
+import hu.psprog.leaflet.lags.core.domain.internal.OngoingAuthorization;
+import hu.psprog.leaflet.lags.core.domain.internal.UserInfo;
+import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
+import hu.psprog.leaflet.lags.core.domain.request.GrantType;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.repository.OngoingAuthorizationRepository;
 import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;

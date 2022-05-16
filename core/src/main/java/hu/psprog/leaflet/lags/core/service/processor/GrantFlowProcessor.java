@@ -1,10 +1,10 @@
 package hu.psprog.leaflet.lags.core.service.processor;
 
-import hu.psprog.leaflet.lags.core.domain.GrantType;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.request.GrantType;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 
 import java.util.Map;
