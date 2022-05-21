@@ -1,12 +1,12 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
-import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
-import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
+import hu.psprog.leaflet.lags.core.service.registry.impl.OAuthRequestVerifierRegistryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -40,8 +40,8 @@ public class PasswordGrantFlowProcessor extends AbstractGrantFlowProcessor {
 
     @Autowired
     public PasswordGrantFlowProcessor(@Qualifier("localUserAuthenticationProvider") AuthenticationProvider authenticationProvider,
-                                      OAuthClientRegistry oAuthClientRegistry) {
-        super(oAuthClientRegistry);
+                                      OAuthRequestVerifierRegistryImpl oAuthRequestVerifierRegistry) {
+        super(oAuthRequestVerifierRegistry);
         this.authenticationProvider = authenticationProvider;
     }
 
@@ -51,31 +51,26 @@ public class PasswordGrantFlowProcessor extends AbstractGrantFlowProcessor {
     }
 
     @Override
-    protected void doFlowSpecificVerification(OAuthTokenRequest oAuthTokenRequest, OAuthClient oAuthClient) {
+    protected void doFlowSpecificTokenRequestContextProcessing(OAuthTokenRequestContext context) {
 
-        validateFieldExistence(oAuthTokenRequest, Map.of(
-                OAuthConstants.Request.USERNAME, OAuthTokenRequest::getUsername,
-                OAuthConstants.Request.PASSWORD, OAuthTokenRequest::getPassword
-        ));
-
-        Authentication authentication = authenticateResourceOwnerUser(oAuthTokenRequest);
+        Authentication authentication = authenticateResourceOwnerUser(context.getRequest());
         if (!authentication.isAuthenticated()) {
-            throw new OAuthAuthorizationException(String.format("Failed to authenticate user [%s]", oAuthTokenRequest.getUsername()));
+            throw new OAuthAuthorizationException(String.format("Failed to authenticate user [%s]", context.getRequest().getUsername()));
         }
 
-        updateScope(oAuthTokenRequest, (UserDetails) authentication.getPrincipal());
+        updateScope(context.getRequest(), (UserDetails) authentication.getPrincipal());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Override
-    protected Map<String, Object> generateCustomClaims(OAuthTokenRequest oAuthTokenRequest, OAuthClient oAuthClient) {
+    protected Map<String, Object> generateCustomClaims(OAuthTokenRequestContext context) {
 
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (Objects.isNull(userDetails) || !(userDetails instanceof ExtendedUser)) {
             throw new OAuthAuthorizationException("Missing user details in security context for password grant flow");
         }
 
-        Map<String, Object> claims = super.generateCustomClaims(oAuthTokenRequest, oAuthClient);
+        Map<String, Object> claims = super.generateCustomClaims(context);
         claims.put(OAuthConstants.Token.SUBJECT, String.format("%s|uid=%s", claims.get(OAuthConstants.Token.SUBJECT), ((ExtendedUser) userDetails).getId()));
         claims.put(OAuthConstants.Token.USER, userDetails.getUsername());
         claims.put(OAuthConstants.Token.ROLE, ((ExtendedUser) userDetails).getRole());

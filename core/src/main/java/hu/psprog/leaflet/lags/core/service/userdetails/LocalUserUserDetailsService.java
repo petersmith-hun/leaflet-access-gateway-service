@@ -2,7 +2,7 @@ package hu.psprog.leaflet.lags.core.service.userdetails;
 
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
-import hu.psprog.leaflet.lags.core.service.util.RoleToAuthorityMappingRegistry;
+import hu.psprog.leaflet.lags.core.service.registry.RoleToAuthorityMappingRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

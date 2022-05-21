@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -20,6 +21,11 @@ public class OAuthConfigurationProperties {
      * OAuth2 JWT token configuration parameters.
      */
     private final OAuthTokenSettings token;
+
+    /**
+     * Authorization code expiration in {@link Duration}.
+     */
+    private final Duration authCodeExpiration;
 
     /**
      * OAuth2 client registrations.

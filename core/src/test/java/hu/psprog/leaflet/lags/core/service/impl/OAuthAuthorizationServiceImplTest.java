@@ -15,6 +15,7 @@ import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
+import hu.psprog.leaflet.lags.core.persistence.repository.OngoingAuthorizationRepository;
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
@@ -92,6 +93,9 @@ class OAuthAuthorizationServiceImplTest {
     @Mock
     private AccessTokenDAO accessTokenDAO;
 
+    @Mock
+    private OngoingAuthorizationRepository ongoingAuthorizationRepository;
+
     private OAuthAuthorizationServiceImpl oAuthAuthorizationService;
 
     @BeforeEach
@@ -101,7 +105,7 @@ class OAuthAuthorizationServiceImplTest {
         given(grantFlowProcessor2.forGrantType()).willReturn(GrantType.AUTHORIZATION_CODE);
 
         oAuthAuthorizationService = new OAuthAuthorizationServiceImpl(Arrays.asList(grantFlowProcessor1, grantFlowProcessor2),
-                oAuthClientRegistry, tokenHandler, accessTokenDAO);
+                oAuthClientRegistry, tokenHandler, accessTokenDAO, ongoingAuthorizationRepository);
     }
 
     @Test

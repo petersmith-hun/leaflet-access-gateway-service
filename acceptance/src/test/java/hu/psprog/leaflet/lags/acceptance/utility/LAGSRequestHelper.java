@@ -134,7 +134,9 @@ public class LAGSRequestHelper {
                 TestConstants.Attribute.CODE,
                 TestConstants.Attribute.GRANT_TYPE,
                 TestConstants.Attribute.REDIRECT_URI,
-                TestConstants.Attribute.SCOPE
+                TestConstants.Attribute.SCOPE,
+                TestConstants.Attribute.USERNAME,
+                TestConstants.Attribute.PASSWORD
         );
     }
 

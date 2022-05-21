@@ -1,4 +1,4 @@
-package hu.psprog.leaflet.lags.core.service.util;
+package hu.psprog.leaflet.lags.core.service.registry;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;

@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.userdetails;
 
 import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
-import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
+import hu.psprog.leaflet.lags.core.service.registry.OAuthClientRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;

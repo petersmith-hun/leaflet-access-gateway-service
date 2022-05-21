@@ -7,6 +7,11 @@
       "sourceType": "hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties"
     },
     {
+      "name": "oauth2-config.auth-code-expiration",
+      "type": "java.time.Duration",
+      "description": "Authorization code expiration in Duration format."
+    },
+    {
       "name": "oauth2-config.clients",
       "type": "java.util.List<hu.psprog.leaflet.lags.core.domain.config.OAuthClient>",
       "description": "OAuth2 client registrations.",

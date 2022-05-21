@@ -1,9 +1,8 @@
 package hu.psprog.leaflet.lags.core.service.processor;
 
-import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthAuthorizationRequestContext;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
-import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
-import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 
@@ -23,22 +22,21 @@ public interface GrantFlowProcessor {
      * the received state value and redirection URL. Internally it also stores some meta-information about the authorization
      * request, so the access token can be generated based on those in the next step of process.
      *
-     * @param oAuthAuthorizationRequest {@link OAuthAuthorizationRequest} object containing the authorization request parameters
-     * @param oAuthClient {@link OAuthClient} registration object for the source client application
+     * @param context {@link OAuthAuthorizationRequestContext} object containing the authorization request parameters
      * @return generated {@link OAuthAuthorizationResponse} object to be sent back to the source client application
      * @throws OAuthAuthorizationException in case of errors during processing
      */
-    OAuthAuthorizationResponse authorizeRequest(OAuthAuthorizationRequest oAuthAuthorizationRequest, OAuthClient oAuthClient);
+    OAuthAuthorizationResponse processAuthorizationRequest(OAuthAuthorizationRequestContext context);
+
 
     /**
      * Executes the necessary verification steps for a given OAuth2 grant flow.
      * On success, generates and returns a map of relevant token claims that can be used to generate a JWT access token.
      *
-     * @param oAuthTokenRequest authorization request model as {@link OAuthTokenRequest}
-     * @param oAuthClient source client descriptor based on the request
+     * @param context {@link OAuthTokenRequestContext} object containing the token request parameters
      * @throws OAuthAuthorizationException in case of errors during processing
      */
-    Map<String, Object> verifyRequest(OAuthTokenRequest oAuthTokenRequest, OAuthClient oAuthClient);
+    Map<String, Object> processTokenRequest(OAuthTokenRequestContext context);
 
     /**
      * Returns the grant type for which this implementation is compatible.

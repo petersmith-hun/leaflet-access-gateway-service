@@ -47,14 +47,24 @@ public class OAuthTokenRequestFactory {
 
         return OAuthTokenRequest.builder()
                 .grantType(GrantType.parseGrantType(requestParameters.get(OAuthConstants.Request.GRANT_TYPE)))
-                .clientID(requestParameters.get(OAuthConstants.Request.CLIENT_ID))
+                .clientID(extractMandatoryParameter(requestParameters, OAuthConstants.Request.CLIENT_ID))
+                .audience(extractMandatoryParameter(requestParameters, OAuthConstants.Request.AUDIENCE))
                 .username(requestParameters.get(OAuthConstants.Request.USERNAME))
                 .password(requestParameters.get(OAuthConstants.Request.PASSWORD))
-                .audience(requestParameters.get(OAuthConstants.Request.AUDIENCE))
                 .authorizationCode(requestParameters.get(OAuthConstants.Request.CODE))
                 .redirectURI(requestParameters.get(OAuthConstants.Request.REDIRECT_URI))
                 .scope(extractScope(requestParameters))
                 .build();
+    }
+
+    private String extractMandatoryParameter(Map<String, String> requestParameters, String parameterName) {
+
+        String parameterValue = requestParameters.get(parameterName);
+        if (Objects.isNull(parameterValue)) {
+            throw new OAuthAuthorizationException(String.format("Value for required authorization parameter [%s] is missing", parameterName));
+        }
+
+        return parameterValue;
     }
 
     private List<String> extractScope(Map<String, String> requestParameters) {

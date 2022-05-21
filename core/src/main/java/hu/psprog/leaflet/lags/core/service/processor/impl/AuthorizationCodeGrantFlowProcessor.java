@@ -1,33 +1,20 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
-import hu.psprog.leaflet.lags.core.domain.config.ApplicationType;
-import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
-import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthAuthorizationRequestContext;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.internal.OngoingAuthorization;
 import hu.psprog.leaflet.lags.core.domain.internal.UserInfo;
-import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
-import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
-import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
-import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.repository.OngoingAuthorizationRepository;
-import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
-import org.apache.commons.lang3.StringUtils;
+import hu.psprog.leaflet.lags.core.service.factory.OngoingAuthorizationFactory;
+import hu.psprog.leaflet.lags.core.service.registry.impl.OAuthRequestVerifierRegistryImpl;
+import hu.psprog.leaflet.lags.core.service.util.ScopeNegotiator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * {@link AbstractGrantFlowProcessor} implementation for OAuth2 Authorization Code Flow authorization flow processing.
@@ -55,28 +42,31 @@ import java.util.stream.Collectors;
 public class AuthorizationCodeGrantFlowProcessor extends AbstractGrantFlowProcessor {
 
     private final OngoingAuthorizationRepository ongoingAuthorizationRepository;
+    private final OngoingAuthorizationFactory ongoingAuthorizationFactory;
+    private final ScopeNegotiator scopeNegotiator;
 
     @Autowired
-    public AuthorizationCodeGrantFlowProcessor(OAuthClientRegistry oAuthClientRegistry, OngoingAuthorizationRepository ongoingAuthorizationRepository) {
-        super(oAuthClientRegistry);
+    public AuthorizationCodeGrantFlowProcessor(OngoingAuthorizationRepository ongoingAuthorizationRepository, OAuthRequestVerifierRegistryImpl oAuthRequestVerifierRegistry,
+                                               OngoingAuthorizationFactory ongoingAuthorizationFactory, ScopeNegotiator scopeNegotiator) {
+        super(oAuthRequestVerifierRegistry);
         this.ongoingAuthorizationRepository = ongoingAuthorizationRepository;
+        this.ongoingAuthorizationFactory = ongoingAuthorizationFactory;
+        this.scopeNegotiator = scopeNegotiator;
     }
 
     @Override
-    public OAuthAuthorizationResponse authorizeRequest(OAuthAuthorizationRequest oAuthAuthorizationRequest, OAuthClient oAuthClient) {
+    public OAuthAuthorizationResponse processAuthorizationRequest(OAuthAuthorizationRequestContext context) {
 
-        verifyResponseType(oAuthAuthorizationRequest);
-        verifyApplicationType(oAuthClient);
-        verifyRedirectURI(oAuthAuthorizationRequest, oAuthClient);
-        verifyScope(oAuthAuthorizationRequest);
+        oAuthRequestVerifierRegistry.getAuthorizationRequestVerifiers()
+                .forEach(verifier -> verifier.verify(context));
 
-        OngoingAuthorization ongoingAuthorization = createOngoingAuthorization(oAuthAuthorizationRequest, oAuthClient);
+        OngoingAuthorization ongoingAuthorization = ongoingAuthorizationFactory.createOngoingAuthorization(context);
         ongoingAuthorizationRepository.saveOngoingAuthorization(ongoingAuthorization);
 
         return OAuthAuthorizationResponse.builder()
-                .redirectURI(oAuthAuthorizationRequest.getRedirectURI())
+                .redirectURI(context.getRequest().getRedirectURI())
                 .code(ongoingAuthorization.getAuthorizationCode())
-                .state(oAuthAuthorizationRequest.getState())
+                .state(context.getRequest().getState())
                 .build();
     }
 
@@ -86,36 +76,16 @@ public class AuthorizationCodeGrantFlowProcessor extends AbstractGrantFlowProces
     }
 
     @Override
-    protected void doFlowSpecificVerification(OAuthTokenRequest oAuthTokenRequest, OAuthClient oAuthClient) {
-
-        validateFieldExistence(oAuthTokenRequest, Map.of(
-                OAuthConstants.Request.CODE, OAuthTokenRequest::getAuthorizationCode,
-                OAuthConstants.Request.REDIRECT_URI, OAuthTokenRequest::getRedirectURI
-        ));
-
-        Optional<OngoingAuthorization> ongoingAuthorizationOptional =
-                ongoingAuthorizationRepository.getOngoingAuthorizationByCode(oAuthTokenRequest.getAuthorizationCode());
-
-        if (ongoingAuthorizationOptional.isPresent()) {
-
-            OngoingAuthorization ongoingAuthorization = ongoingAuthorizationOptional.get();
-            verifyOngoingAuthorization(ongoingAuthorization, oAuthTokenRequest);
-            updateScope(ongoingAuthorization, oAuthTokenRequest);
-
-        } else {
-            throw new OAuthAuthorizationException("Unknown authorization request");
-        }
+    protected void doFlowSpecificTokenRequestContextProcessing(OAuthTokenRequestContext context) {
+        context.getRequest().getScope().addAll(scopeNegotiator.getScope(context));
     }
 
     @Override
-    protected Map<String, Object> generateCustomClaims(OAuthTokenRequest oAuthTokenRequest, OAuthClient oAuthClient) {
+    protected Map<String, Object> generateCustomClaims(OAuthTokenRequestContext context) {
 
-        Map<String, Object> claims = super.generateCustomClaims(oAuthTokenRequest, oAuthClient);
+        Map<String, Object> claims = super.generateCustomClaims(context);
 
-        Optional<OngoingAuthorization> ongoingAuthorizationOptional =
-                ongoingAuthorizationRepository.getOngoingAuthorizationByCode(oAuthTokenRequest.getAuthorizationCode());
-
-        ongoingAuthorizationOptional.ifPresent(ongoingAuthorization -> {
+        context.getOngoingAuthorization().ifPresent(ongoingAuthorization -> {
             UserInfo userInfo = ongoingAuthorization.getUserInfo();
             claims.put(OAuthConstants.Token.SUBJECT, String.format("%s|uid=%s", claims.get(OAuthConstants.Token.SUBJECT), userInfo.getId()));
             claims.put(OAuthConstants.Token.USER, userInfo.getEmail());
@@ -124,113 +94,8 @@ public class AuthorizationCodeGrantFlowProcessor extends AbstractGrantFlowProces
             claims.put(OAuthConstants.Token.USER_ID, userInfo.getId());
         });
 
-        ongoingAuthorizationRepository.deleteOngoingAuthorization(oAuthTokenRequest.getAuthorizationCode());
+        ongoingAuthorizationRepository.deleteOngoingAuthorization(context.getRequest().getAuthorizationCode());
 
         return claims;
-    }
-
-    private void verifyResponseType(OAuthAuthorizationRequest oAuthAuthorizationRequest) {
-
-        if (oAuthAuthorizationRequest.getResponseType() != AuthorizationResponseType.CODE) {
-            throw new OAuthAuthorizationException("Authorization response type must be [code]");
-        }
-    }
-
-    private void verifyApplicationType(OAuthClient oAuthClient) {
-
-        if (oAuthClient.getApplicationType() != ApplicationType.UI) {
-            throw new OAuthAuthorizationException("Client application is not permitted to use authorization code flow.");
-        }
-    }
-
-    private void verifyRedirectURI(OAuthAuthorizationRequest oAuthAuthorizationRequest, OAuthClient oAuthClient) {
-
-        if (!oAuthClient.getAllowedCallbacks().contains(oAuthAuthorizationRequest.getRedirectURI())) {
-            throw new OAuthAuthorizationException(String.format("Specified redirection URI [%s] is not registered", oAuthAuthorizationRequest.getRedirectURI()));
-        }
-    }
-
-    private void verifyScope(OAuthAuthorizationRequest oAuthAuthorizationRequest) {
-
-        if (!StringUtils.isEmpty(oAuthAuthorizationRequest.getScope())) {
-            ExtendedUser userDetails = getUserDetails();
-            List<GrantedAuthority> requestedScopes = AuthorityUtils.createAuthorityList(oAuthAuthorizationRequest.getScopeAsArray());
-
-            if (!userDetails.getAuthorities().containsAll(requestedScopes)) {
-                throw new OAuthAuthorizationException("Requested scope is broader than the user's authority range.");
-            }
-        }
-    }
-
-    private OngoingAuthorization createOngoingAuthorization(OAuthAuthorizationRequest oAuthAuthorizationRequest, OAuthClient oAuthClient) {
-
-        ExtendedUser userDetails = getUserDetails();
-        LocalDateTime expiration = LocalDateTime.now().plusMinutes(1L);
-
-        return OngoingAuthorization.builder()
-                .authorizationCode(UUID.randomUUID().toString())
-                .clientID(oAuthAuthorizationRequest.getClientID())
-                .redirectURI(oAuthAuthorizationRequest.getRedirectURI())
-                .userInfo(UserInfo.builder()
-                        .id(userDetails.getId())
-                        .email(userDetails.getUsername())
-                        .username(userDetails.getName())
-                        .role(userDetails.getRole())
-                        .build())
-                .expiration(expiration)
-                .scope(getScope(oAuthAuthorizationRequest, oAuthClient))
-                .build();
-    }
-
-    private List<String> getScope(OAuthAuthorizationRequest oAuthAuthorizationRequest, OAuthClient oAuthClient) {
-
-        List<String> scope;
-
-        if (StringUtils.isEmpty(oAuthAuthorizationRequest.getScope())) {
-
-            List<String> userAuthorities = getUserDetails().getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
-
-            if (userAuthorities.containsAll(oAuthClient.getRequiredScopes())) {
-                scope = userAuthorities;
-            } else {
-                throw new OAuthAuthorizationException("Client requires broader authorities than what the user has.");
-            }
-
-        } else {
-            scope = Arrays.asList(oAuthAuthorizationRequest.getScopeAsArray());
-        }
-
-        return scope;
-    }
-
-    private ExtendedUser getUserDetails() {
-        return (ExtendedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    }
-
-    private void verifyOngoingAuthorization(OngoingAuthorization ongoingAuthorization, OAuthTokenRequest oAuthTokenRequest) {
-
-        if (!ongoingAuthorization.getClientID().equals(oAuthTokenRequest.getClientID())) {
-            throw new OAuthAuthorizationException("Authorization request belongs to a different client.");
-        }
-
-        if (!ongoingAuthorization.getRedirectURI().equals(oAuthTokenRequest.getRedirectURI())) {
-            throw new OAuthAuthorizationException("Different redirect URI has been specified in the token request.");
-        }
-
-        if (ongoingAuthorization.getExpiration().isBefore(LocalDateTime.now())) {
-            ongoingAuthorizationRepository.deleteOngoingAuthorization(ongoingAuthorization.getAuthorizationCode());
-            throw new OAuthAuthorizationException("Authorization has already expired.");
-        }
-    }
-
-    private void updateScope(OngoingAuthorization ongoingAuthorization, OAuthTokenRequest oAuthTokenRequest) {
-
-        if (!oAuthTokenRequest.getScope().isEmpty()) {
-            throw new OAuthAuthorizationException("Token request should not specify scope on Authorization Code flow.");
-        }
-
-        oAuthTokenRequest.getScope().addAll(ongoingAuthorization.getScope());
     }
 }

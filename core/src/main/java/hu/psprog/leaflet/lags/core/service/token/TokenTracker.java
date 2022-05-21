@@ -1,4 +1,4 @@
-package hu.psprog.leaflet.lags.core.service.util;
+package hu.psprog.leaflet.lags.core.service.token;
 
 import hu.psprog.leaflet.lags.core.domain.internal.AccessTokenInfo;
 import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;

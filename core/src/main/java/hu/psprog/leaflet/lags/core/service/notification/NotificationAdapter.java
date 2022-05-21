@@ -1,4 +1,4 @@
-package hu.psprog.leaflet.lags.core.service.util;
+package hu.psprog.leaflet.lags.core.service.notification;
 
 import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
 import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetSuccess;

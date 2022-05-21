@@ -1,11 +1,11 @@
-package hu.psprog.leaflet.lags.core.service.util.impl;
+package hu.psprog.leaflet.lags.core.service.token.impl;
 
 import hu.psprog.leaflet.lags.core.domain.internal.AccessTokenInfo;
 import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenStatus;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
-import hu.psprog.leaflet.lags.core.service.util.TokenTracker;
+import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

@@ -1,13 +1,13 @@
 package hu.psprog.leaflet.lags.core.service.account.impl;
 
+import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
 import hu.psprog.leaflet.lags.core.domain.response.SignUpResult;
 import hu.psprog.leaflet.lags.core.domain.response.SignUpStatus;
-import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
 import hu.psprog.leaflet.lags.core.service.account.AccountRequestHandler;
 import hu.psprog.leaflet.lags.core.service.mailing.domain.SignUpConfirmation;
-import hu.psprog.leaflet.lags.core.service.util.NotificationAdapter;
+import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;

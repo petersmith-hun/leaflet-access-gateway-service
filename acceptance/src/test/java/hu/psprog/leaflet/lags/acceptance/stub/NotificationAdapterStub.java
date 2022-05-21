@@ -5,7 +5,7 @@ import hu.psprog.leaflet.lags.acceptance.utility.ThreadLocalDataRegistry;
 import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
 import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetSuccess;
 import hu.psprog.leaflet.lags.core.service.mailing.domain.SignUpConfirmation;
-import hu.psprog.leaflet.lags.core.service.util.NotificationAdapter;
+import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
