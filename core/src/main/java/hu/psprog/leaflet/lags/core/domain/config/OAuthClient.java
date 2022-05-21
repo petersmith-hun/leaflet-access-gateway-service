@@ -1,10 +1,11 @@
 package hu.psprog.leaflet.lags.core.domain.config;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Domain class representing an OAuth2 client.
@@ -12,73 +13,52 @@ import java.util.Optional;
  * @author Peter Smith
  */
 @Data
+@Setter(AccessLevel.PACKAGE)
 public class OAuthClient {
 
     /**
      * Client name (internal identifier of the registration).
      */
-    private final String clientName;
+    private String clientName;
 
     /**
      * Type of this application. "UI" client applications must use authorization code flow,
      * "service" client applications can use client credentials flow.
      */
-    private final ApplicationType applicationType;
+    private ApplicationType applicationType;
 
     /**
      * OAuth2 client ID.
      */
-    private final String clientId;
+    private String clientId;
 
     /**
      * OAuth2 client secret.
      */
-    private final String clientSecret;
+    private String clientSecret;
 
     /**
      * OAuth2 audience (external client identifier for consumers).
      */
-    private final String audience;
+    private String audience;
 
     /**
      * Available scopes of the registered client.
      */
-    private final List<String> registeredScopes;
+    private List<String> registeredScopes = Collections.emptyList();
 
     /**
      * (Minimum) required scopes of the registered client.
      */
-    private final List<String> requiredScopes;
+    private List<String> requiredScopes = Collections.emptyList();
 
     /**
      * List of the consumer services allowed to access this client.
      */
-    private final List<OAuthClientAllowRelation> allowedClients;
+    private List<OAuthClientAllowRelation> allowedClients = Collections.emptyList();
 
     /**
      * List of allowed callbacks (for UI applications).
      */
-    private final List<String> allowedCallbacks;
-
-    public OAuthClient(String clientName, ApplicationType applicationType,
-                       String clientId, String clientSecret, String audience,
-                       List<String> registeredScopes, List<String> requiredScopes,
-                       List<OAuthClientAllowRelation> allowedClients, List<String> allowedCallbacks) {
-        this.clientName = clientName;
-        this.applicationType = applicationType;
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.audience = audience;
-        this.registeredScopes = safeInit(registeredScopes);
-        this.requiredScopes = safeInit(requiredScopes);
-        this.allowedClients = safeInit(allowedClients);
-        this.allowedCallbacks = safeInit(allowedCallbacks);
-    }
-
-    private <T> List<T> safeInit(List<T> inputList) {
-
-        return Optional
-                .ofNullable(inputList)
-                .orElseGet(Collections::emptyList);
-    }
+    private List<String> allowedCallbacks = Collections.emptyList();
 }

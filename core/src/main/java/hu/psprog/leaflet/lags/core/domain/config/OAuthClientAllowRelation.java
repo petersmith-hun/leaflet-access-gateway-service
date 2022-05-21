@@ -1,8 +1,10 @@
 package hu.psprog.leaflet.lags.core.domain.config;
 
+import lombok.AccessLevel;
 import lombok.Data;
-import org.springframework.boot.context.properties.ConstructorBinding;
+import lombok.Setter;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,16 +14,16 @@ import java.util.List;
  * @author Peter Smith
  */
 @Data
-@ConstructorBinding
+@Setter(AccessLevel.PACKAGE)
 public class OAuthClientAllowRelation {
 
     /**
      * Consumer service name (internal registration identifier).
      */
-    private final String name;
+    private String name;
 
     /**
      * Scopes this client allows the consumer to access.
      */
-    private final List<String> allowedScopes;
+    private List<String> allowedScopes = Collections.emptyList();
 }

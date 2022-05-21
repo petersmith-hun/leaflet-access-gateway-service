@@ -1,10 +1,12 @@
 package hu.psprog.leaflet.lags.core.domain.config;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -13,22 +15,22 @@ import java.util.List;
  * @author Peter Smith
  */
 @Data
-@ConstructorBinding
+@Setter(AccessLevel.PACKAGE)
 @ConfigurationProperties(prefix = "oauth2-config")
 public class OAuthConfigurationProperties {
 
     /**
      * OAuth2 JWT token configuration parameters.
      */
-    private final OAuthTokenSettings token;
+    private OAuthTokenSettings token;
 
     /**
      * Authorization code expiration in {@link Duration}.
      */
-    private final Duration authCodeExpiration;
+    private Duration authCodeExpiration;
 
     /**
      * OAuth2 client registrations.
      */
-    private final List<OAuthClient> clients;
+    private List<OAuthClient> clients = Collections.emptyList();
 }

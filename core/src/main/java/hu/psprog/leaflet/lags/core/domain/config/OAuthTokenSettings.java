@@ -1,7 +1,8 @@
 package hu.psprog.leaflet.lags.core.domain.config;
 
+import lombok.AccessLevel;
 import lombok.Data;
-import org.springframework.boot.context.properties.ConstructorBinding;
+import lombok.Setter;
 
 import java.nio.file.Path;
 
@@ -11,26 +12,26 @@ import java.nio.file.Path;
  * @author Peter Smith
  */
 @Data
-@ConstructorBinding
+@Setter(AccessLevel.PACKAGE)
 public class OAuthTokenSettings {
 
     /**
      * Token expiration time in seconds.
      */
-    private final int expiration;
+    private int expiration;
 
     /**
      * Token issuer URI.
      */
-    private final String issuer;
+    private String issuer;
 
     /**
      * Path of the private RSA key file to sign the tokens with.
      */
-    private final Path privateKeyFile;
+    private Path privateKeyFile;
 
     /**
      * Path of the public RSA key file to sign the tokens with.
      */
-    private final Path publicKeyFile;
+    private Path publicKeyFile;
 }
