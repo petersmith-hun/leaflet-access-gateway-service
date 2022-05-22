@@ -1,4 +1,4 @@
-package hu.psprog.leaflet.lags.core.service.util.impl;
+package hu.psprog.leaflet.lags.core.service.registry.impl;
 
 import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import org.junit.jupiter.api.Test;

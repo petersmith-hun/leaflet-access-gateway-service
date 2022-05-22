@@ -7,7 +7,7 @@ import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenStatus;
 import hu.psprog.leaflet.lags.core.exception.RevokedTokenException;
-import hu.psprog.leaflet.lags.core.service.util.TokenTracker;
+import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

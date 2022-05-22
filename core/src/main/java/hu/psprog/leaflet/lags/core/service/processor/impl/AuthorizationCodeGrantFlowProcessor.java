@@ -9,7 +9,7 @@ import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.persistence.repository.OngoingAuthorizationRepository;
 import hu.psprog.leaflet.lags.core.service.factory.OngoingAuthorizationFactory;
-import hu.psprog.leaflet.lags.core.service.registry.impl.OAuthRequestVerifierRegistryImpl;
+import hu.psprog.leaflet.lags.core.service.registry.OAuthRequestVerifierRegistry;
 import hu.psprog.leaflet.lags.core.service.util.ScopeNegotiator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -46,7 +46,7 @@ public class AuthorizationCodeGrantFlowProcessor extends AbstractGrantFlowProces
     private final ScopeNegotiator scopeNegotiator;
 
     @Autowired
-    public AuthorizationCodeGrantFlowProcessor(OngoingAuthorizationRepository ongoingAuthorizationRepository, OAuthRequestVerifierRegistryImpl oAuthRequestVerifierRegistry,
+    public AuthorizationCodeGrantFlowProcessor(OAuthRequestVerifierRegistry oAuthRequestVerifierRegistry, OngoingAuthorizationRepository ongoingAuthorizationRepository,
                                                OngoingAuthorizationFactory ongoingAuthorizationFactory, ScopeNegotiator scopeNegotiator) {
         super(oAuthRequestVerifierRegistry);
         this.ongoingAuthorizationRepository = ongoingAuthorizationRepository;

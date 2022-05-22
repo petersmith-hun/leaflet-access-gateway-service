@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
-import hu.psprog.leaflet.lags.core.service.registry.impl.OAuthRequestVerifierRegistryImpl;
+import hu.psprog.leaflet.lags.core.service.registry.OAuthRequestVerifierRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class ClientCredentialsGrantFlowProcessor extends AbstractGrantFlowProcessor {
 
     @Autowired
-    public ClientCredentialsGrantFlowProcessor(OAuthRequestVerifierRegistryImpl oAuthRequestVerifierRegistry) {
+    public ClientCredentialsGrantFlowProcessor(OAuthRequestVerifierRegistry oAuthRequestVerifierRegistry) {
         super(oAuthRequestVerifierRegistry);
     }
 

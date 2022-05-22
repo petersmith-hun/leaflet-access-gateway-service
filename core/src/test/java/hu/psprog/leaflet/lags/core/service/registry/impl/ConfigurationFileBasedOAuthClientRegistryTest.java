@@ -1,7 +1,8 @@
-package hu.psprog.leaflet.lags.core.service.util.impl;
+package hu.psprog.leaflet.lags.core.service.registry.impl;
 
 import hu.psprog.leaflet.lags.core.domain.config.ApplicationType;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigTestHelper;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -78,10 +78,10 @@ class ConfigurationFileBasedOAuthClientRegistryTest {
     }
 
     private static OAuthClient prepareOAuthClient(String clientName, String clientId, String audience) {
-        return new OAuthClient(clientName, ApplicationType.SERVICE, clientId, null, audience, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        return OAuthConfigTestHelper.prepareOAuthClient(clientName, ApplicationType.SERVICE, clientId, null, audience);
     }
 
     private static OAuthConfigurationProperties prepareOAuthConfigurationProperties() {
-        return new OAuthConfigurationProperties(null, Arrays.asList(O_AUTH_CLIENT_1, O_AUTH_CLIENT_2));
+        return OAuthConfigTestHelper.prepareConfig(null, null, Arrays.asList(O_AUTH_CLIENT_1, O_AUTH_CLIENT_2));
     }
 }

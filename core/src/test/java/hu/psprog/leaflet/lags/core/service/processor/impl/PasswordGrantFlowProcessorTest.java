@@ -1,10 +1,12 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
-import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
+import hu.psprog.leaflet.lags.core.service.processor.verifier.OAuthRequestVerifier;
+import hu.psprog.leaflet.lags.core.service.registry.OAuthRequestVerifierRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,17 +24,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
-import static hu.psprog.leaflet.lags.core.service.processor.impl.GrantFlowProcessorTestHelper.INVALID_TARGET_O_AUTH_CLIENT;
-import static hu.psprog.leaflet.lags.core.service.processor.impl.GrantFlowProcessorTestHelper.SOURCE_O_AUTH_CLIENT;
-import static hu.psprog.leaflet.lags.core.service.processor.impl.GrantFlowProcessorTestHelper.TARGET_O_AUTH_CLIENT;
+import static hu.psprog.leaflet.lags.core.domain.config.OAuthConfigTestHelper.SOURCE_O_AUTH_CLIENT;
+import static hu.psprog.leaflet.lags.core.domain.config.OAuthConfigTestHelper.TARGET_O_AUTH_CLIENT;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for {@link PasswordGrantFlowProcessor}.
@@ -51,7 +54,13 @@ class PasswordGrantFlowProcessorTest {
     private AuthenticationProvider authenticationProvider;
 
     @Mock
-    private OAuthClientRegistry oAuthClientRegistry;
+    private OAuthRequestVerifierRegistry oAuthRequestVerifierRegistry;
+
+    @Mock
+    private OAuthRequestVerifier<OAuthTokenRequestContext> verifier1;
+
+    @Mock
+    private OAuthRequestVerifier<OAuthTokenRequestContext> verifier2;
 
     @Mock
     private Authentication authentication;
@@ -60,16 +69,21 @@ class PasswordGrantFlowProcessorTest {
     private PasswordGrantFlowProcessor passwordGrantFlowProcessor;
 
     @Test
-    public void shouldVerifyRequestGenerateClaimsWithSuccess() {
+    public void shouldProcessTokenRequestGenerateClaimsWithSuccess() {
 
         // given
+        OAuthTokenRequestContext context = OAuthTokenRequestContext.builder()
+                .request(VALID_O_AUTH_TOKEN_REQUEST)
+                .sourceClient(SOURCE_O_AUTH_CLIENT)
+                .build();
+
+        given(oAuthRequestVerifierRegistry.getTokenRequestVerifiers(GrantType.PASSWORD)).willReturn(List.of(verifier1, verifier2));
         given(authenticationProvider.authenticate(EXPECTED_USER_AUTH_TOKEN)).willReturn(authentication);
         given(authentication.isAuthenticated()).willReturn(true);
         given(authentication.getPrincipal()).willReturn(MOCK_USED_DETAILS);
-        given(oAuthClientRegistry.getClientByAudience(TARGET_O_AUTH_CLIENT.getAudience())).willReturn(Optional.of(TARGET_O_AUTH_CLIENT));
 
         // when
-        Map<String, Object> result = passwordGrantFlowProcessor.verifyRequest(VALID_O_AUTH_TOKEN_REQUEST, SOURCE_O_AUTH_CLIENT);
+        Map<String, Object> result = passwordGrantFlowProcessor.processTokenRequest(context);
 
         // then
         assertThat(result.size(), equalTo(6));
@@ -81,19 +95,27 @@ class PasswordGrantFlowProcessorTest {
                 "name", "Some User",
                 "uid", 1234L
         )));
+
+        verify(oAuthRequestVerifierRegistry).getTokenRequestVerifiers(GrantType.PASSWORD);
+        verify(verifier1).verify(context);
+        verify(verifier2).verify(context);
     }
 
     @Test
-    public void shouldVerifyRequestGenerateClaimsWithDefaultScopeSet() {
+    public void shouldProcessTokenRequestGenerateClaimsWithDefaultScopeSet() {
 
         // given
+        OAuthTokenRequestContext context = OAuthTokenRequestContext.builder()
+                .request(VALID_O_AUTH_TOKEN_REQUEST_WITHOUT_SCOPE)
+                .sourceClient(SOURCE_O_AUTH_CLIENT)
+                .build();
+
         given(authenticationProvider.authenticate(EXPECTED_USER_AUTH_TOKEN)).willReturn(authentication);
         given(authentication.isAuthenticated()).willReturn(true);
         given(authentication.getPrincipal()).willReturn(MOCK_USED_DETAILS);
-        given(oAuthClientRegistry.getClientByAudience(TARGET_O_AUTH_CLIENT.getAudience())).willReturn(Optional.of(TARGET_O_AUTH_CLIENT));
 
         // when
-        Map<String, Object> result = passwordGrantFlowProcessor.verifyRequest(VALID_O_AUTH_TOKEN_REQUEST_WITHOUT_SCOPE, SOURCE_O_AUTH_CLIENT);
+        Map<String, Object> result = passwordGrantFlowProcessor.processTokenRequest(context);
 
         // then
         assertThat(result.size(), equalTo(6));
@@ -108,97 +130,66 @@ class PasswordGrantFlowProcessorTest {
     }
 
     @Test
-    public void shouldVerifyRequestThrowExceptionIfUserCannotBeAuthenticated() {
+    public void shouldProcessTokenRequestThrowExceptionIfUserCannotBeAuthenticated() {
 
         // given
+        OAuthTokenRequestContext context = OAuthTokenRequestContext.builder()
+                .request(VALID_O_AUTH_TOKEN_REQUEST)
+                .sourceClient(SOURCE_O_AUTH_CLIENT)
+                .build();
+
         given(authenticationProvider.authenticate(EXPECTED_USER_AUTH_TOKEN)).willReturn(authentication);
         given(authentication.isAuthenticated()).willReturn(false);
 
         // when
-        Throwable result = assertThrows(OAuthAuthorizationException.class, () -> passwordGrantFlowProcessor.verifyRequest(VALID_O_AUTH_TOKEN_REQUEST, SOURCE_O_AUTH_CLIENT));
+        Throwable result = assertThrows(OAuthAuthorizationException.class, () -> passwordGrantFlowProcessor.processTokenRequest(context));
 
         // then
         // exception expected
         assertThat(result.getMessage(), equalTo("Failed to authenticate user [user1]"));
     }
 
-    @ParameterizedTest
-    @MethodSource("missingFieldDataProvider")
-    public void shouldVerifyRequestThrowExceptionIfMandatoryFieldsAreMissing(String missingFieldName, OAuthTokenRequest oAuthTokenRequest) {
-
-        // when
-        Throwable result = assertThrows(OAuthAuthorizationException.class, () -> passwordGrantFlowProcessor.verifyRequest(oAuthTokenRequest, SOURCE_O_AUTH_CLIENT));
-
-        // then
-        // exception expected
-        assertThat(result.getMessage(), equalTo(String.format("Value for required authorization parameter [%s] is missing", missingFieldName)));
-    }
-
     @Test
-    public void shouldVerifyRequestThrowExceptionIfTargetClientIsNotRegistered() {
+    public void shouldProcessTokenRequestPassUpTheExceptionIfAVerifierFails() {
 
         // given
+        OAuthTokenRequestContext context = OAuthTokenRequestContext.builder()
+                .request(VALID_O_AUTH_TOKEN_REQUEST)
+                .sourceClient(SOURCE_O_AUTH_CLIENT)
+                .build();
+
+        given(oAuthRequestVerifierRegistry.getTokenRequestVerifiers(GrantType.PASSWORD)).willReturn(List.of(verifier1, verifier2));
         given(authenticationProvider.authenticate(EXPECTED_USER_AUTH_TOKEN)).willReturn(authentication);
         given(authentication.isAuthenticated()).willReturn(true);
         given(authentication.getPrincipal()).willReturn(MOCK_USED_DETAILS);
-        given(oAuthClientRegistry.getClientByAudience(TARGET_O_AUTH_CLIENT.getAudience())).willReturn(Optional.empty());
+        doThrow(OAuthAuthorizationException.class).when(verifier2).verify(context);
 
         // when
-        Throwable result = assertThrows(OAuthAuthorizationException.class, () -> passwordGrantFlowProcessor.verifyRequest(VALID_O_AUTH_TOKEN_REQUEST, SOURCE_O_AUTH_CLIENT));
+        assertThrows(OAuthAuthorizationException.class, () -> passwordGrantFlowProcessor.processTokenRequest(context));
 
         // then
         // exception expected
-        assertThat(result.getMessage(), equalTo("Requested access for non-registered OAuth client [target-service-audience]"));
-    }
 
-    @Test
-    public void shouldVerifyRequestThrowExceptionIfAccessingTargetIsNotAllowedToSourceClient() {
-
-        // given
-        given(authenticationProvider.authenticate(EXPECTED_USER_AUTH_TOKEN)).willReturn(authentication);
-        given(authentication.isAuthenticated()).willReturn(true);
-        given(authentication.getPrincipal()).willReturn(MOCK_USED_DETAILS);
-        given(oAuthClientRegistry.getClientByAudience(TARGET_O_AUTH_CLIENT.getAudience())).willReturn(Optional.of(INVALID_TARGET_O_AUTH_CLIENT));
-
-        // when
-        Throwable result = assertThrows(OAuthAuthorizationException.class, () -> passwordGrantFlowProcessor.verifyRequest(VALID_O_AUTH_TOKEN_REQUEST, SOURCE_O_AUTH_CLIENT));
-
-        // then
-        // exception expected
-        assertThat(result.getMessage(), equalTo("Target client [target-service-1] does not allow access for source client [source-service-1]"));
-    }
-
-    @ParameterizedTest
-    @MethodSource("requestWithInvalidScopeDataProvider")
-    public void shouldVerifyRequestThrowExceptionIfSourceRequestedNotAllowedScope(OAuthTokenRequest oAuthTokenRequest) {
-
-        // given
-        given(authenticationProvider.authenticate(EXPECTED_USER_AUTH_TOKEN)).willReturn(authentication);
-        given(authentication.isAuthenticated()).willReturn(true);
-        given(authentication.getPrincipal()).willReturn(MOCK_USED_DETAILS);
-        given(oAuthClientRegistry.getClientByAudience(TARGET_O_AUTH_CLIENT.getAudience())).willReturn(Optional.of(TARGET_O_AUTH_CLIENT));
-
-        // when
-        Throwable result = assertThrows(OAuthAuthorizationException.class, () -> passwordGrantFlowProcessor.verifyRequest(oAuthTokenRequest, SOURCE_O_AUTH_CLIENT));
-
-        // then
-        // exception expected
-        assertThat(result.getMessage(), equalTo(String.format("Target client [target-service-1] does not allow the requested scope [%s] for source client [source-service-1]",
-                oAuthTokenRequest.getScope())));
+        verify(oAuthRequestVerifierRegistry).getTokenRequestVerifiers(GrantType.PASSWORD);
+        verify(verifier1).verify(context);
+        verify(verifier2).verify(context);
     }
 
     @ParameterizedTest
     @MethodSource("invalidUserDetailsDataProvider")
-    public void shouldVerifyRequestThrowExceptionIfSecurityContextDoesNotContainProperPrincipal(UserDetails userDetails) {
+    public void shouldProcessTokenRequestThrowExceptionIfSecurityContextDoesNotContainProperPrincipal(UserDetails userDetails) {
 
         // given
         given(authenticationProvider.authenticate(EXPECTED_USER_AUTH_TOKEN)).willReturn(authentication);
         given(authentication.isAuthenticated()).willReturn(true);
         given(authentication.getPrincipal()).willReturn(userDetails);
-        given(oAuthClientRegistry.getClientByAudience(TARGET_O_AUTH_CLIENT.getAudience())).willReturn(Optional.of(TARGET_O_AUTH_CLIENT));
+        OAuthTokenRequestContext context = OAuthTokenRequestContext.builder()
+                .request(VALID_O_AUTH_TOKEN_REQUEST)
+                .sourceClient(SOURCE_O_AUTH_CLIENT)
+                .build();
 
         // when
-        Throwable result = assertThrows(OAuthAuthorizationException.class, () -> passwordGrantFlowProcessor.verifyRequest(VALID_O_AUTH_TOKEN_REQUEST, SOURCE_O_AUTH_CLIENT));
+        Throwable result = assertThrows(OAuthAuthorizationException.class, () -> passwordGrantFlowProcessor.processTokenRequest(context));
 
         // then
         // exception expected
@@ -229,18 +220,6 @@ class PasswordGrantFlowProcessorTest {
                 .build();
     }
 
-    private static OAuthTokenRequest prepareOAuthTokenRequest(String... scope) {
-
-        return OAuthTokenRequest.builder()
-                .grantType(GrantType.PASSWORD)
-                .clientID(SOURCE_O_AUTH_CLIENT.getClientId())
-                .audience(TARGET_O_AUTH_CLIENT.getAudience())
-                .scope(Arrays.asList(scope))
-                .username("user1")
-                .password("password1")
-                .build();
-    }
-
     private static UsernamePasswordAuthenticationToken prepareExpectedUserAuthenticationToken() {
         return new UsernamePasswordAuthenticationToken("user1", "password1");
     }
@@ -254,25 +233,6 @@ class PasswordGrantFlowProcessorTest {
                 .name("Some User")
                 .authorities(AuthorityUtils.createAuthorityList("default1", "default2", "default3"))
                 .build();
-    }
-
-    private static Stream<Arguments> missingFieldDataProvider() {
-
-        return Stream.of(
-                Arguments.of("client_id", OAuthTokenRequest.builder().audience("audience1").username("user1").password("pass1").build()),
-                Arguments.of("audience", OAuthTokenRequest.builder().clientID("client1").username("user1").password("pass1").build()),
-                Arguments.of("username", OAuthTokenRequest.builder().clientID("client1").audience("audience1").password("pass1").build()),
-                Arguments.of("password", OAuthTokenRequest.builder().clientID("client1").audience("audience1").username("user1").build())
-        );
-    }
-
-    private static Stream<Arguments> requestWithInvalidScopeDataProvider() {
-
-        return Stream.of(
-                Arguments.of(prepareOAuthTokenRequest("admin:item")),
-                Arguments.of(prepareOAuthTokenRequest("admin:item", "read:items", "write:item:self")),
-                Arguments.of(prepareOAuthTokenRequest("some:non:existing", "read:items"))
-        );
     }
 
     private static Stream<Arguments> invalidUserDetailsDataProvider() {

@@ -1,6 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.token.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigTestHelper;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings;
 import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;
@@ -9,8 +10,8 @@ import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
-import hu.psprog.leaflet.lags.core.service.util.TokenTracker;
-import hu.psprog.leaflet.lags.core.service.util.impl.RSAKeyRegistry;
+import hu.psprog.leaflet.lags.core.service.registry.impl.RSAKeyRegistry;
+import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -187,14 +188,14 @@ class JWTTokenHandlerTest {
 
         OAuthTokenSettings oAuthTokenSettings = null;
         try {
-            oAuthTokenSettings = new OAuthTokenSettings(3600, "https://oauth.dev.local:9999",
+            oAuthTokenSettings = OAuthConfigTestHelper.prepareTokenSettings(3600, "https://oauth.dev.local:9999",
                     Paths.get(ClassLoader.getSystemResource("lags_unit_tests_jwt_rsa_prv_pkcs8.pem").toURI()),
                     Paths.get(ClassLoader.getSystemResource("lags_unit_tests_jwt_rsa_pub.pem").toURI()));
         } catch (URISyntaxException e) {
             fail("Failed to read RSA private key for unit test", e);
         }
 
-        return new OAuthConfigurationProperties(oAuthTokenSettings, Collections.emptyList());
+        return OAuthConfigTestHelper.prepareConfig(oAuthTokenSettings, null, Collections.emptyList());
     }
 
     private static OAuthTokenRequest prepareValidOAuthTokenRequest() {

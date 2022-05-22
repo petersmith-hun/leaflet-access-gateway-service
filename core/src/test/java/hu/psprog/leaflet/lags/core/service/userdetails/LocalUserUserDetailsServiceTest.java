@@ -4,7 +4,7 @@ import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
-import hu.psprog.leaflet.lags.core.service.util.RoleToAuthorityMappingRegistry;
+import hu.psprog.leaflet.lags.core.service.registry.RoleToAuthorityMappingRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

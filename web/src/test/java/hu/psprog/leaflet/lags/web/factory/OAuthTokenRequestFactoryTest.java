@@ -53,6 +53,14 @@ class OAuthTokenRequestFactoryTest {
             "scope", "scope1 scope2"
     );
 
+    private static final Map<String, String> REQUEST_PARAMETERS_WITHOUT_AUDIENCE = Map.of(
+            "client_id", "client1",
+            "grant_type", "password",
+            "username", "user1",
+            "password", "pass1",
+            "scope", "scope1 scope2"
+    );
+
     private static final Map<String, String> REQUEST_PARAMETERS_WITH_INVALID_GRANT_TYPE = Map.of(
             "client_id", "client1",
             "grant_type", "some-invalid-grant-type",
@@ -133,6 +141,21 @@ class OAuthTokenRequestFactoryTest {
 
         // then
         // exception expected
+    }
+
+    @Test
+    public void shouldCreateTokenThrowExceptionForMissingMandatoryParameterAudience() {
+
+        // given
+        given(userDetails.getUsername()).willReturn("client1");
+
+        // when
+        Throwable result = assertThrows(OAuthAuthorizationException.class,
+                () -> oAuthTokenRequestFactory.createTokenRequest(REQUEST_PARAMETERS_WITHOUT_AUDIENCE, userDetails));
+
+        // then
+        // exception expected
+        assertThat(result.getMessage(), equalTo("Value for required authorization parameter [audience] is missing"));
     }
 
     private void verifyOAuthTokenRequest(OAuthTokenRequest result, boolean withScope) {

@@ -51,7 +51,7 @@ public class AuthorizationCodeFlowScopeNegotiator implements ScopeNegotiator {
 
         return doesRelationHaveNarrowerScope(context)
                 ? context.getRelation().getAllowedScopes()
-                : context.getRequiredOngoingAuthorization().getScope();
+                : getAlignedAuthorizedScope(context);
     }
 
     private List<String> getUserAuthorities(OAuthAuthorizationRequestContext context) {
@@ -88,5 +88,15 @@ public class AuthorizationCodeFlowScopeNegotiator implements ScopeNegotiator {
 
         return relationScope.size() < authorizedScope.size()
                 && authorizedScope.containsAll(relationScope);
+    }
+
+    private List<String> getAlignedAuthorizedScope(OAuthTokenRequestContext context) {
+
+        return context.getRequiredOngoingAuthorization()
+                .getScope().stream()
+                .filter(scope -> context.getRelation()
+                        .getAllowedScopes().stream()
+                        .anyMatch(scope::equals))
+                .collect(Collectors.toList());
     }
 }

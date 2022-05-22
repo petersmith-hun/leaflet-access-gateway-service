@@ -6,7 +6,7 @@ import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
-import hu.psprog.leaflet.lags.core.service.registry.impl.OAuthRequestVerifierRegistryImpl;
+import hu.psprog.leaflet.lags.core.service.registry.OAuthRequestVerifierRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -40,7 +40,7 @@ public class PasswordGrantFlowProcessor extends AbstractGrantFlowProcessor {
 
     @Autowired
     public PasswordGrantFlowProcessor(@Qualifier("localUserAuthenticationProvider") AuthenticationProvider authenticationProvider,
-                                      OAuthRequestVerifierRegistryImpl oAuthRequestVerifierRegistry) {
+                                      OAuthRequestVerifierRegistry oAuthRequestVerifierRegistry) {
         super(oAuthRequestVerifierRegistry);
         this.authenticationProvider = authenticationProvider;
     }
