@@ -74,6 +74,8 @@ public class JWTTokenHandler implements TokenHandler {
                     .scope(claims.get(OAuthConstants.Token.SCOPE).toString())
                     .expiration(claims.getExpiration())
                     .audience(claims.getAudience())
+                    .role(String.valueOf(claims.get(OAuthConstants.Token.ROLE)))
+                    .userID(Long.parseLong(claims.getOrDefault(OAuthConstants.Token.USER_ID, "0").toString()))
                     .build();
         } catch (JwtException e) {
             throw new AuthenticationException("Failed to parse JWT token", e);

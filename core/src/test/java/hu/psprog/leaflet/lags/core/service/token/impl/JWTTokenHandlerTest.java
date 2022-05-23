@@ -51,6 +51,8 @@ class JWTTokenHandlerTest {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String EMAIL = "user@dev.local";
     private static final String AUDIENCE = "target-svc-aud-1";
+    private static final long USER_ID = 6643L;
+    private static final String ROLE = "EDITOR";
 
     private JWTTokenHandler jwtTokenHandler;
 
@@ -118,6 +120,8 @@ class JWTTokenHandlerTest {
         assertThat(result.getAudience(), equalTo(AUDIENCE));
         assertThat(result.getScopeAsArray(), equalTo(new String[] {"read:all", "write:all"}));
         assertThat(result.getScope(), equalTo("read:all write:all"));
+        assertThat(result.getUserID(), equalTo(USER_ID));
+        assertThat(result.getRole(), equalTo(ROLE));
     }
 
     @Test
@@ -214,6 +218,8 @@ class JWTTokenHandlerTest {
                 .scope("read:all write:all")
                 .subject("dummy-source-service-1")
                 .email(EMAIL)
+                .userID(USER_ID)
+                .role(ROLE)
                 .build();
     }
 }

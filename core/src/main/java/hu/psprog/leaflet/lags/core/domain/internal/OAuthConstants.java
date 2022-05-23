@@ -27,6 +27,7 @@ public interface OAuthConstants {
      * JWT token claim constants.
      */
     interface Token {
+        String JTI = "jti";
         String SCOPE = "scope";
         String SUBJECT = "sub";
         String USER = "usr";
@@ -34,5 +35,6 @@ public interface OAuthConstants {
         String NAME = "name";
         String USER_ID = "uid";
         String EXPIRATION = "exp";
+        String AUDIENCE = "aud";
     }
 }
