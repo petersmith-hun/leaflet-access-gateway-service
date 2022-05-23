@@ -2,8 +2,8 @@ package hu.psprog.leaflet.lags.core.service.account.impl;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
-import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.request.PasswordResetRequestModel;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
@@ -16,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -56,7 +54,7 @@ public class PasswordResetRequestAccountRequestHandler implements AccountRequest
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             OAuthTokenRequest passwordResetTokenRequest = createPasswordResetTokenRequest();
-            Map<String, Object> claims = createPasswordReclaimTokenClaims(user);
+            TokenClaims claims = createPasswordReclaimTokenClaims(user);
             OAuthTokenResponse reclaimToken = tokenHandler.generateToken(passwordResetTokenRequest, claims, passwordResetConfig.getTokenExpiration());
             sendPasswordResetRequestNotification(user, reclaimToken);
         } else {
@@ -73,16 +71,16 @@ public class PasswordResetRequestAccountRequestHandler implements AccountRequest
                 .build();
     }
 
-    private HashMap<String, Object> createPasswordReclaimTokenClaims(User user) {
+    private TokenClaims createPasswordReclaimTokenClaims(User user) {
 
-        return new HashMap<>(Map.of(
-                OAuthConstants.Token.SCOPE, SecurityConstants.RECLAIM_AUTHORITY.getAuthority(),
-                OAuthConstants.Token.SUBJECT, String.format("password-reset|uid=%s", user.getId()),
-                OAuthConstants.Token.ROLE, SecurityConstants.RECLAIM_ROLE,
-                OAuthConstants.Token.USER, user.getEmail(),
-                OAuthConstants.Token.NAME, user.getUsername(),
-                OAuthConstants.Token.USER_ID, user.getId()
-        ));
+        return TokenClaims.builder()
+                .scope(SecurityConstants.RECLAIM_AUTHORITY.getAuthority())
+                .subject(String.format("password-reset|uid=%s", user.getId()))
+                .role(SecurityConstants.RECLAIM_ROLE)
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .userID(user.getId())
+                .build();
     }
 
     private void sendPasswordResetRequestNotification(User user, OAuthTokenResponse reclaimToken) {

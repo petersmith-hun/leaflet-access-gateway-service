@@ -15,13 +15,11 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -44,16 +42,16 @@ public class JWTTokenHandler implements TokenHandler {
     }
 
     @Override
-    public OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims) {
+    public OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, TokenClaims claims) {
         return generateToken(oAuthTokenRequest, claims, oAuthConfigurationProperties.getToken().getExpiration());
     }
 
     @Override
-    public OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims, int customExpirationInSeconds) {
+    public OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, TokenClaims claims, int customExpirationInSeconds) {
 
         return OAuthTokenResponse.builder()
                 .accessToken(createToken(oAuthTokenRequest, claims, customExpirationInSeconds))
-                .scope(claims.get(OAuthConstants.Request.SCOPE).toString())
+                .scope(claims.getScope())
                 .expiresIn(customExpirationInSeconds)
                 .build();
     }
@@ -73,7 +71,7 @@ public class JWTTokenHandler implements TokenHandler {
                     .username(String.valueOf(claims.get(OAuthConstants.Token.NAME)))
                     .email(String.valueOf(claims.get(OAuthConstants.Token.USER)))
                     .clientID(claims.get(OAuthConstants.Token.SUBJECT).toString())
-                    .scopes(extractScopes(claims))
+                    .scope(claims.get(OAuthConstants.Token.SCOPE).toString())
                     .expiration(claims.getExpiration())
                     .audience(claims.getAudience())
                     .build();
@@ -82,12 +80,12 @@ public class JWTTokenHandler implements TokenHandler {
         }
     }
 
-    private String createToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims, int expirationInSeconds) {
+    private String createToken(OAuthTokenRequest oAuthTokenRequest, TokenClaims claims, int expirationInSeconds) {
 
         Date issuedAt = new Date();
         StoreAccessTokenInfoRequest storeAccessTokenInfoRequest = StoreAccessTokenInfoRequest.builder()
                 .id(UUID.randomUUID().toString())
-                .subject(claims.get(OAuthConstants.Token.SUBJECT).toString())
+                .subject(claims.getSubject())
                 .issuedAt(issuedAt)
                 .expiresAt(generateExpiration(issuedAt, expirationInSeconds))
                 .build();
@@ -96,7 +94,7 @@ public class JWTTokenHandler implements TokenHandler {
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setClaims(claims)
+                .setClaims(claims.getClaimsAsMap())
                 .setAudience(oAuthTokenRequest.getAudience())
                 .setExpiration(storeAccessTokenInfoRequest.getExpiresAt())
                 .setId(storeAccessTokenInfoRequest.getId())
@@ -116,12 +114,5 @@ public class JWTTokenHandler implements TokenHandler {
         calendar.add(Calendar.SECOND, expirationInSeconds);
 
         return calendar.getTime();
-    }
-
-    private String[] extractScopes(Claims claims) {
-
-        return claims.get(OAuthConstants.Token.SCOPE)
-                .toString()
-                .split(StringUtils.SPACE);
     }
 }

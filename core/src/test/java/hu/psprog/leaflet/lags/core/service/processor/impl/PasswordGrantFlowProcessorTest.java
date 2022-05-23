@@ -2,6 +2,7 @@ package hu.psprog.leaflet.lags.core.service.processor.impl;
 
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
@@ -83,11 +84,11 @@ class PasswordGrantFlowProcessorTest {
         given(authentication.getPrincipal()).willReturn(MOCK_USED_DETAILS);
 
         // when
-        Map<String, Object> result = passwordGrantFlowProcessor.processTokenRequest(context);
+        TokenClaims result = passwordGrantFlowProcessor.processTokenRequest(context);
 
         // then
-        assertThat(result.size(), equalTo(6));
-        assertThat(result, equalTo(Map.of(
+        assertThat(result.getClaimsAsMap().size(), equalTo(6));
+        assertThat(result.getClaimsAsMap(), equalTo(Map.of(
                 "scope", "read:items write:item:self",
                 "sub", "dummy-source-service-1|uid=1234",
                 "usr", "user1",
@@ -115,11 +116,11 @@ class PasswordGrantFlowProcessorTest {
         given(authentication.getPrincipal()).willReturn(MOCK_USED_DETAILS);
 
         // when
-        Map<String, Object> result = passwordGrantFlowProcessor.processTokenRequest(context);
+        TokenClaims result = passwordGrantFlowProcessor.processTokenRequest(context);
 
         // then
-        assertThat(result.size(), equalTo(6));
-        assertThat(result, equalTo(Map.of(
+        assertThat(result.getClaimsAsMap().size(), equalTo(6));
+        assertThat(result.getClaimsAsMap(), equalTo(Map.of(
                 "scope", "default1 default2 default3",
                 "sub", "dummy-source-service-1|uid=1234",
                 "usr", "user1",

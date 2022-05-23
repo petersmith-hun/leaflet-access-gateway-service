@@ -7,6 +7,7 @@ import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthAuthorizationRequestContext;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.internal.OngoingAuthorization;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.internal.UserInfo;
 import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
@@ -153,11 +154,11 @@ class AuthorizationCodeGrantFlowProcessorTest {
         given(oAuthRequestVerifierRegistry.getTokenRequestVerifiers(GrantType.AUTHORIZATION_CODE)).willReturn(List.of(verifier3, verifier4));
 
         // when
-        Map<String, Object> result = authorizationCodeGrantFlowProcessor.processTokenRequest(context);
+        TokenClaims result = authorizationCodeGrantFlowProcessor.processTokenRequest(context);
 
         // then
-        assertThat(result.size(), equalTo(6));
-        assertThat(result, equalTo(Map.of(
+        assertThat(result.getClaimsAsMap().size(), equalTo(6));
+        assertThat(result.getClaimsAsMap(), equalTo(Map.of(
                 "sub", "client-1|uid=1234",
                 "usr", USER_INFO.getEmail(),
                 "rol", USER_INFO.getRole(),

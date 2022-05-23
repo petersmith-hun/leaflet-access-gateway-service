@@ -85,8 +85,8 @@ public class PasswordResetStepDefinition implements En {
 
             PasswordResetRequest passwordResetRequest = ThreadLocalDataRegistry.get(TestConstants.Attribute.PASSWORD_RESET_REQUEST_MAIL);
             TokenClaims claims = tokenHandler.parseToken(passwordResetRequest.getToken());
-            assertThat(claims.getScopes().length, equalTo(1));
-            assertThat(claims.getScopes()[0], equalTo(RECLAIM_AUTHORITY.getAuthority()));
+            assertThat(claims.getScopeAsArray().length, equalTo(1));
+            assertThat(claims.getScopeAsArray()[0], equalTo(RECLAIM_AUTHORITY.getAuthority()));
         });
     }
 }

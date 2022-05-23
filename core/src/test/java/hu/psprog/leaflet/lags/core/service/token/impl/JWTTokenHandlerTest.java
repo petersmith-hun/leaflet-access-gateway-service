@@ -26,7 +26,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -48,7 +47,7 @@ class JWTTokenHandlerTest {
 
     private static final OAuthConfigurationProperties O_AUTH_CONFIGURATION_PROPERTIES = prepareOAuthConfigurationProperties();
     private static final OAuthTokenRequest O_AUTH_TOKEN_REQUEST = prepareValidOAuthTokenRequest();
-    private static final Map<String, Object> CLAIMS = prepareClaims();
+    private static final TokenClaims CLAIMS = prepareClaims();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String EMAIL = "user@dev.local";
     private static final String AUDIENCE = "target-svc-aud-1";
@@ -78,7 +77,7 @@ class JWTTokenHandlerTest {
 
         // then
         assertToken(result.getAccessToken(), expirationInSeconds);
-        assertThat(result.getScope(), equalTo(CLAIMS.get("scope")));
+        assertThat(result.getScope(), equalTo(CLAIMS.getScope()));
         assertThat(result.getTokenType(), equalTo("Bearer"));
         assertThat(result.getExpiresIn(), equalTo(3600));
         assertStoreAccessTokenRequest(expirationInSeconds);
@@ -95,7 +94,7 @@ class JWTTokenHandlerTest {
 
         // then
         assertToken(result.getAccessToken(), customExpirationInSeconds);
-        assertThat(result.getScope(), equalTo(CLAIMS.get("scope")));
+        assertThat(result.getScope(), equalTo(CLAIMS.getScope()));
         assertThat(result.getTokenType(), equalTo("Bearer"));
         assertThat(result.getExpiresIn(), equalTo(customExpirationInSeconds));
         assertStoreAccessTokenRequest(customExpirationInSeconds);
@@ -113,11 +112,12 @@ class JWTTokenHandlerTest {
         // then
         verifyJTI(result.getTokenID());
         assertThat(System.currentTimeMillis() - result.getExpiration().getTime() < 1000, is(true));
-        assertThat(result.getClientID(), equalTo(CLAIMS.get("sub")));
+        assertThat(result.getClientID(), equalTo(CLAIMS.getSubject()));
         assertThat(result.getUsername(), equalTo("null"));
         assertThat(result.getEmail(), equalTo(EMAIL));
         assertThat(result.getAudience(), equalTo(AUDIENCE));
-        assertThat(result.getScopes(), equalTo(new String[] {"read:all", "write:all"}));
+        assertThat(result.getScopeAsArray(), equalTo(new String[] {"read:all", "write:all"}));
+        assertThat(result.getScope(), equalTo("read:all write:all"));
     }
 
     @Test
@@ -145,9 +145,9 @@ class JWTTokenHandlerTest {
 
         assertThat(header.get("alg"), equalTo("RS256"));
         assertThat(header.get("typ"), equalTo("JWT"));
-        assertThat(payload.get("sub"), equalTo(CLAIMS.get("sub")));
+        assertThat(payload.get("sub"), equalTo(CLAIMS.getSubject()));
         assertThat(payload.get("aud"), equalTo(O_AUTH_TOKEN_REQUEST.getAudience()));
-        assertThat(payload.get("scope"), equalTo(CLAIMS.get("scope")));
+        assertThat(payload.get("scope"), equalTo(CLAIMS.getScope()));
         assertThat(payload.get("iss"), equalTo(O_AUTH_CONFIGURATION_PROPERTIES.getToken().getIssuer()));
         assertThat(payload.get("jti"), notNullValue());
         verifyJTI(payload.get("jti").toString());
@@ -162,7 +162,7 @@ class JWTTokenHandlerTest {
 
         StoreAccessTokenInfoRequest request = storeAccessTokenInfoRequestArgumentCaptor.getValue();
         verifyJTI(request.getId());
-        assertThat(request.getSubject(), equalTo(CLAIMS.get("sub")));
+        assertThat(request.getSubject(), equalTo(CLAIMS.getSubject()));
         assertThat(request.getExpiresAt(), notNullValue());
         assertThat(request.getIssuedAt(), notNullValue());
         assertThat(request.getExpiresAt().getTime() - request.getIssuedAt().getTime() == expirationInSeconds * 1000L, is(true));
@@ -208,12 +208,12 @@ class JWTTokenHandlerTest {
                 .build();
     }
 
-    private static Map<String, Object> prepareClaims() {
+    private static TokenClaims prepareClaims() {
 
-        return new HashMap<>(Map.of(
-                "scope", "read:all write:all",
-                "sub", "dummy-source-service-1",
-                "usr", EMAIL
-        ));
+        return TokenClaims.builder()
+                .scope("read:all write:all")
+                .subject("dummy-source-service-1")
+                .email(EMAIL)
+                .build();
     }
 }

@@ -2,11 +2,10 @@ package hu.psprog.leaflet.lags.core.service.processor;
 
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthAuthorizationRequestContext;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
-
-import java.util.Map;
 
 /**
  * OAuth2 compatible grant flow processor.
@@ -36,7 +35,7 @@ public interface GrantFlowProcessor {
      * @param context {@link OAuthTokenRequestContext} object containing the token request parameters
      * @throws OAuthAuthorizationException in case of errors during processing
      */
-    Map<String, Object> processTokenRequest(OAuthTokenRequestContext context);
+    TokenClaims processTokenRequest(OAuthTokenRequestContext context);
 
     /**
      * Returns the grant type for which this implementation is compatible.

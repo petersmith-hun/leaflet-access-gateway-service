@@ -25,7 +25,7 @@ public class JWTAuthenticationToken implements Authentication {
         // prevent instantiation
         this.claims = claims;
         this.rawToken = rawToken;
-        this.authorities = AuthorityUtils.createAuthorityList(claims.getScopes());
+        this.authorities = AuthorityUtils.createAuthorityList(claims.getScopeAsArray());
     }
 
     @Override

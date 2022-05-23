@@ -5,8 +5,6 @@ import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 
-import java.util.Map;
-
 /**
  * Handler for generating and parsing tokens OAuth2 access tokens.
  * Implementations should be able to generate an OAuth2 compatible access token and wrap them as {@link OAuthTokenResponse}
@@ -21,20 +19,20 @@ public interface TokenHandler {
      * Generates an OAuth2 access token based on the given {@link OAuthTokenRequest} and the formerly generated custom claims.
      *
      * @param oAuthTokenRequest authorization request model as {@link OAuthTokenRequest}
-     * @param claims custom token claims as map
+     * @param claims custom token claims as {@link TokenClaims}
      * @return generated access token wrapped as {@link OAuthTokenResponse}
      */
-    OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims);
+    OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, TokenClaims claims);
 
     /**
      * Generates an OAuth2 access token based on the given {@link OAuthTokenRequest} and the formerly generated custom claims.
      *
      * @param oAuthTokenRequest authorization request model as {@link OAuthTokenRequest}
-     * @param claims custom token claims as map
+     * @param claims custom token claims as {@link TokenClaims}
      * @param customExpirationInSeconds expiration time in seconds to override the default value
      * @return generated access token wrapped as {@link OAuthTokenResponse}
      */
-    OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, Map<String, Object> claims, int customExpirationInSeconds);
+    OAuthTokenResponse generateToken(OAuthTokenRequest oAuthTokenRequest, TokenClaims claims, int customExpirationInSeconds);
 
     /**
      * Parses the given access token. On success, returns the payload contents of the token (i.e. the claims).

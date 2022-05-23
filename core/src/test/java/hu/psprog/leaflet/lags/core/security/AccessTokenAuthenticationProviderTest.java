@@ -43,7 +43,7 @@ class AccessTokenAuthenticationProviderTest {
             .withRawToken(RAW_TOKEN)
             .withClaims(TokenClaims.builder()
                     .tokenID(TOKEN_ID)
-                    .scopes(new String[] {"write:reclaim"})
+                    .scope("write:reclaim")
                     .audience(AUDIENCE)
                     .build())
             .build();
@@ -51,7 +51,7 @@ class AccessTokenAuthenticationProviderTest {
             .withRawToken(RAW_TOKEN)
             .withClaims(TokenClaims.builder()
                     .tokenID(TOKEN_ID)
-                    .scopes(new String[] {"write:reclaim", "read:all", "write:all"})
+                    .scope("write:reclaim read:all write:all")
                     .audience(AUDIENCE)
                     .build())
             .build();
@@ -59,7 +59,7 @@ class AccessTokenAuthenticationProviderTest {
             .withRawToken(RAW_TOKEN)
             .withClaims(TokenClaims.builder()
                     .tokenID(TOKEN_ID)
-                    .scopes(new String[] {"read:all"})
+                    .scope("read:all")
                     .audience(AUDIENCE)
                     .build())
             .build();

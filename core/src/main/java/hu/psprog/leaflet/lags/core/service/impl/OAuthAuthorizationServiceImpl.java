@@ -66,7 +66,7 @@ public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService 
     public OAuthTokenResponse authorize(OAuthTokenRequest oAuthTokenRequest) {
 
         OAuthTokenRequestContext context = oAuthRequestContextFactory.createContext(oAuthTokenRequest);
-        Map<String, Object> claims = getResponsibleGrantFlowProcessor(oAuthTokenRequest)
+        TokenClaims claims = getResponsibleGrantFlowProcessor(oAuthTokenRequest)
                 .processTokenRequest(context);
 
         return tokenHandler.generateToken(oAuthTokenRequest, claims);

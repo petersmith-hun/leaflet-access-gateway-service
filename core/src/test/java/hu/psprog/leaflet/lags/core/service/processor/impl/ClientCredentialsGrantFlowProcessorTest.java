@@ -1,6 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
@@ -59,11 +60,11 @@ class ClientCredentialsGrantFlowProcessorTest {
         given(oAuthRequestVerifierRegistry.getTokenRequestVerifiers(GrantType.CLIENT_CREDENTIALS)).willReturn(List.of(verifier1, verifier2));
 
         // when
-        Map<String, Object> result = clientCredentialsGrantFlowProcessor.processTokenRequest(context);
+        TokenClaims result = clientCredentialsGrantFlowProcessor.processTokenRequest(context);
 
         // then
-        assertThat(result.size(), equalTo(2));
-        assertThat(result, equalTo(Map.of(
+        assertThat(result.getClaimsAsMap().size(), equalTo(2));
+        assertThat(result.getClaimsAsMap(), equalTo(Map.of(
                 "scope", "read:items write:item:self",
                 "sub", "dummy-source-service-1"
         )));

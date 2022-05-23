@@ -1,9 +1,9 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthAuthorizationRequestContext;
-import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.internal.OngoingAuthorization;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.internal.UserInfo;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
@@ -13,8 +13,6 @@ import hu.psprog.leaflet.lags.core.service.registry.OAuthRequestVerifierRegistry
 import hu.psprog.leaflet.lags.core.service.util.ScopeNegotiator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 /**
  * {@link AbstractGrantFlowProcessor} implementation for OAuth2 Authorization Code Flow authorization flow processing.
@@ -81,21 +79,22 @@ public class AuthorizationCodeGrantFlowProcessor extends AbstractGrantFlowProces
     }
 
     @Override
-    protected Map<String, Object> generateCustomClaims(OAuthTokenRequestContext context) {
+    protected TokenClaims.TokenClaimsBuilder generateCustomClaims(OAuthTokenRequestContext context) {
 
-        Map<String, Object> claims = super.generateCustomClaims(context);
-
-        context.getOngoingAuthorization().ifPresent(ongoingAuthorization -> {
-            UserInfo userInfo = ongoingAuthorization.getUserInfo();
-            claims.put(OAuthConstants.Token.SUBJECT, String.format("%s|uid=%s", claims.get(OAuthConstants.Token.SUBJECT), userInfo.getId()));
-            claims.put(OAuthConstants.Token.USER, userInfo.getEmail());
-            claims.put(OAuthConstants.Token.ROLE, userInfo.getRole());
-            claims.put(OAuthConstants.Token.NAME, userInfo.getUsername());
-            claims.put(OAuthConstants.Token.USER_ID, userInfo.getId());
-        });
+        UserInfo userInfo = context.getRequiredOngoingAuthorization().getUserInfo();
+        TokenClaims.TokenClaimsBuilder tokenClaimsBuilder = super.generateCustomClaims(context)
+                .subject(formatSubject(context, userInfo))
+                .email(userInfo.getEmail())
+                .role(userInfo.getRole())
+                .username(userInfo.getUsername())
+                .userID(userInfo.getId());
 
         ongoingAuthorizationRepository.deleteOngoingAuthorization(context.getRequest().getAuthorizationCode());
 
-        return claims;
+        return tokenClaimsBuilder;
+    }
+
+    private String formatSubject(OAuthTokenRequestContext context, UserInfo userInfo) {
+        return String.format("%s|uid=%s", context.getSourceClient().getClientId(), userInfo.getId());
     }
 }

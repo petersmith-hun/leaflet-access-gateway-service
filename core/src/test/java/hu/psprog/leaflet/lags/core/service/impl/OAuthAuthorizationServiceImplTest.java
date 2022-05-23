@@ -30,7 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,7 +54,7 @@ class OAuthAuthorizationServiceImplTest {
     private static final OAuthTokenRequest SUPPORTED_O_AUTH_TOKEN_REQUEST = prepareTokenRequest(GrantType.CLIENT_CREDENTIALS, "client-1");
     private static final OAuthTokenRequest UNSUPPORTED_O_AUTH_TOKEN_REQUEST = prepareTokenRequest(GrantType.PASSWORD, "client-2");
     private static final OAuthClient O_AUTH_CLIENT = prepareOAuthClient();
-    private static final Map<String, Object> CLAIMS = Map.of("aud", "audience-1");
+    private static final TokenClaims CLAIMS = TokenClaims.builder().audience("audience-1").build();
     private static final OAuthTokenResponse DUMMY_O_AUTH_TOKEN_RESPONSE = prepareTokenResponse();
     private static final OAuthAuthorizationRequest O_AUTH_AUTHORIZATION_REQUEST = prepareAuthorizationRequest();
     private static final OAuthAuthorizationResponse DUMMY_O_AUTH_AUTHORIZATION_RESPONSE = prepareAuthorizationResponse();

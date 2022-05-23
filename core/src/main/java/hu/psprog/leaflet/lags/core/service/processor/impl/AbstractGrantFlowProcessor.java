@@ -1,15 +1,12 @@
 package hu.psprog.leaflet.lags.core.service.processor.impl;
 
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthAuthorizationRequestContext;
-import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
 import hu.psprog.leaflet.lags.core.service.registry.OAuthRequestVerifierRegistry;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Abstract implementation of {@link GrantFlowProcessor} adding basic and common verification steps and utilities
@@ -38,14 +35,14 @@ abstract class AbstractGrantFlowProcessor implements GrantFlowProcessor {
     }
 
     @Override
-    public Map<String, Object> processTokenRequest(OAuthTokenRequestContext context) {
+    public TokenClaims processTokenRequest(OAuthTokenRequestContext context) {
 
         doFlowSpecificTokenRequestContextProcessing(context);
         oAuthRequestVerifierRegistry.getTokenRequestVerifiers(forGrantType())
                 .forEach(verifier -> verifier.verify(context));
         doFlowSpecificTokenRequestContextVerification(context);
 
-        return generateCustomClaims(context);
+        return generateCustomClaims(context).build();
     }
 
     /**
@@ -73,12 +70,10 @@ abstract class AbstractGrantFlowProcessor implements GrantFlowProcessor {
      * @param context {@link OAuthTokenRequestContext} object containing the token request parameters
      * @return generated custom token claims as map
      */
-    protected Map<String, Object> generateCustomClaims(OAuthTokenRequestContext context) {
+    protected TokenClaims.TokenClaimsBuilder generateCustomClaims(OAuthTokenRequestContext context) {
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(OAuthConstants.Token.SCOPE, String.join(StringUtils.SPACE, context.getRequest().getScope()));
-        claims.put(OAuthConstants.Token.SUBJECT, context.getSourceClient().getClientId());
-
-        return claims;
+        return TokenClaims.builder()
+                .scope(String.join(StringUtils.SPACE, context.getRequest().getScope()))
+                .subject(context.getSourceClient().getClientId());
     }
 }

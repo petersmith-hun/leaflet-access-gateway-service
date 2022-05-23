@@ -41,7 +41,7 @@ class PasswordResetAuthenticationFilterTest {
 
     private static final String JWT_TOKEN = "jwt-token-1";
     private static final TokenClaims TOKEN_CLAIMS = TokenClaims.builder()
-            .scopes(new String[] {"read:all", "write:all"})
+            .scope("read:all write:all")
             .username("user1")
             .build();
 
@@ -89,7 +89,7 @@ class PasswordResetAuthenticationFilterTest {
         assertThat(jwtAuthenticationToken.getPrincipal(), equalTo(TOKEN_CLAIMS.getUsername()));
         assertThat(jwtAuthenticationToken.getCredentials(), equalTo(JWT_TOKEN));
         assertThat(jwtAuthenticationToken.getDetails(), equalTo(TOKEN_CLAIMS));
-        assertThat(jwtAuthenticationToken.getAuthorities(), equalTo(AuthorityUtils.createAuthorityList(TOKEN_CLAIMS.getScopes())));
+        assertThat(jwtAuthenticationToken.getAuthorities(), equalTo(AuthorityUtils.createAuthorityList(TOKEN_CLAIMS.getScopeAsArray())));
         assertThat(jwtAuthenticationToken.isAuthenticated(), is(false));
     }
 
