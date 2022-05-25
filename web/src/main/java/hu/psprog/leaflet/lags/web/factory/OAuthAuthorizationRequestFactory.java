@@ -1,8 +1,8 @@
 package hu.psprog.leaflet.lags.web.factory;
 
-import hu.psprog.leaflet.lags.core.domain.AuthorizationResponseType;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthConstants;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
+import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;

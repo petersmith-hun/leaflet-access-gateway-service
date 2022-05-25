@@ -2,7 +2,7 @@ package hu.psprog.leaflet.lags.acceptance.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import hu.psprog.leaflet.lags.core.domain.OAuthConstants;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import lombok.Data;
 
 import java.util.Date;

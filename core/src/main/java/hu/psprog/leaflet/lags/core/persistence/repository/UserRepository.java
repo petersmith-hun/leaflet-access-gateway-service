@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.persistence.repository;
 
-import hu.psprog.leaflet.lags.core.domain.User;
+import hu.psprog.leaflet.lags.core.domain.entity.User;
 import org.springframework.data.repository.Repository;
 
 import java.util.Optional;

@@ -1,10 +1,10 @@
 package hu.psprog.leaflet.lags.core.service;
 
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
-import hu.psprog.leaflet.lags.core.domain.TokenIntrospectionResult;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
+import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 
 /**

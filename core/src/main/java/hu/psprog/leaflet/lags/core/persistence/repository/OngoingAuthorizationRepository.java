@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.persistence.repository;
 
-import hu.psprog.leaflet.lags.core.domain.OngoingAuthorization;
+import hu.psprog.leaflet.lags.core.domain.internal.OngoingAuthorization;
 
 import java.util.Optional;
 

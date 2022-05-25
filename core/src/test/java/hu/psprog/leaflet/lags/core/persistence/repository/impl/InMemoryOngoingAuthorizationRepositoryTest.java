@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.persistence.repository.impl;
 
-import hu.psprog.leaflet.lags.core.domain.OngoingAuthorization;
+import hu.psprog.leaflet.lags.core.domain.internal.OngoingAuthorization;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1,12 +1,12 @@
 package hu.psprog.leaflet.lags.core.security;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
-import hu.psprog.leaflet.lags.core.domain.AccessTokenInfo;
-import hu.psprog.leaflet.lags.core.domain.JWTAuthenticationToken;
-import hu.psprog.leaflet.lags.core.domain.SecurityConstants;
-import hu.psprog.leaflet.lags.core.domain.TokenStatus;
+import hu.psprog.leaflet.lags.core.domain.internal.AccessTokenInfo;
+import hu.psprog.leaflet.lags.core.domain.internal.JWTAuthenticationToken;
+import hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenStatus;
 import hu.psprog.leaflet.lags.core.exception.RevokedTokenException;
-import hu.psprog.leaflet.lags.core.service.util.TokenTracker;
+import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;

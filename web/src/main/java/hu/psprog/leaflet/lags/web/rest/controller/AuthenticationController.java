@@ -1,10 +1,10 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetConfirmationRequestModel;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetRequestModel;
-import hu.psprog.leaflet.lags.core.domain.SignUpRequestModel;
-import hu.psprog.leaflet.lags.core.domain.SignUpResult;
+import hu.psprog.leaflet.lags.core.domain.request.PasswordResetConfirmationRequestModel;
+import hu.psprog.leaflet.lags.core.domain.request.PasswordResetRequestModel;
+import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
+import hu.psprog.leaflet.lags.core.domain.response.SignUpResult;
 import hu.psprog.leaflet.lags.core.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,11 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_LOGIN;
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_PASSWORD_RESET;
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_SIGNUP;
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.QUERY_PARAMETER_TOKEN;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_LOGIN;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_SIGNUP;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.QUERY_PARAMETER_TOKEN;
 
 /**
  * Controller for authentication related operations.

@@ -1,8 +1,9 @@
 package hu.psprog.leaflet.lags.core.service.userdetails;
 
-import hu.psprog.leaflet.lags.core.domain.ApplicationType;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
-import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
+import hu.psprog.leaflet.lags.core.domain.config.ApplicationType;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigTestHelper;
+import hu.psprog.leaflet.lags.core.service.registry.OAuthClientRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -69,17 +69,16 @@ class OAuthClientUserDetailsServiceTest {
 
     private static OAuthClient prepareOAuthClient() {
 
-        return new OAuthClient(
+        OAuthClient oAuthClient = OAuthConfigTestHelper.prepareOAuthClient(
                 "client-name",
                 ApplicationType.SERVICE,
                 "client1",
                 "client-secret-1234",
-                "audience1",
-                Arrays.asList("read:all", "write:all"),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList()
-        );
+                "audience1");
+
+        OAuthConfigTestHelper.setRegisteredScopes(oAuthClient, Arrays.asList("read:all", "write:all"));
+
+        return oAuthClient;
     }
 
     private static UserDetails prepareExpectedUser() {

@@ -1,21 +1,22 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
-import hu.psprog.leaflet.lags.core.domain.GrantType;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthAuthorizationResponse;
-import hu.psprog.leaflet.lags.core.domain.OAuthClient;
-import hu.psprog.leaflet.lags.core.domain.OAuthRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
-import hu.psprog.leaflet.lags.core.domain.TokenClaims;
-import hu.psprog.leaflet.lags.core.domain.TokenIntrospectionResult;
-import hu.psprog.leaflet.lags.core.domain.TokenStatus;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthAuthorizationRequestContext;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenStatus;
+import hu.psprog.leaflet.lags.core.domain.request.GrantType;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthRequest;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
+import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
+import hu.psprog.leaflet.lags.core.service.factory.OAuthRequestContextFactory;
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
-import hu.psprog.leaflet.lags.core.service.util.OAuthClientRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static hu.psprog.leaflet.lags.core.domain.TokenIntrospectionResult.FAILED_INTROSPECTION_RESULT;
+import static hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult.FAILED_INTROSPECTION_RESULT;
 
 /**
  * Implementation of {@link OAuthAuthorizationService}.
@@ -37,36 +38,36 @@ import static hu.psprog.leaflet.lags.core.domain.TokenIntrospectionResult.FAILED
 public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService {
 
     private final Map<GrantType, GrantFlowProcessor> grantFlowProcessorMap;
-    private final OAuthClientRegistry oAuthClientRegistry;
     private final TokenHandler tokenHandler;
     private final AccessTokenDAO accessTokenDAO;
+    private final OAuthRequestContextFactory oAuthRequestContextFactory;
 
     @Autowired
-    public OAuthAuthorizationServiceImpl(List<GrantFlowProcessor> grantFlowProcessors, OAuthClientRegistry oAuthClientRegistry,
-                                         TokenHandler tokenHandler, AccessTokenDAO accessTokenDAO) {
+    public OAuthAuthorizationServiceImpl(List<GrantFlowProcessor> grantFlowProcessors, TokenHandler tokenHandler,
+                                         AccessTokenDAO accessTokenDAO, OAuthRequestContextFactory oAuthRequestContextFactory) {
 
         this.grantFlowProcessorMap = grantFlowProcessors.stream()
                 .collect(Collectors.toMap(GrantFlowProcessor::forGrantType, Function.identity()));
-        this.oAuthClientRegistry = oAuthClientRegistry;
         this.tokenHandler = tokenHandler;
         this.accessTokenDAO = accessTokenDAO;
+        this.oAuthRequestContextFactory = oAuthRequestContextFactory;
     }
 
     @Override
     public OAuthAuthorizationResponse authorize(OAuthAuthorizationRequest oAuthAuthorizationRequest) {
 
-        OAuthClient oAuthClient = getOAuthClient(oAuthAuthorizationRequest);
+        OAuthAuthorizationRequestContext context = oAuthRequestContextFactory.createContext(oAuthAuthorizationRequest);
 
         return getResponsibleGrantFlowProcessor(oAuthAuthorizationRequest)
-                .authorizeRequest(oAuthAuthorizationRequest, oAuthClient);
+                .processAuthorizationRequest(context);
     }
 
     @Override
     public OAuthTokenResponse authorize(OAuthTokenRequest oAuthTokenRequest) {
 
-        OAuthClient oAuthClient = getOAuthClient(oAuthTokenRequest);
-        Map<String, Object> claims = getResponsibleGrantFlowProcessor(oAuthTokenRequest)
-                .verifyRequest(oAuthTokenRequest, oAuthClient);
+        OAuthTokenRequestContext context = oAuthRequestContextFactory.createContext(oAuthTokenRequest);
+        TokenClaims claims = getResponsibleGrantFlowProcessor(oAuthTokenRequest)
+                .processTokenRequest(context);
 
         return tokenHandler.generateToken(oAuthTokenRequest, claims);
     }
@@ -95,12 +96,6 @@ public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService 
         return accessTokenDAO.retrieveByJTI(claims.getTokenID())
                 .map(accessTokenInfo -> TokenStatus.ACTIVE == accessTokenInfo.getStatus())
                 .orElse(false);
-    }
-
-    private OAuthClient getOAuthClient(OAuthRequest oAuthRequest) {
-
-        return oAuthClientRegistry.getClientByClientID(oAuthRequest.getClientID())
-                .orElseThrow(() -> new OAuthAuthorizationException(String.format("OAuth client by ID [%s] is not registered", oAuthRequest.getClientID())));
     }
 
     private GrantFlowProcessor getResponsibleGrantFlowProcessor(OAuthRequest oAuthRequest) {

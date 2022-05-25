@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.config;
 
-import hu.psprog.leaflet.lags.core.domain.OAuthConfigurationProperties;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.security.PasswordResetAuthenticationFilter;
 import hu.psprog.leaflet.lags.core.security.RequestSavingLogoutSuccessHandler;
 import hu.psprog.leaflet.lags.core.security.ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler;
@@ -23,10 +23,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_LOGIN;
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_PASSWORD_RESET;
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
-import static hu.psprog.leaflet.lags.core.domain.SecurityConstants.RECLAIM_AUTHORITY;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_LOGIN;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.RECLAIM_AUTHORITY;
 
 /**
  * OAuth2 security configuration.

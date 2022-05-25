@@ -1,10 +1,10 @@
 package hu.psprog.leaflet.lags.core.service;
 
-import hu.psprog.leaflet.lags.core.domain.PasswordResetConfirmationRequestModel;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetRequestModel;
-import hu.psprog.leaflet.lags.core.domain.SignUpRequestModel;
-import hu.psprog.leaflet.lags.core.domain.SignUpResult;
-import hu.psprog.leaflet.lags.core.domain.SignUpStatus;
+import hu.psprog.leaflet.lags.core.domain.request.PasswordResetConfirmationRequestModel;
+import hu.psprog.leaflet.lags.core.domain.request.PasswordResetRequestModel;
+import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
+import hu.psprog.leaflet.lags.core.domain.response.SignUpResult;
+import hu.psprog.leaflet.lags.core.domain.response.SignUpStatus;
 
 import javax.servlet.http.HttpServletRequest;
 

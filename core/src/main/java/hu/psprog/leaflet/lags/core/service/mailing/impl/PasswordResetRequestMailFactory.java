@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.mailing.impl;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetRequest;
+import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
 import hu.psprog.leaflet.lags.core.service.mailing.MailFactory;
 import hu.psprog.leaflet.mail.domain.Mail;
 import org.springframework.beans.factory.annotation.Autowired;

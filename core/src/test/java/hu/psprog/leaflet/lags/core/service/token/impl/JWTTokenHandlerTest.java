@@ -1,16 +1,17 @@
 package hu.psprog.leaflet.lags.core.service.token.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hu.psprog.leaflet.lags.core.domain.GrantType;
-import hu.psprog.leaflet.lags.core.domain.OAuthConfigurationProperties;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenSettings;
-import hu.psprog.leaflet.lags.core.domain.StoreAccessTokenInfoRequest;
-import hu.psprog.leaflet.lags.core.domain.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigTestHelper;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings;
+import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.request.GrantType;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
-import hu.psprog.leaflet.lags.core.service.util.TokenTracker;
-import hu.psprog.leaflet.lags.core.service.util.impl.RSAKeyRegistry;
+import hu.psprog.leaflet.lags.core.service.registry.impl.RSAKeyRegistry;
+import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +26,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -47,10 +47,12 @@ class JWTTokenHandlerTest {
 
     private static final OAuthConfigurationProperties O_AUTH_CONFIGURATION_PROPERTIES = prepareOAuthConfigurationProperties();
     private static final OAuthTokenRequest O_AUTH_TOKEN_REQUEST = prepareValidOAuthTokenRequest();
-    private static final Map<String, Object> CLAIMS = prepareClaims();
+    private static final TokenClaims CLAIMS = prepareClaims();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String EMAIL = "user@dev.local";
     private static final String AUDIENCE = "target-svc-aud-1";
+    private static final long USER_ID = 6643L;
+    private static final String ROLE = "EDITOR";
 
     private JWTTokenHandler jwtTokenHandler;
 
@@ -77,7 +79,7 @@ class JWTTokenHandlerTest {
 
         // then
         assertToken(result.getAccessToken(), expirationInSeconds);
-        assertThat(result.getScope(), equalTo(CLAIMS.get("scope")));
+        assertThat(result.getScope(), equalTo(CLAIMS.getScope()));
         assertThat(result.getTokenType(), equalTo("Bearer"));
         assertThat(result.getExpiresIn(), equalTo(3600));
         assertStoreAccessTokenRequest(expirationInSeconds);
@@ -94,7 +96,7 @@ class JWTTokenHandlerTest {
 
         // then
         assertToken(result.getAccessToken(), customExpirationInSeconds);
-        assertThat(result.getScope(), equalTo(CLAIMS.get("scope")));
+        assertThat(result.getScope(), equalTo(CLAIMS.getScope()));
         assertThat(result.getTokenType(), equalTo("Bearer"));
         assertThat(result.getExpiresIn(), equalTo(customExpirationInSeconds));
         assertStoreAccessTokenRequest(customExpirationInSeconds);
@@ -112,11 +114,14 @@ class JWTTokenHandlerTest {
         // then
         verifyJTI(result.getTokenID());
         assertThat(System.currentTimeMillis() - result.getExpiration().getTime() < 1000, is(true));
-        assertThat(result.getClientID(), equalTo(CLAIMS.get("sub")));
+        assertThat(result.getClientID(), equalTo(CLAIMS.getSubject()));
         assertThat(result.getUsername(), equalTo("null"));
         assertThat(result.getEmail(), equalTo(EMAIL));
         assertThat(result.getAudience(), equalTo(AUDIENCE));
-        assertThat(result.getScopes(), equalTo(new String[] {"read:all", "write:all"}));
+        assertThat(result.getScopeAsArray(), equalTo(new String[] {"read:all", "write:all"}));
+        assertThat(result.getScope(), equalTo("read:all write:all"));
+        assertThat(result.getUserID(), equalTo(USER_ID));
+        assertThat(result.getRole(), equalTo(ROLE));
     }
 
     @Test
@@ -144,9 +149,9 @@ class JWTTokenHandlerTest {
 
         assertThat(header.get("alg"), equalTo("RS256"));
         assertThat(header.get("typ"), equalTo("JWT"));
-        assertThat(payload.get("sub"), equalTo(CLAIMS.get("sub")));
+        assertThat(payload.get("sub"), equalTo(CLAIMS.getSubject()));
         assertThat(payload.get("aud"), equalTo(O_AUTH_TOKEN_REQUEST.getAudience()));
-        assertThat(payload.get("scope"), equalTo(CLAIMS.get("scope")));
+        assertThat(payload.get("scope"), equalTo(CLAIMS.getScope()));
         assertThat(payload.get("iss"), equalTo(O_AUTH_CONFIGURATION_PROPERTIES.getToken().getIssuer()));
         assertThat(payload.get("jti"), notNullValue());
         verifyJTI(payload.get("jti").toString());
@@ -161,7 +166,7 @@ class JWTTokenHandlerTest {
 
         StoreAccessTokenInfoRequest request = storeAccessTokenInfoRequestArgumentCaptor.getValue();
         verifyJTI(request.getId());
-        assertThat(request.getSubject(), equalTo(CLAIMS.get("sub")));
+        assertThat(request.getSubject(), equalTo(CLAIMS.getSubject()));
         assertThat(request.getExpiresAt(), notNullValue());
         assertThat(request.getIssuedAt(), notNullValue());
         assertThat(request.getExpiresAt().getTime() - request.getIssuedAt().getTime() == expirationInSeconds * 1000L, is(true));
@@ -187,14 +192,14 @@ class JWTTokenHandlerTest {
 
         OAuthTokenSettings oAuthTokenSettings = null;
         try {
-            oAuthTokenSettings = new OAuthTokenSettings(3600, "https://oauth.dev.local:9999",
+            oAuthTokenSettings = OAuthConfigTestHelper.prepareTokenSettings(3600, "https://oauth.dev.local:9999",
                     Paths.get(ClassLoader.getSystemResource("lags_unit_tests_jwt_rsa_prv_pkcs8.pem").toURI()),
                     Paths.get(ClassLoader.getSystemResource("lags_unit_tests_jwt_rsa_pub.pem").toURI()));
         } catch (URISyntaxException e) {
             fail("Failed to read RSA private key for unit test", e);
         }
 
-        return new OAuthConfigurationProperties(oAuthTokenSettings, Collections.emptyList());
+        return OAuthConfigTestHelper.prepareConfig(oAuthTokenSettings, null, Collections.emptyList());
     }
 
     private static OAuthTokenRequest prepareValidOAuthTokenRequest() {
@@ -207,12 +212,14 @@ class JWTTokenHandlerTest {
                 .build();
     }
 
-    private static Map<String, Object> prepareClaims() {
+    private static TokenClaims prepareClaims() {
 
-        return new HashMap<>(Map.of(
-                "scope", "read:all write:all",
-                "sub", "dummy-source-service-1",
-                "usr", EMAIL
-        ));
+        return TokenClaims.builder()
+                .scope("read:all write:all")
+                .subject("dummy-source-service-1")
+                .email(EMAIL)
+                .userID(USER_ID)
+                .role(ROLE)
+                .build();
     }
 }

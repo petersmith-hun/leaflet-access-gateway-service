@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.mailing.observer.impl;
 
 import hu.psprog.leaflet.lags.core.service.mailing.observer.ObserverHandler;
-import hu.psprog.leaflet.lags.core.service.util.NotificationAdapter;
+import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import hu.psprog.leaflet.mail.config.MailProcessorConfigurationProperties;
 import hu.psprog.leaflet.mail.domain.Mail;
 import hu.psprog.leaflet.mail.domain.MailDeliveryInfo;

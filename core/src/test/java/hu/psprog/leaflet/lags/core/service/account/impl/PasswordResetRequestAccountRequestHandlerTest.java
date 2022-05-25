@@ -1,23 +1,22 @@
 package hu.psprog.leaflet.lags.core.service.account.impl;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
-import hu.psprog.leaflet.lags.core.domain.OAuthConstants;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.domain.OAuthTokenResponse;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetRequest;
-import hu.psprog.leaflet.lags.core.domain.PasswordResetRequestModel;
-import hu.psprog.leaflet.lags.core.domain.SecurityConstants;
-import hu.psprog.leaflet.lags.core.domain.User;
+import hu.psprog.leaflet.lags.core.domain.entity.User;
+import hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.request.PasswordResetRequestModel;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
+import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
+import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
-import hu.psprog.leaflet.lags.core.service.util.NotificationAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
@@ -36,41 +35,16 @@ class PasswordResetRequestAccountRequestHandlerTest {
     private static final long USER_ID = 1234L;
     private static final String USERNAME = "username1";
     private static final String EMAIL = "user@dev.local";
-    private static final User USER = new User();
-
     private static final String AUDIENCE = "gateway-aud-1";
     private static final String ACCESS_TOKEN = "generated-token-1";
     private static final int EXPIRES_IN = 1800;
 
-    private static final PasswordResetRequestModel PASSWORD_RESET_REQUEST_MODEL = new PasswordResetRequestModel();
-    private static final OAuthTokenRequest EXPECTED_O_AUTH_TOKEN_REQUEST = OAuthTokenRequest.builder()
-            .audience(AUDIENCE)
-            .build();
-    private static final OAuthTokenResponse O_AUTH_TOKEN_RESPONSE = OAuthTokenResponse.builder()
-            .accessToken(ACCESS_TOKEN)
-            .expiresIn(EXPIRES_IN)
-            .build();
-    private static final Map<String, Object> EXPECTED_CLAIMS = Map.of(
-            OAuthConstants.Token.SCOPE, SecurityConstants.RECLAIM_AUTHORITY.getAuthority(),
-            OAuthConstants.Token.SUBJECT, "password-reset|uid=1234",
-            OAuthConstants.Token.ROLE, SecurityConstants.RECLAIM_ROLE,
-            OAuthConstants.Token.USER, EMAIL,
-            OAuthConstants.Token.NAME, USERNAME,
-            OAuthConstants.Token.USER_ID, USER_ID
-    );
-    private static final PasswordResetRequest PASSWORD_RESET_REQUEST = PasswordResetRequest.builder()
-            .username(USERNAME)
-            .participant(EMAIL)
-            .token(ACCESS_TOKEN)
-            .expiration(EXPIRES_IN)
-            .build();
-
-    static {
-        USER.setUsername(USERNAME);
-        USER.setEmail(EMAIL);
-        USER.setId(USER_ID);
-        PASSWORD_RESET_REQUEST_MODEL.setEmail(EMAIL);
-    }
+    private static final User USER = prepareUser();
+    private static final PasswordResetRequestModel PASSWORD_RESET_REQUEST_MODEL = prepareResetRequestModel();
+    private static final OAuthTokenRequest EXPECTED_O_AUTH_TOKEN_REQUEST = prepareTokenRequest();
+    private static final OAuthTokenResponse O_AUTH_TOKEN_RESPONSE = prepareTokenResponse();
+    private static final TokenClaims EXPECTED_CLAIMS = prepareClaims();
+    private static final PasswordResetRequest PASSWORD_RESET_REQUEST = prepareResetRequest();
 
     @Mock
     private UserDAO userDAO;
@@ -125,5 +99,57 @@ class PasswordResetRequestAccountRequestHandlerTest {
         // then
         verifyNoMoreInteractions(userDAO);
         verifyNoInteractions(passwordResetConfig, tokenHandler, notificationAdapter);
+    }
+
+    private static User prepareUser() {
+
+        User user = new User();
+        user.setUsername(USERNAME);
+        user.setEmail(EMAIL);
+        user.setId(USER_ID);
+        
+        return user;
+    }
+
+    private static PasswordResetRequestModel prepareResetRequestModel() {
+
+        PasswordResetRequestModel passwordResetRequestModel = new PasswordResetRequestModel();
+        passwordResetRequestModel.setEmail(EMAIL);
+
+        return passwordResetRequestModel;
+    }
+
+    private static OAuthTokenRequest prepareTokenRequest() {
+        return OAuthTokenRequest.builder()
+                .audience(AUDIENCE)
+                .build();
+    }
+
+    private static OAuthTokenResponse prepareTokenResponse() {
+        return OAuthTokenResponse.builder()
+                .accessToken(ACCESS_TOKEN)
+                .expiresIn(EXPIRES_IN)
+                .build();
+    }
+
+    private static TokenClaims prepareClaims() {
+
+        return TokenClaims.builder()
+                .scope(SecurityConstants.RECLAIM_AUTHORITY.getAuthority())
+                .subject("password-reset|uid=1234")
+                .role(SecurityConstants.RECLAIM_ROLE)
+                .email(EMAIL)
+                .username(USERNAME)
+                .userID(USER_ID)
+                .build();
+    }
+
+    private static PasswordResetRequest prepareResetRequest() {
+        return PasswordResetRequest.builder()
+                .username(USERNAME)
+                .participant(EMAIL)
+                .token(ACCESS_TOKEN)
+                .expiration(EXPIRES_IN)
+                .build();
     }
 }

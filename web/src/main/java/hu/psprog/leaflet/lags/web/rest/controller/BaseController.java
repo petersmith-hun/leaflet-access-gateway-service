@@ -49,7 +49,7 @@ public class BaseController {
 
     private ResponseEntity<AuthorizationError> handleException(Exception exception, HttpStatus httpStatus) {
 
-        log.error(exception.getMessage());
+        log.error(exception.getMessage(), exception);
 
         return ResponseEntity
                 .status(httpStatus)

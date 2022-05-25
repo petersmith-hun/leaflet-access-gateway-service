@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.persistence.dao.impl;
 
-import hu.psprog.leaflet.lags.core.domain.AccessTokenInfo;
-import hu.psprog.leaflet.lags.core.domain.TokenStatus;
+import hu.psprog.leaflet.lags.core.domain.internal.AccessTokenInfo;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenStatus;
 import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
 import hu.psprog.leaflet.lags.core.persistence.repository.AccessTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
