@@ -27,7 +27,6 @@ public interface GrantFlowProcessor {
      */
     OAuthAuthorizationResponse processAuthorizationRequest(OAuthAuthorizationRequestContext context);
 
-
     /**
      * Executes the necessary verification steps for a given OAuth2 grant flow.
      * On success, generates and returns a map of relevant token claims that can be used to generate a JWT access token.

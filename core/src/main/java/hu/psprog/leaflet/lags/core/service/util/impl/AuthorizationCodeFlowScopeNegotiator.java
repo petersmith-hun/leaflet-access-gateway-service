@@ -22,8 +22,9 @@ import java.util.stream.Collectors;
  *  - Similarly as in the other case, the user must have the defined set of scope.
  *
  * Scope negotiation on the token request part happens as follows:
- *  - If the relationship defines narrower scope than the authorized scope, scope will be dropped to the narrower set.
- *  - Otherwise, the authorized scope will be used.
+ *  - If the relationship defines narrower scope than the authorized scope, and that scope is an exact subset of the authorized,
+ *    scope will be dropped to the narrower set.
+ *  - Otherwise, the intersection of the relationship-defined and authorized scope will be used.
  *
  * Note: the necessary pre- and post-verifications should always be executed, this component should NOT be relied on for proper scope verification.
  *

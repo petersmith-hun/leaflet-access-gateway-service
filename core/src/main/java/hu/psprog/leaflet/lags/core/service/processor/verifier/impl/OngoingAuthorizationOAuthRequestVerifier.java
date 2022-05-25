@@ -18,7 +18,7 @@ import java.util.List;
  * The implementation verifies the following aspects:
  *  - Existence of the {@link OngoingAuthorization} object;
  *  - Authorized Client ID (stored one in the {@link OngoingAuthorization} must be the same as the requested one in the token request);
- *  - Authorized Request URI (stored one must be the same as the requested one);
+ *  - Authorized Redirect URI (stored one must be the same as the requested one);
  *  - Expiration of the authorization code (expired codes must be rejected).
  *
  * @author Peter Smith

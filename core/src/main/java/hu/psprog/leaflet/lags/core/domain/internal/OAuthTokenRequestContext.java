@@ -13,7 +13,7 @@ import java.util.Optional;
  * Context domain object containing the required data for processing an OAuth token request.
  * Contains the following objects:
  *  - The original {@link OAuthTokenRequest};
- *  - The source and the OAuth clients extracted from the request as {@link OAuthClient} objects;
+ *  - The source and the target OAuth clients extracted from the request as {@link OAuthClient} objects;
  *  - The relation descriptor between the clients as {@link OAuthClientAllowRelation} object;
  *  - And an {@link OngoingAuthorization} object wrapped in {@link Optional} for Authorization Code flow based authorizations.
  *

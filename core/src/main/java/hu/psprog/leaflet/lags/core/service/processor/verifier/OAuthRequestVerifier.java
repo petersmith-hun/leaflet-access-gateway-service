@@ -1,7 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.processor.verifier;
 
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthRequestContext;
-import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 
@@ -20,7 +19,7 @@ public interface OAuthRequestVerifier<T extends OAuthRequestContext> {
     /**
      * Verifies an aspect of the given context object.
      *
-     * @param context {@link OAuthTokenRequestContext} object containing the token request parameters
+     * @param context object (implementing the marker type of {@link OAuthRequestContext}) containing the OAuth request parameters
      * @throws OAuthAuthorizationException on verification failure
      */
     void verify(T context);
