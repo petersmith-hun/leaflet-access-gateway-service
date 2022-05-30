@@ -9,6 +9,7 @@ import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthRequest;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
@@ -102,7 +103,8 @@ public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService 
 
         GrantFlowProcessor grantFlowProcessor = grantFlowProcessorMap.get(oAuthRequest.getGrantType());
         if (Objects.isNull(grantFlowProcessor)) {
-            throw new OAuthAuthorizationException(String.format("OAuth authorization flow [%s] is not supported", oAuthRequest.getGrantType()));
+            throw new OAuthAuthorizationException(OAuthErrorCode.UNSUPPORTED_GRANT_TYPE,
+                    String.format("OAuth authorization flow [%s] is not supported", oAuthRequest.getGrantType()));
         }
 
         return grantFlowProcessor;

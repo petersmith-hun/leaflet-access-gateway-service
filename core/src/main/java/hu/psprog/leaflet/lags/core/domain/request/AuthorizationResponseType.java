@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.domain.request;
 
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 
 import java.util.stream.Stream;
@@ -40,6 +41,6 @@ public enum AuthorizationResponseType {
         return Stream.of(values())
                 .filter(responseType -> responseType.getResponseTypeName().equals(responseTypeName))
                 .findFirst()
-                .orElseThrow(() -> new OAuthAuthorizationException(String.format("Unsupported response type [%s]", responseTypeName)));
+                .orElseThrow(() -> new OAuthAuthorizationException(OAuthErrorCode.INVALID_REQUEST, String.format("Unsupported response type [%s]", responseTypeName)));
     }
 }

@@ -6,13 +6,11 @@ import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
-import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import hu.psprog.leaflet.lags.core.service.registry.KeyRegistry;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,27 +57,22 @@ public class JWTTokenHandler implements TokenHandler {
     @Override
     public TokenClaims parseToken(String accessToken) {
 
-        try {
+        Claims claims = Jwts.parser()
+                .setSigningKey(keyRegistry.getPublicKey())
+                .parseClaimsJws(accessToken)
+                .getBody();
 
-            Claims claims = Jwts.parser()
-                    .setSigningKey(keyRegistry.getPublicKey())
-                    .parseClaimsJws(accessToken)
-                    .getBody();
-
-            return TokenClaims.builder()
-                    .tokenID(claims.getId())
-                    .username(String.valueOf(claims.get(OAuthConstants.Token.NAME)))
-                    .email(String.valueOf(claims.get(OAuthConstants.Token.USER)))
-                    .clientID(claims.get(OAuthConstants.Token.SUBJECT).toString())
-                    .scope(claims.get(OAuthConstants.Token.SCOPE).toString())
-                    .expiration(claims.getExpiration())
-                    .audience(claims.getAudience())
-                    .role(String.valueOf(claims.get(OAuthConstants.Token.ROLE)))
-                    .userID(Long.parseLong(claims.getOrDefault(OAuthConstants.Token.USER_ID, "0").toString()))
-                    .build();
-        } catch (JwtException e) {
-            throw new AuthenticationException("Failed to parse JWT token", e);
-        }
+        return TokenClaims.builder()
+                .tokenID(claims.getId())
+                .username(String.valueOf(claims.get(OAuthConstants.Token.NAME)))
+                .email(String.valueOf(claims.get(OAuthConstants.Token.USER)))
+                .clientID(claims.get(OAuthConstants.Token.SUBJECT).toString())
+                .scope(claims.get(OAuthConstants.Token.SCOPE).toString())
+                .expiration(claims.getExpiration())
+                .audience(claims.getAudience())
+                .role(String.valueOf(claims.get(OAuthConstants.Token.ROLE)))
+                .userID(Long.parseLong(claims.getOrDefault(OAuthConstants.Token.USER_ID, "0").toString()))
+                .build();
     }
 
     private String createToken(OAuthTokenRequest oAuthTokenRequest, TokenClaims claims, int expirationInSeconds) {

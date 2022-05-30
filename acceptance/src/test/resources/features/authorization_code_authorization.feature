@@ -176,7 +176,9 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status OK
+      And the OAuth error code is INVALID_SCOPE
+      And the rejection message is Requested scope is broader than the user&#39;s authority range.
 
   @NegativeScenario
   Scenario: Rejected admin system authorization for a non-elevated user
@@ -189,7 +191,9 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status OK
+      And the OAuth error code is INVALID_SCOPE
+      And the rejection message is Client requires broader authorities than what the user has.
 
   @NegativeScenario
   Scenario: Rejected admin system authorization for too broad requested scope
@@ -203,8 +207,9 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status FORBIDDEN
-      And the rejection message is Requested scope is broader than the user's authority range.
+     Then the application responds with HTTP status OK
+      And the OAuth error code is INVALID_SCOPE
+      And the rejection message is Requested scope is broader than the user&#39;s authority range.
 
   @NegativeScenario
   Scenario: Rejected UI application authorization on invalid redirection
@@ -217,7 +222,8 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status OK
+      And the OAuth error code is INVALID_GRANT
       And the rejection message is Specified redirection URI [http://localhost:7777/possibly/an/attacker] is not registered
 
   @NegativeScenario
@@ -245,7 +251,9 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the client requests a token
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status BAD_REQUEST
+      And the OAuth error code is invalid_request
+      And the rejection message is Token request should not specify scope on Authorization Code flow.
 
   @NegativeScenario
   Scenario: Rejected UI application authorization for application not using code response type
@@ -258,7 +266,8 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status OK
+      And the OAuth error code is INVALID_REQUEST
       And the rejection message is Unsupported response type [invalid]
 
   @NegativeScenario
@@ -271,7 +280,8 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status OK
+      And the OAuth error code is INVALID_REQUEST
       And the rejection message is A mandatory field [response_type] is missing from request
 
   @NegativeScenario
@@ -285,7 +295,8 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status OK
+      And the OAuth error code is UNAUTHORIZED_CLIENT
       And the rejection message is Client application is not permitted to use authorization code flow.
 
   @NegativeScenario
@@ -298,7 +309,8 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status OK
+      And the OAuth error code is INVALID_REQUEST
       And the rejection message is A mandatory field [redirect_uri] is missing from request
 
   @NegativeScenario
@@ -311,11 +323,12 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status OK
+      And the OAuth error code is INVALID_REQUEST
       And the rejection message is A mandatory field [state] is missing from request
 
   @NegativeScenario
-  Scenario: Rejected UI application authorization for application not being authenticated
+  Scenario: Rejected UI application authorization for user not being authenticated
 
     Given the authorization is requested by application dummy_test_app_1
       And the response type is set to code
@@ -324,7 +337,8 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status UNAUTHORIZED
+     Then the application responds with HTTP status FOUND
+      And the user is redirected to /login
 
   @NegativeScenario
   Scenario: Rejected authorization for unregistered UI application
@@ -337,7 +351,8 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the authorization is requested
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status OK
+      And the OAuth error code is INVALID_CLIENT
       And the rejection message is OAuth client by ID [unregistered_app_1] is not registered
 
   @LongScenario
@@ -368,5 +383,5 @@ Feature: OAuth2 Authorization Code authorization flow tests
 
      When the client requests a token
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status BAD_REQUEST
       And the rejection message is Authorization has already expired.

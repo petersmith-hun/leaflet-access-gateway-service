@@ -21,11 +21,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_ACCESS_DENIED;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_LOGIN;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_UNKNOWN_ERROR;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.RECLAIM_AUTHORITY;
 
 /**
@@ -102,7 +105,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .fullyAuthenticated()
                     .antMatchers(PATH_PASSWORD_RESET_CONFIRMATION)
                         .hasAuthority(RECLAIM_AUTHORITY.getAuthority())
-                    .antMatchers(PATH_LOGIN, PATH_PASSWORD_RESET, RESOURCE_IMAGES, RESOURCE_CSS, RESOURCE_JS)
+                    .antMatchers(PATH_LOGIN, PATH_PASSWORD_RESET, RESOURCE_IMAGES, RESOURCE_CSS, RESOURCE_JS, PATH_UNKNOWN_ERROR, PATH_ACCESS_DENIED)
                         .permitAll()
                     .and()
 
@@ -152,6 +155,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         PasswordResetAuthenticationFilter filter = new PasswordResetAuthenticationFilter(tokenHandler);
         filter.setAuthenticationManager(authenticationManagerBean());
+        filter.setAuthenticationFailureHandler(new ForwardAuthenticationFailureHandler(PATH_ACCESS_DENIED));
 
         return filter;
     }

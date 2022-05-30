@@ -3,7 +3,7 @@ package hu.psprog.leaflet.lags.core.service.token;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
-import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
+import io.jsonwebtoken.JwtException;
 
 /**
  * Handler for generating and parsing tokens OAuth2 access tokens.
@@ -39,7 +39,7 @@ public interface TokenHandler {
      *
      * @param accessToken the access token to be parsed
      * @return the extracted claims as {@link TokenClaims}
-     * @throws AuthenticationException when the token cannot be parsed for some reason
+     * @throws JwtException when the token cannot be parsed for some reason
      */
     TokenClaims parseToken(String accessToken);
 }

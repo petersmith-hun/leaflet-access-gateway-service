@@ -5,7 +5,8 @@ import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
+import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 import hu.psprog.leaflet.lags.core.service.registry.OAuthRequestVerifierRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,7 +55,7 @@ public class PasswordGrantFlowProcessor extends AbstractGrantFlowProcessor {
 
         Authentication authentication = authenticateResourceOwnerUser(context.getRequest());
         if (!authentication.isAuthenticated()) {
-            throw new OAuthAuthorizationException(String.format("Failed to authenticate user [%s]", context.getRequest().getUsername()));
+            throw new OAuthTokenRequestException(OAuthErrorCode.ACCESS_DENIED, String.format("Failed to authenticate user [%s]", context.getRequest().getUsername()));
         }
 
         updateScope(context.getRequest(), (UserDetails) authentication.getPrincipal());
@@ -66,7 +67,7 @@ public class PasswordGrantFlowProcessor extends AbstractGrantFlowProcessor {
 
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (Objects.isNull(userDetails) || !(userDetails instanceof ExtendedUser)) {
-            throw new OAuthAuthorizationException("Missing user details in security context for password grant flow");
+            throw new OAuthTokenRequestException(OAuthErrorCode.INVALID_CLIENT, "Missing user details in security context for password grant flow");
         }
 
         return super.generateCustomClaims(context)

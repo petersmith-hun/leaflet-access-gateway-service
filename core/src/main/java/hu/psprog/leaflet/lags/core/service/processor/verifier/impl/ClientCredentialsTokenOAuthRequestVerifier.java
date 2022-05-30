@@ -2,7 +2,8 @@ package hu.psprog.leaflet.lags.core.service.processor.verifier.impl;
 
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
-import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
+import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 import hu.psprog.leaflet.lags.core.service.processor.verifier.OAuthRequestVerifier;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ public class ClientCredentialsTokenOAuthRequestVerifier implements OAuthRequestV
 
         List<String> scope = context.getRequest().getScope();
         if (Objects.isNull(scope) || scope.isEmpty()) {
-            throw new OAuthAuthorizationException("Value for required authorization parameter [scope] is missing");
+            throw new OAuthTokenRequestException(OAuthErrorCode.INVALID_SCOPE, "Value for required authorization parameter [scope] is missing");
         }
     }
 

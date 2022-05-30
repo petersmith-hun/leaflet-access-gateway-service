@@ -3,7 +3,9 @@ package hu.psprog.leaflet.lags.core.domain.internal;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthClientAllowRelation;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 import lombok.Builder;
 import lombok.Data;
 
@@ -39,6 +41,6 @@ public class OAuthTokenRequestContext implements OAuthRequestContext {
     public OngoingAuthorization getRequiredOngoingAuthorization() {
 
         return ongoingAuthorization
-                .orElseThrow(() -> new OAuthAuthorizationException("Missing ongoing authorization"));
+                .orElseThrow(() -> new OAuthTokenRequestException(OAuthErrorCode.INVALID_REQUEST, "Missing ongoing authorization"));
     }
 }

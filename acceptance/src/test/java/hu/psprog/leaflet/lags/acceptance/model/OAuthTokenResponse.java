@@ -23,5 +23,10 @@ public class OAuthTokenResponse {
     private String tokenType;
 
     // this is only for error messages
-    private String message;
+    @JsonProperty("error")
+    private String errorCode;
+
+    // this is only for error messages
+    @JsonProperty("error_description")
+    private String errorDescription;
 }

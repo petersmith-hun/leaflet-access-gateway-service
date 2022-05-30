@@ -4,7 +4,8 @@ import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
+import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -48,7 +49,7 @@ public class CommonTokenOAuthRequestVerifier extends OAuthTokenRequestFieldExist
 
         boolean requestedScopeIsAllowed = context.getRelation().getAllowedScopes().containsAll(context.getRequest().getScope());
         if (!requestedScopeIsAllowed) {
-            throw new OAuthAuthorizationException(String.format("Target client [%s] does not allow the requested scope [%s] for source client [%s]",
+            throw new OAuthTokenRequestException(OAuthErrorCode.INVALID_SCOPE, String.format("Target client [%s] does not allow the requested scope [%s] for source client [%s]",
                     context.getTargetClient().getClientName(), context.getRequest().getScope(), context.getSourceClient().getClientName()));
         }
     }

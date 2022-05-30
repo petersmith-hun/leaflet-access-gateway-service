@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="hu" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/default}">
+    <head>
+        <title>PSProg.hu :: An error occurred while processing your request</title>
+    </head>
+    <body>
+        <th:block layout:fragment="content">
+            <div class="row justify-content-center">
+                <div class="col-12 mt-3" style="text-align: center;">
+                    <h3 class="">Authorization failed</h3>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="mb-3">
+                        The following error occurred while processing your request:
+                        <div>
+                            <p class="mt-2">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span style="font-weight: bold;" th:text="${error_code}">error_code</span>
+                            </p>
+                            <p th:text="${error_description}">error_description</p>
+                        </div>
+                        <p>
+                            <a class="btn btn-primary w-100" th:href="${redirect_uri}">Return to psprog.hu</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </body>
+</html>

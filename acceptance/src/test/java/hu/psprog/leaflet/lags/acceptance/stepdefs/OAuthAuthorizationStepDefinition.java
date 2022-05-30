@@ -103,7 +103,7 @@ public class OAuthAuthorizationStepDefinition implements En {
 
         When("^the authorization is requested$", () -> {
 
-            ResponseEntity<ErrorResponse> response = lagsClient.requestAuthorization();
+            ResponseEntity<String> response = lagsClient.requestAuthorization();
             ThreadLocalDataRegistry.putResponseEntity(response);
             ThreadLocalDataRegistry.put(TestConstants.Attribute.LOCATION, response.getHeaders().getLocation());
         });
@@ -165,14 +165,28 @@ public class OAuthAuthorizationStepDefinition implements En {
             assertThat(HTTPUtility.getQueryParameter(location, TestConstants.Attribute.STATE), equalTo(ThreadLocalDataRegistry.get(TestConstants.Attribute.STATE)));
         });
 
+        Then("^the OAuth error code is ([a-zA-Z_]+)$", (String errorCode) -> {
+
+            ResponseEntity<?> errorResponse = ThreadLocalDataRegistry.getResponseEntity();
+            if (errorResponse.getBody() instanceof ErrorResponse) {
+                assertThat(((ErrorResponse) errorResponse.getBody()).getMessage(), equalTo(errorCode));
+            } else if (errorResponse.getBody() instanceof String) {
+                assertThat(((String) errorResponse.getBody()).contains(errorCode), is(true));
+            } else {
+                assertThat(((OAuthTokenResponse) errorResponse.getBody()).getErrorCode(), equalTo(errorCode));
+            }
+        });
+
         Then("^the rejection message is (.*)$", (String errorMessage) -> {
 
             ResponseEntity<?> errorResponse = ThreadLocalDataRegistry.getResponseEntity();
             assertThat(Objects.nonNull(errorResponse.getBody()), is(true));
             if (errorResponse.getBody() instanceof ErrorResponse) {
                 assertThat(((ErrorResponse) errorResponse.getBody()).getMessage(), equalTo(errorMessage));
+            } else if (errorResponse.getBody() instanceof String) {
+                assertThat(((String) errorResponse.getBody()).contains(errorMessage), is(true));
             } else {
-                assertThat(((OAuthTokenResponse) errorResponse.getBody()).getMessage(), equalTo(errorMessage));
+                assertThat(((OAuthTokenResponse) errorResponse.getBody()).getErrorDescription(), equalTo(errorMessage));
             }
         });
 

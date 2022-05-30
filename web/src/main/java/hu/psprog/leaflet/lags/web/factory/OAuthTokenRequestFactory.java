@@ -3,7 +3,9 @@ package hu.psprog.leaflet.lags.web.factory;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -42,7 +44,7 @@ public class OAuthTokenRequestFactory {
         if (Objects.isNull(requestParameters.get(OAuthConstants.Request.CLIENT_ID))) {
             requestParameters.put(OAuthConstants.Request.CLIENT_ID, userDetails.getUsername());
         } else if (!requestParameters.get(OAuthConstants.Request.CLIENT_ID).equals(userDetails.getUsername())) {
-            throw new OAuthAuthorizationException("Authenticated client is different than the one the authorization is requested for");
+            throw new OAuthTokenRequestException(OAuthErrorCode.UNAUTHORIZED_CLIENT, "Authenticated client is different than the one the authorization is requested for");
         }
 
         return OAuthTokenRequest.builder()
@@ -61,7 +63,7 @@ public class OAuthTokenRequestFactory {
 
         String parameterValue = requestParameters.get(parameterName);
         if (Objects.isNull(parameterValue)) {
-            throw new OAuthAuthorizationException(String.format("Value for required authorization parameter [%s] is missing", parameterName));
+            throw new OAuthTokenRequestException(OAuthErrorCode.INVALID_REQUEST, String.format("Value for required authorization parameter [%s] is missing", parameterName));
         }
 
         return parameterValue;

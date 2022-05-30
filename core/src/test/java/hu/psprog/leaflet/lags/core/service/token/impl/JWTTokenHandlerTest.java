@@ -9,9 +9,9 @@ import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
-import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import hu.psprog.leaflet.lags.core.service.registry.impl.RSAKeyRegistry;
 import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
+import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -125,18 +125,18 @@ class JWTTokenHandlerTest {
     }
 
     @Test
-    public void shouldParseTokenThrowAuthenticationExceptionOnInvalidToken() {
+    public void shouldParseTokenThrowActualJSONParsingExceptionOnInvalidToken() {
 
         // given
         OAuthTokenResponse tokenResponse = jwtTokenHandler.generateToken(O_AUTH_TOKEN_REQUEST, CLAIMS);
         String invalidToken = tokenResponse.getAccessToken().substring(10);
 
         // when
-        Throwable result = assertThrows(AuthenticationException.class, () -> jwtTokenHandler.parseToken(invalidToken));
+        Throwable result = assertThrows(JwtException.class, () -> jwtTokenHandler.parseToken(invalidToken));
 
         // then
         // exception expected
-        assertThat(result.getMessage(), equalTo("Failed to parse JWT token"));
+        assertThat(result.getMessage().startsWith("Unable to read JSON value"), is(true));
     }
 
     private void assertToken(String token, int expectedExpiration) throws IOException {

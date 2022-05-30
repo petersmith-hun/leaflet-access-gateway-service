@@ -118,7 +118,8 @@ Feature: Password reset flow tests
 
      When the user confirms the password reset
 
-     Then the application responds with HTTP status UNAUTHORIZED
+     Then the application responds with HTTP status OK
+      And the response body contains "forward:/access-denied"
 
   @NegativeScenario
   Scenario: Trying to reuse an already used reset token
@@ -153,7 +154,8 @@ Feature: Password reset flow tests
 
      When the user confirms the password reset
 
-     Then the application responds with HTTP status UNAUTHORIZED
+     Then the application responds with HTTP status OK
+      And the response body contains "forward:/access-denied"
 
   @NegativeScenario
   Scenario: Attempting to use old credentials after password reset
