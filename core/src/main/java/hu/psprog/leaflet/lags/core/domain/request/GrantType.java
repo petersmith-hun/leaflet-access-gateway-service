@@ -1,6 +1,8 @@
 package hu.psprog.leaflet.lags.core.domain.request;
 
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 
 import java.util.stream.Stream;
 
@@ -42,6 +44,6 @@ public enum GrantType {
         return Stream.of(values())
                 .filter(grantType -> grantType.getGrantTypeName().equals(grantTypeName))
                 .findFirst()
-                .orElseThrow(() -> new OAuthAuthorizationException(String.format("Unsupported grant type [%s]", grantTypeName)));
+                .orElseThrow(() -> new OAuthTokenRequestException(OAuthErrorCode.UNSUPPORTED_GRANT_TYPE, String.format("Unsupported grant type [%s]", grantTypeName)));
     }
 }

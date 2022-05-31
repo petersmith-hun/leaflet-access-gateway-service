@@ -13,6 +13,8 @@ public interface SecurityConstants {
     String PATH_SIGNUP = "/signup";
     String PATH_PASSWORD_RESET = "/password-reset";
     String PATH_PASSWORD_RESET_CONFIRMATION = "/password-reset/confirmation";
+    String PATH_ACCESS_DENIED = "/access-denied";
+    String PATH_UNKNOWN_ERROR = "/unknown-error";
 
     String QUERY_PARAMETER_TOKEN = "token";
     String RECLAIM_ROLE = "RECLAIM";

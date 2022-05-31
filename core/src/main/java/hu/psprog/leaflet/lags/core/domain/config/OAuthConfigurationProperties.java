@@ -30,6 +30,11 @@ public class OAuthConfigurationProperties {
     private Duration authCodeExpiration;
 
     /**
+     * Default redirect URI on authorization failure (in case the redirect URI is not specified or invalid).
+     */
+    private String defaultRedirectOnError;
+
+    /**
      * OAuth2 client registrations.
      */
     private List<OAuthClient> clients = Collections.emptyList();

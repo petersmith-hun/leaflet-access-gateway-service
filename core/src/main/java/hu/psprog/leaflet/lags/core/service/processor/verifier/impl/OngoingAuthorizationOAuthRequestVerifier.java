@@ -4,7 +4,8 @@ import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.internal.OngoingAuthorization;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
+import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 import hu.psprog.leaflet.lags.core.persistence.repository.OngoingAuthorizationRepository;
 import hu.psprog.leaflet.lags.core.service.processor.verifier.OAuthRequestVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class OngoingAuthorizationOAuthRequestVerifier implements OAuthRequestVer
     public void verify(OAuthTokenRequestContext context) {
 
         if (context.getOngoingAuthorization().isEmpty()) {
-            throw new OAuthAuthorizationException("Unknown authorization request");
+            throw new OAuthTokenRequestException(OAuthErrorCode.INVALID_CLIENT, "Unknown authorization request");
         }
 
         context.getOngoingAuthorization()
@@ -58,27 +59,27 @@ public class OngoingAuthorizationOAuthRequestVerifier implements OAuthRequestVer
     private void verifyClientID(OngoingAuthorization ongoingAuthorization, OAuthTokenRequest oAuthTokenRequest) {
 
         if (!ongoingAuthorization.getClientID().equals(oAuthTokenRequest.getClientID())) {
-            signalInvalidOngoingAuthorization(ongoingAuthorization, "Authorization request belongs to a different client.");
+            signalInvalidOngoingAuthorization(ongoingAuthorization, OAuthErrorCode.UNAUTHORIZED_CLIENT, "Authorization request belongs to a different client.");
         }
     }
 
     private void verifyRedirectURI(OngoingAuthorization ongoingAuthorization, OAuthTokenRequest oAuthTokenRequest) {
 
         if (!ongoingAuthorization.getRedirectURI().equals(oAuthTokenRequest.getRedirectURI())) {
-            signalInvalidOngoingAuthorization(ongoingAuthorization, "Different redirect URI has been specified in the token request.");
+            signalInvalidOngoingAuthorization(ongoingAuthorization, OAuthErrorCode.INVALID_GRANT, "Different redirect URI has been specified in the token request.");
         }
     }
 
     private void verifyExpiration(OngoingAuthorization ongoingAuthorization) {
 
         if (ongoingAuthorization.getExpiration().isBefore(LocalDateTime.now())) {
-            signalInvalidOngoingAuthorization(ongoingAuthorization, "Authorization has already expired.");
+            signalInvalidOngoingAuthorization(ongoingAuthorization, OAuthErrorCode.INVALID_REQUEST, "Authorization has already expired.");
         }
     }
 
-    private void signalInvalidOngoingAuthorization(OngoingAuthorization ongoingAuthorization, String message) {
+    private void signalInvalidOngoingAuthorization(OngoingAuthorization ongoingAuthorization, OAuthErrorCode errorCode, String message) {
 
         ongoingAuthorizationRepository.deleteOngoingAuthorization(ongoingAuthorization.getAuthorizationCode());
-        throw new OAuthAuthorizationException(message);
+        throw new OAuthTokenRequestException(errorCode, message);
     }
 }

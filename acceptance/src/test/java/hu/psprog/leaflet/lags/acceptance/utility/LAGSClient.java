@@ -1,13 +1,13 @@
 package hu.psprog.leaflet.lags.acceptance.utility;
 
 import hu.psprog.leaflet.lags.acceptance.model.ApplicationInfoResponse;
-import hu.psprog.leaflet.lags.acceptance.model.ErrorResponse;
 import hu.psprog.leaflet.lags.acceptance.model.HealthCheckResponse;
 import hu.psprog.leaflet.lags.acceptance.model.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.lags.acceptance.model.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.MultiValueMap;
 
 import java.net.URI;
+import java.util.Objects;
 
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
@@ -99,7 +100,7 @@ public class LAGSClient {
      *
      * @return location header value as {@link URI} object
      */
-    public ResponseEntity<ErrorResponse> requestAuthorization() {
+    public ResponseEntity<String> requestAuthorization() {
 
         log.info("Calling /oauth/authorization endpoint...");
 
@@ -107,7 +108,7 @@ public class LAGSClient {
         HttpHeaders headers = lagsRequestHelper.prepareAuthenticatedFormHeader(ThreadLocalDataRegistry.get(TestConstants.Attribute.USER_AUTH));
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        return restTemplate.postForEntity(url, request, ErrorResponse.class);
+        return restTemplate.postForEntity(url, request, String.class);
     }
 
     /**
@@ -294,10 +295,14 @@ public class LAGSClient {
 
         MockHttpServletResponse response = mvcResult.getResponse();
         String locationHeader = TestConstants.Header.LOCATION.getValue();
+        String body = new String(response.getContentAsByteArray());
+        if (StringUtils.isEmpty(body) && Objects.nonNull(response.getForwardedUrl())) {
+            body = String.format("forward:%s", response.getForwardedUrl());
+        }
 
         return ResponseEntity
                 .status(response.getStatus())
                 .header(locationHeader, response.getHeader(locationHeader))
-                .body(new String(response.getContentAsByteArray()));
+                .body(body);
     }
 }

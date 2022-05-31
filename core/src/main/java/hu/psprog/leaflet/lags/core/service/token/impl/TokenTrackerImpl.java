@@ -3,6 +3,7 @@ package hu.psprog.leaflet.lags.core.service.token.impl;
 import hu.psprog.leaflet.lags.core.domain.internal.AccessTokenInfo;
 import hu.psprog.leaflet.lags.core.domain.internal.StoreAccessTokenInfoRequest;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenStatus;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
 import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
@@ -80,7 +81,7 @@ public class TokenTrackerImpl implements TokenTracker {
         if (TokenStatus.ACTIVE != accessTokenInfo.getStatus()) {
             String message = String.format("Access token by JTI=%s to be modified must be ACTIVE, but is %s", accessTokenInfo.getId(), accessTokenInfo.getStatus());
             log.error(message);
-            throw new OAuthAuthorizationException(message);
+            throw new OAuthAuthorizationException(OAuthErrorCode.INVALID_REQUEST, message);
         }
     }
 

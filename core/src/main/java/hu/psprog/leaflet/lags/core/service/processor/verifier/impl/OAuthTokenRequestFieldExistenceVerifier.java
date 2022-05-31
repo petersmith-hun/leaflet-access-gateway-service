@@ -2,7 +2,8 @@ package hu.psprog.leaflet.lags.core.service.processor.verifier.impl;
 
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
-import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
+import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 import hu.psprog.leaflet.lags.core.service.processor.verifier.OAuthRequestVerifier;
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,7 +28,8 @@ abstract class OAuthTokenRequestFieldExistenceVerifier implements OAuthRequestVe
         fieldMappers.forEach((fieldName, valueMapper) -> {
             String value = valueMapper.apply(oAuthTokenRequest);
             if (StringUtils.isEmpty(value)) {
-                throw new OAuthAuthorizationException(String.format("Value for required authorization parameter [%s] is missing", fieldName));
+                throw new OAuthTokenRequestException(OAuthErrorCode.INVALID_REQUEST,
+                        String.format("Value for required authorization parameter [%s] is missing", fieldName));
             }
         });
     }

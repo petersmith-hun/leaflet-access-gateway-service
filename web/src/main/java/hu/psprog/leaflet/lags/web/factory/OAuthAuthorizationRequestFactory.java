@@ -3,6 +3,7 @@ package hu.psprog.leaflet.lags.web.factory;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -51,7 +52,7 @@ public class OAuthAuthorizationRequestFactory {
 
         MANDATORY_FIELDS.forEach(field -> {
             if (StringUtils.isEmpty(requestParameters.get(field))) {
-                throw new OAuthAuthorizationException(String.format("A mandatory field [%s] is missing from request", field));
+                throw new OAuthAuthorizationException(OAuthErrorCode.INVALID_REQUEST, String.format("A mandatory field [%s] is missing from request", field));
             }
         });
     }

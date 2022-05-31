@@ -2,7 +2,9 @@ package hu.psprog.leaflet.lags.core.service.util.impl;
 
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthAuthorizationRequestContext;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 import hu.psprog.leaflet.lags.core.service.util.ScopeNegotiator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
@@ -47,7 +49,7 @@ public class AuthorizationCodeFlowScopeNegotiator implements ScopeNegotiator {
     public List<String> getScope(OAuthTokenRequestContext context) {
 
         if (!context.getRequest().getScope().isEmpty()) {
-            throw new OAuthAuthorizationException("Token request should not specify scope on Authorization Code flow.");
+            throw new OAuthTokenRequestException(OAuthErrorCode.INVALID_REQUEST, "Token request should not specify scope on Authorization Code flow.");
         }
 
         return doesRelationHaveNarrowerScope(context)
@@ -78,7 +80,7 @@ public class AuthorizationCodeFlowScopeNegotiator implements ScopeNegotiator {
     private void verifyRequestedScope(List<String> userAuthorities, List<String> requestedScope) {
 
         if (!userAuthorities.containsAll(requestedScope)) {
-            throw new OAuthAuthorizationException("Client requires broader authorities than what the user has.");
+            throw new OAuthAuthorizationException(OAuthErrorCode.INVALID_SCOPE, "Client requires broader authorities than what the user has.");
         }
     }
 

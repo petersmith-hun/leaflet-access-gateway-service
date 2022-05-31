@@ -53,14 +53,15 @@ Feature: OAuth2 Client Credentials authorization flow tests
 
      When the client requests a token
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status BAD_REQUEST
+      And the OAuth error code is <errorCode>
       And the rejection message is <errorMessage>
 
     Examples:
-      | clientID             | clientSecret           | audience                           | scope                        | errorMessage                                                                                                               |
-      | dummy_test_service_1 | dummyservicepw1234     | dummy:acceptance:svc:thirdsvc:test | read:admin                   | Target client [testsvc3] does not allow access for source client [testsvc1]                                                |
-      | dummy_test_app_1     | dummyapplicationpw5678 | dummy:acceptance:svc:othersvc:test | read:schedule write:schedule | Target client [testsvc2] does not allow the requested scope [[read:schedule, write:schedule]] for source client [testapp1] |
-      | dummy_test_service_1 | dummyservicepw1234     | non:existing:audience              | read:all                     | Requested access for non-registered OAuth client [non:existing:audience]                                                   |
+      | clientID             | clientSecret           | audience                           | scope                        | errorCode           | errorMessage                                                                                                               |
+      | dummy_test_service_1 | dummyservicepw1234     | dummy:acceptance:svc:thirdsvc:test | read:admin                   | unauthorized_client | Target client [testsvc3] does not allow access for source client [testsvc1]                                                |
+      | dummy_test_app_1     | dummyapplicationpw5678 | dummy:acceptance:svc:othersvc:test | read:schedule write:schedule | invalid_scope       | Target client [testsvc2] does not allow the requested scope [[read:schedule, write:schedule]] for source client [testapp1] |
+      | dummy_test_service_1 | dummyservicepw1234     | non:existing:audience              | read:all                     | unauthorized_client | Requested access for non-registered OAuth client [non:existing:audience]                                                   |
 
   @NegativeScenario
   Scenario: Rejected authorization for registered client, caused by invalid client secret
@@ -98,7 +99,7 @@ Feature: OAuth2 Client Credentials authorization flow tests
 
      When the client requests a token
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status BAD_REQUEST
       And the rejection message is Unsupported grant type [null]
 
   @NegativeScenario
@@ -111,7 +112,7 @@ Feature: OAuth2 Client Credentials authorization flow tests
 
      When the client requests a token
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status BAD_REQUEST
       And the rejection message is Value for required authorization parameter [audience] is missing
 
   @NegativeScenario
@@ -124,7 +125,7 @@ Feature: OAuth2 Client Credentials authorization flow tests
 
      When the client requests a token
 
-     Then the application responds with HTTP status FORBIDDEN
+     Then the application responds with HTTP status BAD_REQUEST
       And the rejection message is Value for required authorization parameter [scope] is missing
 
   @NegativeScenario

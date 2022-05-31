@@ -52,7 +52,12 @@ public class CommonStepDefinition implements En {
         Then("^the user is redirected to (/.*)", (String location) -> {
 
             ResponseEntity<Void> response = ThreadLocalDataRegistry.getResponseEntity();
-            assertThat(String.valueOf(response.getHeaders().getLocation()), equalTo(location));
+            String locationHeader = String.valueOf(response.getHeaders().getLocation());
+            if (locationHeader.startsWith("http://")) {
+                assertThat(locationHeader.endsWith(location), is(true));
+            } else {
+                assertThat(locationHeader, equalTo(location));
+            }
         });
 
         Then("^the user receives the ([A-Z_]+) mail$", (TestConstants.Attribute emailAttribute) -> {

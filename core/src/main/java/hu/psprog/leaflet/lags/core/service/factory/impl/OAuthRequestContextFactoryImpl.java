@@ -8,7 +8,9 @@ import hu.psprog.leaflet.lags.core.domain.internal.OAuthTokenRequestContext;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthRequest;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 import hu.psprog.leaflet.lags.core.persistence.repository.OngoingAuthorizationRepository;
 import hu.psprog.leaflet.lags.core.service.factory.OAuthRequestContextFactory;
 import hu.psprog.leaflet.lags.core.service.registry.OAuthClientRegistry;
@@ -17,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 /**
  * Implementation of {@link OAuthRequestContextFactory}.
@@ -40,7 +43,7 @@ public class OAuthRequestContextFactoryImpl implements OAuthRequestContextFactor
 
         return OAuthAuthorizationRequestContext.builder()
                 .request(oAuthAuthorizationRequest)
-                .sourceClient(getSourceOAuthClient(oAuthAuthorizationRequest))
+                .sourceClient(getSourceOAuthClient(oAuthAuthorizationRequest, OAuthAuthorizationException::new))
                 .authenticatedUser(getUserDetails())
                 .build();
     }
@@ -48,7 +51,7 @@ public class OAuthRequestContextFactoryImpl implements OAuthRequestContextFactor
     @Override
     public OAuthTokenRequestContext createContext(OAuthTokenRequest oAuthTokenRequest) {
 
-        OAuthClient sourceClient = getSourceOAuthClient(oAuthTokenRequest);
+        OAuthClient sourceClient = getSourceOAuthClient(oAuthTokenRequest, OAuthTokenRequestException::new);
         OAuthClient targetClient = getTargetOAuthClient(oAuthTokenRequest);
         OAuthClientAllowRelation relation = getRelation(sourceClient, targetClient);
 
@@ -62,16 +65,18 @@ public class OAuthRequestContextFactoryImpl implements OAuthRequestContextFactor
                 .build();
     }
 
-    private OAuthClient getSourceOAuthClient(OAuthRequest oAuthRequest) {
+    private OAuthClient getSourceOAuthClient(OAuthRequest oAuthRequest, BiFunction<OAuthErrorCode, String, ? extends OAuthAuthorizationException> exceptionFunction) {
 
         return oAuthClientRegistry.getClientByClientID(oAuthRequest.getClientID())
-                .orElseThrow(() -> new OAuthAuthorizationException(String.format("OAuth client by ID [%s] is not registered", oAuthRequest.getClientID())));
+                .orElseThrow(() -> exceptionFunction.apply(OAuthErrorCode.INVALID_CLIENT,
+                        String.format("OAuth client by ID [%s] is not registered", oAuthRequest.getClientID())));
     }
 
     private OAuthClient getTargetOAuthClient(OAuthTokenRequest oAuthTokenRequest) {
 
         return oAuthClientRegistry.getClientByAudience(oAuthTokenRequest.getAudience())
-                .orElseThrow(() -> new OAuthAuthorizationException(String.format("Requested access for non-registered OAuth client [%s]", oAuthTokenRequest.getAudience())));
+                .orElseThrow(() -> new OAuthTokenRequestException(OAuthErrorCode.UNAUTHORIZED_CLIENT,
+                        String.format("Requested access for non-registered OAuth client [%s]", oAuthTokenRequest.getAudience())));
     }
 
     private OAuthClientAllowRelation getRelation(OAuthClient sourceClient, OAuthClient targetClient) {
@@ -79,8 +84,8 @@ public class OAuthRequestContextFactoryImpl implements OAuthRequestContextFactor
         return targetClient.getAllowedClients().stream()
                 .filter(relation -> relation.getName().equals(sourceClient.getClientName()))
                 .findFirst()
-                .orElseThrow(() -> new OAuthAuthorizationException(String.format("Target client [%s] does not allow access for source client [%s]",
-                        targetClient.getClientName(), sourceClient.getClientName())));
+                .orElseThrow(() -> new OAuthTokenRequestException(OAuthErrorCode.UNAUTHORIZED_CLIENT,
+                        String.format("Target client [%s] does not allow access for source client [%s]", targetClient.getClientName(), sourceClient.getClientName())));
     }
 
     private ExtendedUser getUserDetails() {

@@ -4,6 +4,7 @@ import hu.psprog.leaflet.lags.core.domain.config.ApplicationType;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthAuthorizationRequestContext;
 import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.service.processor.verifier.OAuthRequestVerifier;
 import org.apache.commons.lang3.StringUtils;
@@ -45,21 +46,22 @@ public class AuthCodeAuthorizationOAuthRequestVerifier implements OAuthRequestVe
     private void verifyApplicationType(OAuthAuthorizationRequestContext context) {
 
         if (context.getSourceClient().getApplicationType() != ApplicationType.UI) {
-            throw new OAuthAuthorizationException("Client application is not permitted to use authorization code flow.");
+            throw new OAuthAuthorizationException(OAuthErrorCode.UNAUTHORIZED_CLIENT, "Client application is not permitted to use authorization code flow.");
         }
     }
 
     private void verifyRedirectURI(OAuthAuthorizationRequestContext context) {
 
         if (!context.getSourceClient().getAllowedCallbacks().contains(context.getRequest().getRedirectURI())) {
-            throw new OAuthAuthorizationException(String.format("Specified redirection URI [%s] is not registered", context.getRequest().getRedirectURI()));
+            throw new OAuthAuthorizationException(OAuthErrorCode.INVALID_GRANT,
+                    String.format("Specified redirection URI [%s] is not registered", context.getRequest().getRedirectURI()));
         }
     }
 
     private void verifyResponseType(OAuthAuthorizationRequestContext context) {
 
         if (context.getRequest().getResponseType() != AuthorizationResponseType.CODE) {
-            throw new OAuthAuthorizationException("Authorization response type must be [code]");
+            throw new OAuthAuthorizationException(OAuthErrorCode.INVALID_REQUEST, "Authorization response type must be [code]");
         }
     }
 
@@ -69,7 +71,7 @@ public class AuthCodeAuthorizationOAuthRequestVerifier implements OAuthRequestVe
             List<GrantedAuthority> requestedScopes = AuthorityUtils.createAuthorityList(context.getRequest().getScopeAsArray());
 
             if (!context.getAuthenticatedUser().getAuthorities().containsAll(requestedScopes)) {
-                throw new OAuthAuthorizationException("Requested scope is broader than the user's authority range.");
+                throw new OAuthAuthorizationException(OAuthErrorCode.INVALID_SCOPE, "Requested scope is broader than the user's authority range.");
             }
         }
     }

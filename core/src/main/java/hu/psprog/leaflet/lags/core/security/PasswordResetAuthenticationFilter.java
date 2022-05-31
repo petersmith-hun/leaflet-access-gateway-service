@@ -2,7 +2,10 @@ package hu.psprog.leaflet.lags.core.security;
 
 import hu.psprog.leaflet.lags.core.domain.internal.JWTAuthenticationToken;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
+import hu.psprog.leaflet.lags.core.exception.ExpiredTokenException;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
+import io.jsonwebtoken.ExpiredJwtException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -44,11 +47,18 @@ public class PasswordResetAuthenticationFilter extends AbstractAuthenticationPro
             throw new InsufficientAuthenticationException("Access token is missing");
         }
 
-        TokenClaims claims = tokenHandler.parseToken(token);
-        JWTAuthenticationToken authenticationToken = JWTAuthenticationToken.getBuilder()
-                .withClaims(claims)
-                .withRawToken(token)
-                .build();
+        JWTAuthenticationToken authenticationToken;
+        try {
+            TokenClaims claims = tokenHandler.parseToken(token);
+            authenticationToken = JWTAuthenticationToken.getBuilder()
+                    .withClaims(claims)
+                    .withRawToken(token)
+                    .build();
+        } catch (ExpiredJwtException exception) {
+            throw new ExpiredTokenException();
+        } catch (Exception exception) {
+            throw new BadCredentialsException("Invalid credentials", exception);
+        }
 
         return getAuthenticationManager().authenticate(authenticationToken);
     }
