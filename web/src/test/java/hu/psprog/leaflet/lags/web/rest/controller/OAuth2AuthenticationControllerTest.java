@@ -19,10 +19,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
@@ -39,27 +41,15 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class OAuth2AuthenticationControllerTest {
 
-    private static final Map<String, String> REQUEST_PARAMETERS = Map.of(
-            "grant_type", "password"
-    );
-    private static final OAuthTokenRequest O_AUTH_TOKEN_REQUEST = OAuthTokenRequest.builder()
-            .grantType(GrantType.PASSWORD)
-            .build();
-    private static final OAuthTokenResponse O_AUTH_TOKEN_RESPONSE = OAuthTokenResponse.builder()
-            .accessToken("token1")
-            .build();
-    private static final ExtendedUser EXTENDED_USER = ExtendedUser.builder()
-            .name("name1")
-            .username("email@dev.local")
-            .build();
     private static final String REQUEST_URL = "https://dev.local:9999/authorize";
     private static final String QUERY_STRING = "response_type=code&client_id=client-1";
     private static final String EXPECTED_LOGOUT_REF = REQUEST_URL + "?" + QUERY_STRING;
     private static final String ACCESS_TOKEN = "access-token-1";
-    private static final TokenIntrospectionResult TOKEN_INTROSPECTION_RESULT = TokenIntrospectionResult.builder()
-            .active(true)
-            .expiration(new Date())
-            .build();
+    private static final Map<String, String> REQUEST_PARAMETERS = prepareRequestParameters();
+    private static final OAuthTokenRequest O_AUTH_TOKEN_REQUEST = prepareTokenRequest();
+    private static final OAuthTokenResponse O_AUTH_TOKEN_RESPONSE = prepareTokenResponse();
+    private static final ExtendedUser EXTENDED_USER = prepareExtendedUser();
+    private static final TokenIntrospectionResult TOKEN_INTROSPECTION_RESULT = prepareTokenIntrospectionResult();
 
     @Mock
     private OAuthTokenRequestFactory oAuthTokenRequestFactory;
@@ -97,6 +87,7 @@ class OAuth2AuthenticationControllerTest {
         assertThat(result.getViewName(), equalTo("views/authorize"));
         assertThat(result.getModel().get("name"), equalTo(EXTENDED_USER.getName()));
         assertThat(result.getModel().get("email"), equalTo(EXTENDED_USER.getUsername()));
+        assertThat(result.getModel().get("authorizedScope"), equalTo(Arrays.asList("write:admin", "read:admin")));
         assertLogoutRef(result);
     }
 
@@ -163,5 +154,35 @@ class OAuth2AuthenticationControllerTest {
         String decodedLogoutRef = new String(Base64.getDecoder().decode(encodedLogoutRef.getBytes()));
 
         assertThat(decodedLogoutRef, equalTo(EXPECTED_LOGOUT_REF));
+    }
+
+    private static Map<String, String> prepareRequestParameters() {
+        return Map.of(
+                "grant_type", "password"
+        );
+    }
+    private static OAuthTokenRequest prepareTokenRequest() {
+        return OAuthTokenRequest.builder()
+                .grantType(GrantType.PASSWORD)
+                .build();
+    }
+    private static OAuthTokenResponse prepareTokenResponse() {
+        return OAuthTokenResponse.builder()
+                .accessToken("token1")
+                .build();
+    }
+    private static ExtendedUser prepareExtendedUser() {
+        return ExtendedUser.builder()
+                .name("name1")
+                .username("email@dev.local")
+                .authorities(AuthorityUtils.createAuthorityList("write:admin", "read:admin"))
+                .build();
+    }
+
+    private static TokenIntrospectionResult prepareTokenIntrospectionResult() {
+        return TokenIntrospectionResult.builder()
+                .active(true)
+                .expiration(new Date())
+                .build();
     }
 }

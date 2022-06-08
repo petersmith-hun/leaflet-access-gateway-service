@@ -8,7 +8,8 @@
 }
 
 .psprog-logo-container {
-    width: 162px !important;
+    width: 200px !important;
+    text-align: center;
 }
 
 .validationError {
