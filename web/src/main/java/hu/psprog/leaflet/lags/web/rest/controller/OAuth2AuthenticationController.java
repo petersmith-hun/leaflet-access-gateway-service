@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_AUTHORIZE;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_INTROSPECT;
@@ -74,6 +77,7 @@ public class OAuth2AuthenticationController {
         return new ModelAndView(VIEW_AUTHORIZE, Map.of(
                 "name", userDetails.getName(),
                 "email", userDetails.getUsername(),
+                "authorizedScope", extractScope(userDetails),
                 "logoutRef", createLogoutReference(request)
         ));
     }
@@ -123,6 +127,13 @@ public class OAuth2AuthenticationController {
     @PostMapping(PATH_OAUTH_INTROSPECT)
     public ResponseEntity<TokenIntrospectionResult> introspectToken(@RequestParam String token) {
         return ResponseEntity.ok(oAuthAuthorizationService.introspect(token));
+    }
+
+    private List<String> extractScope(ExtendedUser userDetails) {
+
+        return userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
     }
 
     private String createLogoutReference(HttpServletRequest request) {

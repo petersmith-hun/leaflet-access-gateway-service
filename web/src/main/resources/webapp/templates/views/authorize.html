@@ -10,7 +10,13 @@
                 <div class="col-12 mt-3" style="text-align: center;">
                     <h3>Welcome back,<br /><span style="font-weight: bold;" th:text="${name}"></span></h3>
                     <p>(<span th:text="${email}"></span>)</p>
-                    <p>In order to return to psprog.hu, click the Continue button.</p>
+                    <p>You are going to give the application permission to use the following of your authorities:</p>
+                    <ul class="list-group list-group-flush" style="font-size: small;">
+                        <li class="list-group-item align-items-baseline py-0" style="text-align: left;"
+                            th:each="scope : ${authorizedScope}"
+                            th:text="#{'form.authorize.scope.' + ${scope}}">scope</li>
+                    </ul>
+                    <p class="pt-1">In order to return to psprog.hu, click the Continue button.</p>
                 </div>
             </div>
             <div class="row justify-content-center">
