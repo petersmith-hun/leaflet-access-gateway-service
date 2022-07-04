@@ -139,9 +139,10 @@ class OAuth2AuthenticationControllerTest {
 
         // given
         given(oAuthAuthorizationService.introspect(ACCESS_TOKEN)).willReturn(TOKEN_INTROSPECTION_RESULT);
+        given(authentication.getName()).willReturn("client_id_1");
 
         // when
-        ResponseEntity<TokenIntrospectionResult> result = oAuth2AuthenticationController.introspectToken(ACCESS_TOKEN);
+        ResponseEntity<TokenIntrospectionResult> result = oAuth2AuthenticationController.introspectToken(ACCESS_TOKEN, authentication);
 
         // then
         assertThat(result.getStatusCode(), equalTo(HttpStatus.OK));

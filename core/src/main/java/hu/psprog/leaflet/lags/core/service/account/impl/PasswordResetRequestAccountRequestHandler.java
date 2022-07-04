@@ -57,6 +57,7 @@ public class PasswordResetRequestAccountRequestHandler implements AccountRequest
             TokenClaims claims = createPasswordReclaimTokenClaims(user);
             OAuthTokenResponse reclaimToken = tokenHandler.generateToken(passwordResetTokenRequest, claims, passwordResetConfig.getTokenExpiration());
             sendPasswordResetRequestNotification(user, reclaimToken);
+            log.info("Password reset request processed for user identified by ID={}", user.getId());
         } else {
             log.warn("User account identified by email [{}] does not exist", passwordResetRequestModel.getEmail());
         }
@@ -72,6 +73,8 @@ public class PasswordResetRequestAccountRequestHandler implements AccountRequest
     }
 
     private TokenClaims createPasswordReclaimTokenClaims(User user) {
+
+        log.info("Issuing reclaim-only access token for user identified by ID={}", user.getId());
 
         return TokenClaims.builder()
                 .scope(SecurityConstants.RECLAIM_AUTHORITY.getAuthority())

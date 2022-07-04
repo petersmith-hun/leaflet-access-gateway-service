@@ -6,6 +6,7 @@ import hu.psprog.leaflet.lags.core.domain.request.PasswordResetRequestModel;
 import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
 import hu.psprog.leaflet.lags.core.domain.response.SignUpResult;
 import hu.psprog.leaflet.lags.core.service.AuthenticationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -30,6 +31,7 @@ import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.QUER
  * @author Peter Smith
  */
 @Controller
+@Slf4j
 public class AuthenticationController {
 
     private static final String VIEW_LOGIN = "views/login";
@@ -90,10 +92,13 @@ public class AuthenticationController {
     @PostMapping(PATH_SIGNUP)
     public ModelAndView processSignUp(@ModelAttribute @Valid SignUpRequestModel signUpRequestModel, BindingResult bindingResult, HttpServletRequest request) {
 
+        log.info("Sign-up request processing started.");
+
         ModelAndView modelAndView;
         if (bindingResult.hasErrors()) {
             signUpRequestModel.setValidationFailed(true);
             modelAndView = renderSignUpForm(signUpRequestModel);
+            log.warn("Sign-up request validation failed.");
         } else {
             SignUpResult signUpResult = authenticationService.signUp(signUpRequestModel, request);
             String redirectURL = String.format(VIEW_REDIRECT_SIGNUP_TEMPLATE, signUpResult.getRedirectURI(), signUpResult.getSignUpStatus());
@@ -112,7 +117,6 @@ public class AuthenticationController {
     @GetMapping(PATH_PASSWORD_RESET)
     public ModelAndView renderPasswordResetRequestForm(@ModelAttribute PasswordResetRequestModel passwordResetRequestModel) {
 
-
         return new ModelAndView(VIEW_PW_RESET_REQUEST, Map.of(
                 ATTRIBUTE_RECAPTCHA_SITE_KEY, recaptchaSiteKey,
                 ATTRIBUTE_VALIDATION_ERROR, passwordResetRequestModel.isValidationFailed()
@@ -130,10 +134,13 @@ public class AuthenticationController {
     public ModelAndView processPasswordResetRequest(@ModelAttribute @Valid PasswordResetRequestModel passwordResetRequestModel,
                                                     BindingResult bindingResult, HttpServletRequest request) {
 
+        log.info("Password reset request processing started.");
+
         ModelAndView modelAndView;
         if (bindingResult.hasErrors()) {
             passwordResetRequestModel.setValidationFailed(true);
             modelAndView = renderPasswordResetRequestForm(passwordResetRequestModel);
+            log.warn("Password reset request validation failed.");
         } else {
             authenticationService.requestPasswordReset(passwordResetRequestModel, request);
             modelAndView = new ModelAndView(VIEW_PW_RESET_ACK);
@@ -172,10 +179,13 @@ public class AuthenticationController {
     public ModelAndView processPasswordResetConfirmation(@ModelAttribute @Valid PasswordResetConfirmationRequestModel passwordResetConfirmationRequestModel,
                                                          BindingResult bindingResult, HttpServletRequest request) {
 
+        log.info("Password reset confirmation request processing started.");
+
         ModelAndView modelAndView;
         if (bindingResult.hasErrors()) {
             passwordResetConfirmationRequestModel.setValidationFailed(true);
             modelAndView = renderPasswordResetConfirmationForm(passwordResetConfirmationRequestModel);
+            log.warn("Password reset confirmation request validation failed.");
         } else {
             authenticationService.confirmPasswordReset(passwordResetConfirmationRequestModel, request);
             modelAndView = new ModelAndView(VIEW_REDIRECT_LOGIN);
