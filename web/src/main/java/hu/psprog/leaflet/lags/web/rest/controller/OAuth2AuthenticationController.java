@@ -1,6 +1,7 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
+import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
@@ -9,6 +10,7 @@ import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
 import hu.psprog.leaflet.lags.web.factory.OAuthAuthorizationRequestFactory;
 import hu.psprog.leaflet.lags.web.factory.OAuthTokenRequestFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -40,6 +42,7 @@ import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAU
  * @author Peter Smith
  */
 @RestController
+@Slf4j
 public class OAuth2AuthenticationController {
 
     private static final String VIEW_AUTHORIZE = "views/authorize";
@@ -72,6 +75,8 @@ public class OAuth2AuthenticationController {
     @GetMapping(PATH_OAUTH_AUTHORIZE)
     public ModelAndView renderAuthorizationForm(HttpServletRequest request, Authentication authentication) {
 
+        log.info("User requested authorization via client={}", request.getParameter(OAuthConstants.Request.CLIENT_ID));
+
         ExtendedUser userDetails = (ExtendedUser) authentication.getPrincipal();
 
         return new ModelAndView(VIEW_AUTHORIZE, Map.of(
@@ -93,6 +98,8 @@ public class OAuth2AuthenticationController {
     @PostMapping(PATH_OAUTH_AUTHORIZE)
     public ModelAndView processAuthorizationRequest(@RequestParam Map<String, String> requestParameters) {
 
+        log.info("Authorization started for client={}", requestParameters.get(OAuthConstants.Request.CLIENT_ID));
+
         OAuthAuthorizationRequest oAuthAuthorizationRequest = oAuthAuthorizationRequestFactory.createAuthorizationRequest(requestParameters);
         OAuthAuthorizationResponse oAuthAuthorizationResponse = oAuthAuthorizationService.authorize(oAuthAuthorizationRequest);
 
@@ -111,6 +118,8 @@ public class OAuth2AuthenticationController {
     @PostMapping(PATH_OAUTH_TOKEN)
     public ResponseEntity<OAuthTokenResponse> claimToken(@RequestParam Map<String, String> requestParameters, Authentication authentication) {
 
+        log.info("Access token requested by client={}", requestParameters.get(OAuthConstants.Request.CLIENT_ID));
+
         OAuthTokenRequest oAuthTokenRequest = oAuthTokenRequestFactory.createTokenRequest(requestParameters, (UserDetails) authentication.getPrincipal());
         OAuthTokenResponse oAuthTokenResponse = oAuthAuthorizationService.authorize(oAuthTokenRequest);
 
@@ -122,10 +131,14 @@ public class OAuth2AuthenticationController {
      * Processes a token introspection request. Introspection can be used to check if the given token is tracked and is not yet revoked.
      *
      * @param token access token to be introspected
+     * @param authentication current {@link Authentication} object
      * @return introspection results as {@link TokenIntrospectionResult} object wrapped in {@link ResponseEntity}
      */
     @PostMapping(PATH_OAUTH_INTROSPECT)
-    public ResponseEntity<TokenIntrospectionResult> introspectToken(@RequestParam String token) {
+    public ResponseEntity<TokenIntrospectionResult> introspectToken(@RequestParam String token, Authentication authentication) {
+
+        log.info("Token introspection requested by client={}", authentication.getName());
+
         return ResponseEntity.ok(oAuthAuthorizationService.introspect(token));
     }
 

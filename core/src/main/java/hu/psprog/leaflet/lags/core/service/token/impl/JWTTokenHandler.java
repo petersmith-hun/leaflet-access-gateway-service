@@ -13,6 +13,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ import java.util.UUID;
  * @author Peter Smith
  */
 @Component
+@Slf4j
 public class JWTTokenHandler implements TokenHandler {
 
     private final OAuthConfigurationProperties oAuthConfigurationProperties;
@@ -77,15 +79,39 @@ public class JWTTokenHandler implements TokenHandler {
 
     private String createToken(OAuthTokenRequest oAuthTokenRequest, TokenClaims claims, int expirationInSeconds) {
 
+        StoreAccessTokenInfoRequest storeAccessTokenInfoRequest = createAccessTokenInfoRequest(claims, expirationInSeconds);
+        String accessToken = createAccessToken(oAuthTokenRequest, claims, storeAccessTokenInfoRequest);
+
+        log.info("Access token issued for client={} with JTI={}", oAuthTokenRequest.getClientID(), storeAccessTokenInfoRequest.getId());
+        tokenTracker.storeTokenInfo(storeAccessTokenInfoRequest);
+
+        return accessToken;
+    }
+
+    private StoreAccessTokenInfoRequest createAccessTokenInfoRequest(TokenClaims claims, int expirationInSeconds) {
+
         Date issuedAt = new Date();
-        StoreAccessTokenInfoRequest storeAccessTokenInfoRequest = StoreAccessTokenInfoRequest.builder()
+
+        return StoreAccessTokenInfoRequest.builder()
                 .id(UUID.randomUUID().toString())
                 .subject(claims.getSubject())
                 .issuedAt(issuedAt)
                 .expiresAt(generateExpiration(issuedAt, expirationInSeconds))
                 .build();
+    }
 
-        tokenTracker.storeTokenInfo(storeAccessTokenInfoRequest);
+    private Date generateExpiration(Date issuedAt, int expirationInSeconds) {
+
+        Calendar calendar = new Calendar.Builder()
+                .setInstant(issuedAt)
+                .build();
+
+        calendar.add(Calendar.SECOND, expirationInSeconds);
+
+        return calendar.getTime();
+    }
+
+    private String createAccessToken(OAuthTokenRequest oAuthTokenRequest, TokenClaims claims, StoreAccessTokenInfoRequest storeAccessTokenInfoRequest) {
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -98,16 +124,5 @@ public class JWTTokenHandler implements TokenHandler {
                 .setNotBefore(storeAccessTokenInfoRequest.getIssuedAt())
                 .signWith(SignatureAlgorithm.RS256, keyRegistry.getPrivateKey())
                 .compact();
-    }
-
-    private Date generateExpiration(Date issuedAt, int expirationInSeconds) {
-
-        Calendar calendar = new Calendar.Builder()
-                .setInstant(issuedAt)
-                .build();
-
-        calendar.add(Calendar.SECOND, expirationInSeconds);
-
-        return calendar.getTime();
     }
 }

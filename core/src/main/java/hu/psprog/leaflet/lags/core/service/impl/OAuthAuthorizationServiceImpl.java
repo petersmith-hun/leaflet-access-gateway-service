@@ -18,6 +18,7 @@ import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
 import hu.psprog.leaflet.lags.core.service.factory.OAuthRequestContextFactory;
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,7 @@ import static hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResu
  * @author Peter Smith
  */
 @Service
+@Slf4j
 public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService {
 
     private final Map<GrantType, GrantFlowProcessor> grantFlowProcessorMap;
@@ -58,6 +60,8 @@ public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService 
     public OAuthAuthorizationResponse authorize(OAuthAuthorizationRequest oAuthAuthorizationRequest) {
 
         OAuthAuthorizationRequestContext context = oAuthRequestContextFactory.createContext(oAuthAuthorizationRequest);
+        log.info("OAuth authorization requested - grant={}; client={}; redirect={}",
+                oAuthAuthorizationRequest.getGrantType(), oAuthAuthorizationRequest.getClientID(), oAuthAuthorizationRequest.getRedirectURI());
 
         return getResponsibleGrantFlowProcessor(oAuthAuthorizationRequest)
                 .processAuthorizationRequest(context);
@@ -67,6 +71,8 @@ public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService 
     public OAuthTokenResponse authorize(OAuthTokenRequest oAuthTokenRequest) {
 
         OAuthTokenRequestContext context = oAuthRequestContextFactory.createContext(oAuthTokenRequest);
+        log.info("OAuth access token requested - grant={}; client={}; audience={}",
+                oAuthTokenRequest.getGrantType(), oAuthTokenRequest.getClientID(), oAuthTokenRequest.getAudience());
         TokenClaims claims = getResponsibleGrantFlowProcessor(oAuthTokenRequest)
                 .processTokenRequest(context);
 

@@ -38,6 +38,7 @@ public class TokenTrackerImpl implements TokenTracker {
             log.warn("Access token info is already stored for token identified by JTI={}", storeAccessTokenInfoRequest.getId());
         } else {
             accessTokenDAO.save(new AccessTokenInfo(storeAccessTokenInfoRequest));
+            log.info("Tracking access token identified by JTI={}", storeAccessTokenInfoRequest.getId());
         }
     }
 
@@ -57,6 +58,7 @@ public class TokenTrackerImpl implements TokenTracker {
             AccessTokenInfo accessTokenInfo = accessTokenInfoOptional.get();
             verifyActiveToken(accessTokenInfo);
             doRevokeToken(accessTokenInfo);
+            log.info("Token identified by JTI={} has been revoked.", jti);
         }
     }
 

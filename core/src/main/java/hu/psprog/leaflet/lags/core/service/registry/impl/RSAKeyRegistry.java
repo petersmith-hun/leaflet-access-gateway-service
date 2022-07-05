@@ -2,6 +2,7 @@ package hu.psprog.leaflet.lags.core.service.registry.impl;
 
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.service.registry.KeyRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  * @author Peter Smith
  */
 @Component
+@Slf4j
 public class RSAKeyRegistry implements KeyRegistry {
 
     private final OAuthConfigurationProperties oAuthConfigurationProperties;
@@ -64,6 +66,8 @@ public class RSAKeyRegistry implements KeyRegistry {
 
     private PrivateKey loadPrivateKey() {
 
+        log.info("Loading private RSA key from path [{}]", oAuthConfigurationProperties.getToken().getPrivateKeyFile().toString());
+
         return loadKey(oAuthConfigurationProperties.getToken().getPrivateKeyFile(), (keyFactory, pkcs8EncodedKeySpec) -> {
             try {
                 return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
@@ -74,6 +78,8 @@ public class RSAKeyRegistry implements KeyRegistry {
     }
 
     private PublicKey loadPublicKey() {
+
+        log.info("Loading public RSA key from path [{}]", oAuthConfigurationProperties.getToken().getPublicKeyFile().toString());
 
         return loadKey(oAuthConfigurationProperties.getToken().getPublicKeyFile(), (keyFactory, pkcs8EncodedKeySpec) -> {
             try {

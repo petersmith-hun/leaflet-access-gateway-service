@@ -27,7 +27,7 @@
     </appender>
 
     <!-- set logging by profile -->
-    <springProfile name="default,development,local,maintenance">
+    <springProfile name="!production">
         <root level="INFO">
             <appender-ref ref="CONSOLE" />
         </root>

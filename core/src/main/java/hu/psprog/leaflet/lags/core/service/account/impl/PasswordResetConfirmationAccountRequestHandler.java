@@ -56,6 +56,7 @@ public class PasswordResetConfirmationAccountRequestHandler implements AccountRe
             user.setPassword(passwordEncoder.encode(passwordResetConfirmationRequestModel.getPassword()));
             userDAO.save(user);
             sendPasswordResetConfirmationNotification(user);
+            log.info("Password successfully reset for user by ID={}", user.getId());
         } else {
             log.warn("User account identified by email [{}] does not exist", claims.getEmail());
         }
