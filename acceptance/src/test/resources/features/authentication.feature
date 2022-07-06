@@ -104,7 +104,7 @@ Feature: Standard user sign-in flow tests
      When the user signs up
 
      Then the application responds with HTTP status OK
-      And the response body contains "You've provided incorrect information, please check and try again"
+      And the response body contains "flash.signup.failure.explanation.validation"
 
   @NegativeScenario
   Scenario: A new user tries to sign up but email validation fails
@@ -118,4 +118,4 @@ Feature: Standard user sign-in flow tests
      When the user signs up
 
      Then the application responds with HTTP status OK
-      And the response body contains "You've provided incorrect information, please check and try again"
+      And the response body contains "flash.signup.failure.explanation.validation"

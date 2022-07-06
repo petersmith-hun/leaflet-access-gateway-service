@@ -66,7 +66,7 @@ public class PasswordResetStepDefinition implements En {
 
             ResponseEntity<String> passwordResetNotification = ThreadLocalDataRegistry.getResponseEntity();
             assertThat(passwordResetNotification.getBody(), notNullValue());
-            assertThat(passwordResetNotification.getBody().contains("Please wait for the verification email to arrive"), is(true));
+            assertThat(passwordResetNotification.getBody().contains("flash.pwreset.request.ack"), is(true));
         });
 
         Then("^the mail contains a reset token$", () -> {

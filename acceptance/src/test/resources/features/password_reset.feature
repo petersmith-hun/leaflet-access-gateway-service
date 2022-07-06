@@ -55,7 +55,7 @@ Feature: Password reset flow tests
      When the user requests password reset
 
      Then the application responds with HTTP status OK
-      And the response body contains "You've provided incorrect information, please check and try again"
+      And the response body contains "flash.pwreset.request.failure.explanation"
 
   @NegativeScenario
   Scenario: Requesting password reset with failed ReCaptcha
@@ -91,7 +91,7 @@ Feature: Password reset flow tests
      When the user confirms the password reset
 
      Then the application responds with HTTP status OK
-      And the response body contains "You've provided incorrect information, please check and try again"
+      And the response body contains "flash.pwreset.confirm.failure.explanation"
 
   @LongScenario
   @NegativeScenario

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="hu" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/default}">
     <head>
-        <title>PSProg.hu :: Sign in</title>
+        <title th:text="#{form.signin.title}">Sign in</title>
     </head>
     <body>
         <th:block layout:fragment="modal">
@@ -10,11 +10,11 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="loginErrorModalLabel">Sign-in failed</h5>
+                                <h5 class="modal-title" id="loginErrorModalLabel" th:text="#{flash.signin.failure}">failure</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
-                                Incorrect username or password, please try again.
+                            <div class="modal-body" th:text="#{form.signin.failure.explanation}">
+                                try_again
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
@@ -32,11 +32,11 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="signUpSuccessfulModalLabel">Sign-up successful</h5>
+                                <h5 class="modal-title" id="signUpSuccessfulModalLabel" th:text="#{flash.signup.success}">success</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
-                                Your account was successfully created, you may now sign in.
+                            <div class="modal-body" th:text="#{flash.signup.success.explanation}">
+                                signup_success
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
@@ -54,11 +54,11 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="pwResetSuccessfulModalLabel">Password successfully reset</h5>
+                                <h5 class="modal-title" id="pwResetSuccessfulModalLabel" th:text="#{flash.pwreset.confirm.success}">success</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
-                                Your password has successfully been reset, you may now sign in with your new password.
+                            <div class="modal-body" th:text="#{flash.pwreset.confirm.success.explanation}">
+                                reset_success
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
@@ -75,24 +75,29 @@
         <th:block layout:fragment="content">
             <div class="row justify-content-center">
                 <div class="col-12 mt-3" style="text-align: center;">
-                    <h3>Sign in to psprog.hu</h3>
+                    <h3 th:text="#{form.signin.title}">sign_in</h3>
                 </div>
             </div>
             <div class="row justify-content-center">
                 <div class="col-12">
                     <form th:action="@{/login}" action="#" method="post" class="w-100">
                         <div class="mb-3">
-                            <label for="emailInput">Email</label>
-                            <input type="text" class="form-control" placeholder="Please enter your email address" name="email" id="emailInput" required />
+                            <label for="emailInput" th:text="#{form.signin.label.email}">Email</label>
+                            <input type="text" class="form-control" th:placeholder="#{form.signin.placeholder.email}" name="email" id="emailInput" required />
                         </div>
                         <div class="mb-3">
-                            <label for="passwordInput">Password</label>
-                            <input type="password" class="form-control" placeholder="Please enter your password" name="password" id="passwordInput" required />
+                            <label for="passwordInput" th:text="#{form.signin.label.password}">Password</label>
+                            <input type="password" class="form-control" th:placeholder="#{form.signin.placeholder.password}" name="password" id="passwordInput" required />
                         </div>
                         <div class="mb-3 d-flex flex-row justify-content-between">
-                            <button type="submit" class="btn btn-primary w-75 align-middle">Sign In <i class="fas fa-sign-in-alt"></i></button>
+                            <button type="submit" class="btn btn-primary w-100 align-middle">
+                                <span th:text="#{form.signin.label.send}">Sign In</span> <i class="fas fa-sign-in-alt"></i>
+                            </button>
+                            <!-- TODO revert after integration with external authorizers is implemented -->
+                            <!--
                             <a class="btn btn-dark mx-2"><i class="fab fa-github"></i></a>
                             <a class="btn btn-danger"><i class="fab fa-google"></i></a>
+                            -->
                         </div>
                     </form>
                 </div>
@@ -104,12 +109,16 @@
             </div>
             <div class="row justify-content-center">
                 <div class="col-12">
-                    <a class="btn btn-secondary w-100 align-middle" th:href="@{/signup}">I don't have an account yet <i class="fas fa-user-plus"></i></a>
+                    <a class="btn btn-secondary w-100 align-middle" th:href="@{/signup}">
+                        <span th:text="#{form.signin.button.signup}">no_account_yet</span> <i class="fas fa-user-plus"></i>
+                    </a>
                 </div>
             </div>
             <div class="row mt-3 justify-content-center">
                 <div class="col-12">
-                    <a class="btn btn-secondary w-100 align-middle" th:href="@{/password-reset}">I forgot my password <i class="fas fa-unlock-alt"></i></a>
+                    <a class="btn btn-secondary w-100 align-middle" th:href="@{/password-reset}">
+                        <span th:text="#{form.signin.button.pwreset}">forgot_pw</span> <i class="fas fa-unlock-alt"></i>
+                    </a>
                 </div>
             </div>
         </th:block>
