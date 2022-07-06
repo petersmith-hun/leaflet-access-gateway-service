@@ -1,35 +1,43 @@
 <!DOCTYPE html>
 <html lang="hu" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/default}">
     <head>
-        <title>PSProg.hu :: Authorize access</title>
+        <title th:text="#{form.authorization.title}">Authorize access</title>
     </head>
     <body>
 
         <th:block layout:fragment="content" th:with="query=${#request.getQueryString()}">
             <div class="row justify-content-center">
                 <div class="col-12 mt-3" style="text-align: center;">
-                    <h3>Welcome back,<br /><span style="font-weight: bold;" th:text="${name}"></span></h3>
+                    <h3>
+                        <span th:text="#{form.authorization.welcome_back}">welcome_back</span>
+                        <br />
+                        <span style="font-weight: bold;" th:text="${name}"></span>
+                    </h3>
                     <p>(<span th:text="${email}"></span>)</p>
-                    <p>You are going to give the application permission to use the following of your authorities:</p>
+                    <p th:text="#{form.authorization.permissions_notice}">permissions_notice</p>
                     <ul class="list-group list-group-flush" style="font-size: small;">
                         <li class="list-group-item align-items-baseline py-0" style="text-align: left;"
                             th:each="scope : ${authorizedScope}"
                             th:text="#{'form.authorize.scope.' + ${scope}}">scope</li>
                     </ul>
-                    <p class="pt-1">In order to return to psprog.hu, click the Continue button.</p>
+                    <p class="pt-1" th:text="#{form.authorization.return_notice}">return_notice</p>
                 </div>
             </div>
             <div class="row justify-content-center">
                 <div class="col-12">
                     <form action="" method="post" class="w-100">
                         <div class="mb-3">
-                            <button type="submit" class="btn btn-primary w-100 align-middle">Continue <i class="fas fa-sign-in-alt"></i></button>
+                            <button type="submit" class="btn btn-primary w-100 align-middle">
+                                <span th:text="#{form.authorization.button.continue}">continue</span> <i class="fas fa-sign-in-alt"></i>
+                            </button>
                         </div>
                     </form>
                     <hr />
                     <form th:action="@{/logout?logoutRef=__${logoutRef}__}" method="post" class="w-100">
                         <div class="mb-3">
-                            <button type="submit" class="btn btn-danger w-100 align-middle">It's not me! <i class="fas fa-sign-out-alt"></i></button>
+                            <button type="submit" class="btn btn-danger w-100 align-middle">
+                                <span th:text="#{form.authorization.its_not_me}">its_not_me</span> <i class="fas fa-sign-out-alt"></i>
+                            </button>
                         </div>
                     </form>
                 </div>

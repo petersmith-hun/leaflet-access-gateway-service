@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="hu" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/default}">
     <head>
-        <title>PSProg.hu :: Update your password</title>
+        <title th:text="#{form.pwreset.confirm.generic_title}">Update your password</title>
     </head>
     <body>
         <th:block layout:fragment="modal">
@@ -10,12 +10,12 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="passwordResetErrorModalLabel">Password reset confirmation failed</h5>
+                                <h5 class="modal-title" id="passwordResetErrorModalLabel" th:text="#{flash.pwreset.confirm.failure}">reset_failed</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <th:block th:if="${validationError}">
-                                    You've provided incorrect information, please check and try again
+                                <th:block th:if="${validationError}" th:text="#{flash.pwreset.confirm.failure.explanation}">
+                                    incorrect_info
                                 </th:block>
                             </div>
                             <div class="modal-footer">
@@ -33,26 +33,25 @@
         <th:block layout:fragment="content">
             <div class="row justify-content-center">
                 <div class="col-12 mt-3" style="text-align: center;">
-                    <h3>Reset my password</h3>
+                    <h3 th:text="#{form.pwreset.confirm.head_title}">reset_my_pw</h3>
                 </div>
             </div>
             <div class="row justify-content-center">
                 <div class="col-12">
                     <form th:object="${passwordResetConfirmationRequestModel}" th:action="@{''}" method="post" accept-charset="utf-8">
-                        <h3 class="" th:text="#{form.pwreset.title}">placeholder:pwreset</h3>
                         <div class="mb-3">
-                            <label for="password" th:text="#{form.pwreset.label.password}">placeholder:password</label>
-                            <input name="password" class="form-control" required="required" th:placeholder="#{form.pwreset.placeholder.password}" type="password" id="password" />
-                            <span class="validationError" th:if="${#fields.hasErrors('password')}" th:text="#{form.pwreset.validation.error.password}">placeholder:val_err_pw</span>
+                            <label for="password" th:text="#{form.pwreset.confirm.label.password}">placeholder:password</label>
+                            <input name="password" class="form-control" required="required" th:placeholder="#{form.pwreset.confirm.placeholder.password}" type="password" id="password" />
+                            <span class="validationError" th:if="${#fields.hasErrors('password')}" th:text="#{form.pwreset.confirm.validation.error.password}">placeholder:val_err_pw</span>
                         </div>
                         <div class="mb-3">
-                            <label for="password_confirm" th:text="#{form.pwreset.label.password.confirm}">placeholder:passwordconf</label>
-                            <input name="passwordConfirmation" class="form-control" required="required" th:placeholder="#{form.pwreset.placeholder.password.confirm}" type="password" id="password_confirm" />
-                            <span class="validationError" th:if="${#fields.hasGlobalErrors()}" th:text="#{form.pwreset.validation.error.passwordConfirmation}">placeholder:val_err_pw</span>
+                            <label for="password_confirm" th:text="#{form.pwreset.confirm.label.password.confirm}">placeholder:passwordconf</label>
+                            <input name="passwordConfirmation" class="form-control" required="required" th:placeholder="#{form.pwreset.confirm.placeholder.password.confirm}" type="password" id="password_confirm" />
+                            <span class="validationError" th:if="${#fields.hasGlobalErrors()}" th:text="#{form.pwreset.confirm.validation.error.passwordConfirmation}">placeholder:val_err_pw</span>
                         </div>
                         <th:block th:insert="fragments/security.html :: recaptcha-widget" />
                         <div class="mb-3">
-                            <button type="submit" class="btn btn-primary w-100 mt-3 align-middle" th:text="#{form.pwreset.label.send}">placeholder:reset</button>
+                            <button type="submit" class="btn btn-primary w-100 mt-3 align-middle" th:text="#{form.pwreset.confirm.label.send}">placeholder:reset</button>
                         </div>
                     </form>
                 </div>
