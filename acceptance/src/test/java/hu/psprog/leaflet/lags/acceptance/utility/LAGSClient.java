@@ -50,10 +50,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @Slf4j
 public class LAGSClient {
 
+    private static final ParameterizedTypeReference<HashMap<String, Object>> HASHMAP_RESPONSE_TYPE = new ParameterizedTypeReference<>() {};
+
     private static final String PATH_HEALTH_CHECK = "/actuator/health";
     private static final String PATH_APPLICATION_INFO = "/actuator/info";
     private static final String PATH_LOGOUT = "/logout";
     private static final String PATH_JWKS = "/.well-known/jwks";
+    private static final String PATH_OAUTH_AUTHORIZATION_SERVER = "/.well-known/oauth-authorization-server";
 
     private final LAGSRequestHelper lagsRequestHelper;
     private final TestRestTemplate restTemplate;
@@ -65,6 +68,7 @@ public class LAGSClient {
     private final String healthCheckEndpoint;
     private final String applicationInfoEndpoint;
     private final String jwksEndpoint;
+    private final String metaInfoEndpoint;
 
     @Autowired
     public LAGSClient(LAGSRequestHelper lagsRequestHelper, TestRestTemplate testRestTemplate, MockMvc mockMvc, String baseServerPath) {
@@ -76,7 +80,8 @@ public class LAGSClient {
         this.tokenIntrospectionEndpoint = baseServerPath + PATH_OAUTH_INTROSPECT;
         this.healthCheckEndpoint = baseServerPath + PATH_HEALTH_CHECK;
         this.applicationInfoEndpoint = baseServerPath + PATH_APPLICATION_INFO;
-        jwksEndpoint = baseServerPath + PATH_JWKS;
+        this.jwksEndpoint = baseServerPath + PATH_JWKS;
+        this.metaInfoEndpoint = baseServerPath + PATH_OAUTH_AUTHORIZATION_SERVER;
     }
 
     /**
@@ -308,13 +313,29 @@ public class LAGSClient {
 
         log.info("Calling /.well-known/jwks endpoint...");
 
-        ParameterizedTypeReference<HashMap<String, Object>> responseType = new ParameterizedTypeReference<>() {};
         RequestEntity<Void> requestEntity = RequestEntity
                 .get(jwksEndpoint)
                 .accept(MediaType.APPLICATION_JSON)
                 .build();
 
-        return this.restTemplate.exchange(requestEntity, responseType);
+        return this.restTemplate.exchange(requestEntity, HASHMAP_RESPONSE_TYPE);
+    }
+
+    /**
+     * Requests the server meta-information by sending a GET request to the /.well-known/oauth-authorization-server endpoint.
+     *
+     * @return server meta-information response as {@link Map} wrapped in {@link ResponseEntity}
+     */
+    public ResponseEntity<HashMap<String, Object>> requestServerMetaInfo() {
+
+        log.info("Calling /.well-known/oauth-authorization-server endpoint...");
+
+        RequestEntity<Void> requestEntity = RequestEntity
+                .get(metaInfoEndpoint)
+                .accept(MediaType.APPLICATION_JSON)
+                .build();
+
+        return this.restTemplate.exchange(requestEntity, HASHMAP_RESPONSE_TYPE);
     }
 
     private ResponseEntity<String> convertToResponseEntity(MvcResult mvcResult) {

@@ -6,7 +6,10 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings;
+import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
+import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.service.registry.KeyRegistry;
+import hu.psprog.leaflet.lags.web.model.AuthServerMetaInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +17,17 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_AUTHORIZE;
+import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_INTROSPECT;
+import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_TOKEN;
+import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_WELL_KNOWN_JWKS;
 
 /**
  * Spring Web MVC configuration.
@@ -29,6 +42,8 @@ public class WebMVCConfiguration implements WebMvcConfigurer {
             "/images/**", "classpath:/webapp/resources/images/",
             "/js/**", "classpath:/webapp/resources/js/"
     );
+    private static final List<String> TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED =
+            Arrays.asList("client_secret_post", "client_secret_basic");
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -49,5 +64,30 @@ public class WebMVCConfiguration implements WebMvcConfigurer {
                 .algorithm(Algorithm.parse(tokenSettings.getSignatureAlgorithm().name()));
 
         return new JWKSet(rsaKeyBuilder.build());
+    }
+
+    @Bean
+    @Autowired
+    public AuthServerMetaInfo authServerMetaInfo(OAuthConfigurationProperties oAuthConfigurationProperties) {
+
+        String issuer = oAuthConfigurationProperties.getToken().getIssuer();
+
+        return AuthServerMetaInfo.builder()
+                .issuer(issuer)
+                .authorizationEndpoint(issuer + PATH_OAUTH_AUTHORIZE)
+                .tokenEndpoint(issuer + PATH_OAUTH_TOKEN)
+                .jwksURI(issuer + PATH_WELL_KNOWN_JWKS)
+                .tokenIntrospectionEndpoint(issuer + PATH_OAUTH_INTROSPECT)
+                .grantTypesSupported(getSupportedItems(GrantType.class, GrantType::getGrantTypeName))
+                .responseTypesSupported(getSupportedItems(AuthorizationResponseType.class, AuthorizationResponseType::getResponseTypeName))
+                .tokenEndpointAuthMethodsSupported(TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED)
+                .build();
+    }
+
+    private <T extends Enum<T>> List<String> getSupportedItems(Class<T> sourceEnum, Function<T, String> itemNameFunction) {
+
+        return Stream.of(sourceEnum.getEnumConstants())
+                .map(itemNameFunction)
+                .collect(Collectors.toList());
     }
 }
