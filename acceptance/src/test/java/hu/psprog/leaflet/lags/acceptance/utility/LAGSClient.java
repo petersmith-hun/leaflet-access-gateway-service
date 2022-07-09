@@ -10,9 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -21,6 +24,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.MultiValueMap;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET;
@@ -48,6 +53,7 @@ public class LAGSClient {
     private static final String PATH_HEALTH_CHECK = "/actuator/health";
     private static final String PATH_APPLICATION_INFO = "/actuator/info";
     private static final String PATH_LOGOUT = "/logout";
+    private static final String PATH_JWKS = "/.well-known/jwks";
 
     private final LAGSRequestHelper lagsRequestHelper;
     private final TestRestTemplate restTemplate;
@@ -58,6 +64,7 @@ public class LAGSClient {
     private final String tokenIntrospectionEndpoint;
     private final String healthCheckEndpoint;
     private final String applicationInfoEndpoint;
+    private final String jwksEndpoint;
 
     @Autowired
     public LAGSClient(LAGSRequestHelper lagsRequestHelper, TestRestTemplate testRestTemplate, MockMvc mockMvc, String baseServerPath) {
@@ -69,6 +76,7 @@ public class LAGSClient {
         this.tokenIntrospectionEndpoint = baseServerPath + PATH_OAUTH_INTROSPECT;
         this.healthCheckEndpoint = baseServerPath + PATH_HEALTH_CHECK;
         this.applicationInfoEndpoint = baseServerPath + PATH_APPLICATION_INFO;
+        jwksEndpoint = baseServerPath + PATH_JWKS;
     }
 
     /**
@@ -289,6 +297,24 @@ public class LAGSClient {
         log.info("Calling /actuator/info endpoint...");
 
         return this.restTemplate.getForEntity(applicationInfoEndpoint, ApplicationInfoResponse.class);
+    }
+
+    /**
+     * Requests JWK Set by sending a GET request to the /.well-known/jwks endpoint.
+     *
+     * @return JWK Set response as {@link Map} wrapped in {@link ResponseEntity}
+     */
+    public ResponseEntity<HashMap<String, Object>> requestJWKs() {
+
+        log.info("Calling /.well-known/jwks endpoint...");
+
+        ParameterizedTypeReference<HashMap<String, Object>> responseType = new ParameterizedTypeReference<>() {};
+        RequestEntity<Void> requestEntity = RequestEntity
+                .get(jwksEndpoint)
+                .accept(MediaType.APPLICATION_JSON)
+                .build();
+
+        return this.restTemplate.exchange(requestEntity, responseType);
     }
 
     private ResponseEntity<String> convertToResponseEntity(MvcResult mvcResult) {
