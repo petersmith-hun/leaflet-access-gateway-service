@@ -35,29 +35,55 @@ public class WellKnownStepDefinition implements En {
 
         When("^the JWKs endpoint is called$",
                 () -> ThreadLocalDataRegistry.putResponseEntity(lagsClient.requestJWKs()));
+
+        When("^the server meta-info endpoint is called$",
+                () -> ThreadLocalDataRegistry.putResponseEntity(lagsClient.requestServerMetaInfo()));
     }
 
     private void defineAssertions() {
 
-        Then("^the response contains one entry$", () -> {
+        Then("^the JWKs response contains one entry$", () -> {
 
             ResponseEntity<HashMap<String, Object>> response = ThreadLocalDataRegistry.getResponseEntity();
             assertThat(response.getBody(), notNullValue());
             assertThat(((List<?>) response.getBody().get("keys")).size(), equalTo(1));
         });
 
-        Then("^the response contains the public RSA key for signature verification$", () -> {
+        Then("^the JWKs response contains the public ([A-Z]+) key with ([A-Z0-9]+) algorithm for ([a-z]+) verification$", (String kty, String alg, String use) -> {
 
             ResponseEntity<HashMap<String, Object>> response = ThreadLocalDataRegistry.getResponseEntity();
             assertThat(response.getBody(), notNullValue());
 
             List<Map<String, String>> jwkList = (List<Map<String, String>>) response.getBody().get("keys");
             Map<String, String> publicKey = jwkList.get(0);
-            assertThat(publicKey.get("kty"), equalTo("RSA"));
-            assertThat(publicKey.get("use"), equalTo("sig"));
-            assertThat(publicKey.get("alg"), equalTo("RS256"));
-            assertThat(publicKey.get("kid"), equalTo("acceptance-test-public-key"));
+            assertThat(publicKey.get("kty"), equalTo(kty));
+            assertThat(publicKey.get("alg"), equalTo(alg));
+            assertThat(publicKey.get("use"), equalTo(use.substring(0, 3)));
             assertThat(publicKey.get("n"), notNullValue());
+        });
+
+        Then("^the JWKs response contains the key id with the value of (.*)$", (String kid) -> {
+
+            ResponseEntity<HashMap<String, Object>> response = ThreadLocalDataRegistry.getResponseEntity();
+            assertThat(response.getBody(), notNullValue());
+
+            List<Map<String, String>> jwkList = (List<Map<String, String>>) response.getBody().get("keys");
+            Map<String, String> publicKey = jwkList.get(0);
+            assertThat(publicKey.get("kid"), equalTo(kid));
+        });
+
+        Then("^the meta-info response contains the key ([a-z_]+) with value (.*)$", (String key, String value) -> {
+
+            ResponseEntity<HashMap<String, Object>> response = ThreadLocalDataRegistry.getResponseEntity();
+            assertThat(response.getBody(), notNullValue());
+            assertThat(response.getBody().get(key), equalTo(value));
+        });
+
+        Then("^the meta-info response contains the key ([a-z_]+) with values (.*)$", (String key, String value) -> {
+
+            ResponseEntity<HashMap<String, Object>> response = ThreadLocalDataRegistry.getResponseEntity();
+            assertThat(response.getBody(), notNullValue());
+            assertThat(response.getBody().get(key), equalTo(List.of(value.split(","))));
         });
     }
 }

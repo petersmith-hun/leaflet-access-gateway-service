@@ -41,6 +41,7 @@ public class BaseController {
     public static final String PATH_OAUTH_AUTHORIZE = "/oauth/authorize";
     public static final String PATH_OAUTH_INTROSPECT = "/oauth/introspect";
     public static final String PATH_WELL_KNOWN_JWKS = "/.well-known/jwks";
+    public static final String PATH_WELL_KNOWN_OAUTH_AUTHORIZATION_SERVER = "/.well-known/oauth-authorization-server";
 
     private static final String VIEW_ERROR = "views/error";
 
