@@ -42,6 +42,18 @@
       "sourceType": "hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings"
     },
     {
+      "name": "oauth2-config.token.key-id",
+      "type": "java.lang.String",
+      "description": "Key ID (\"kid\") header value for the generated JWT access tokens.",
+      "sourceType": "hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings"
+    },
+    {
+      "name": "oauth2-config.token.signature-algorithm",
+      "type": "java.lang.String",
+      "description": "JWT access token signature algorithm.",
+      "sourceType": "hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings"
+    },
+    {
       "name": "oauth2-config.default-redirect-on-error",
       "type": "java.lang.String",
       "description": "Default redirect URI if not specified or provided one is invalid.",

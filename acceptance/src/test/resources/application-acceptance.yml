@@ -80,6 +80,8 @@ oauth2-config:
     issuer: http://localhost:9285/lags
     private-key-file: classpath:/testkeys/lags_unit_tests_jwt_rsa_prv_pkcs8.pem
     public-key-file: classpath:/testkeys/lags_unit_tests_jwt_rsa_pub.pem
+    key-id: acceptance-test-public-key
+    signature-algorithm: RS256
   auth-code-expiration: PT1M
   clients:
 

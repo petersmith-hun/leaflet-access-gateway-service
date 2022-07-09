@@ -56,6 +56,7 @@ public class WellKnownStepDefinition implements En {
             assertThat(publicKey.get("kty"), equalTo("RSA"));
             assertThat(publicKey.get("use"), equalTo("sig"));
             assertThat(publicKey.get("alg"), equalTo("RS256"));
+            assertThat(publicKey.get("kid"), equalTo("acceptance-test-public-key"));
             assertThat(publicKey.get("n"), notNullValue());
         });
     }
