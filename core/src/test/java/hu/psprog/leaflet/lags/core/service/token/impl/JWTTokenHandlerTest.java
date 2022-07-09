@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
+import static hu.psprog.leaflet.lags.core.domain.config.OAuthConfigTestHelper.KEY_ID;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -149,6 +150,7 @@ class JWTTokenHandlerTest {
 
         assertThat(header.get("alg"), equalTo("RS256"));
         assertThat(header.get("typ"), equalTo("JWT"));
+        assertThat(header.get("kid"), equalTo(KEY_ID));
         assertThat(payload.get("sub"), equalTo(CLAIMS.getSubject()));
         assertThat(payload.get("aud"), equalTo(O_AUTH_TOKEN_REQUEST.getAudience()));
         assertThat(payload.get("scope"), equalTo(CLAIMS.getScope()));

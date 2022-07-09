@@ -44,6 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String PATH_OAUTH_ROOT = "/oauth/**";
     private static final String PATH_LOGIN_FAILURE = "/login?auth=fail";
     private static final String PATH_LOGOUT = "/logout";
+    private static final String PATH_WELL_KNOWN_ROOT = "/.well-known/**";
     private static final String USERNAME_PARAMETER = "email";
     private static final String RESOURCE_IMAGES = "/images/**";
     private static final String RESOURCE_CSS = "/css/**";
@@ -105,7 +106,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .fullyAuthenticated()
                     .antMatchers(PATH_PASSWORD_RESET_CONFIRMATION)
                         .hasAuthority(RECLAIM_AUTHORITY.getAuthority())
-                    .antMatchers(PATH_LOGIN, PATH_PASSWORD_RESET, RESOURCE_IMAGES, RESOURCE_CSS, RESOURCE_JS, PATH_UNKNOWN_ERROR, PATH_ACCESS_DENIED)
+                    .antMatchers(PATH_LOGIN, PATH_PASSWORD_RESET, RESOURCE_IMAGES, RESOURCE_CSS, RESOURCE_JS, PATH_UNKNOWN_ERROR, PATH_ACCESS_DENIED, PATH_WELL_KNOWN_ROOT)
                         .permitAll()
                     .and()
 

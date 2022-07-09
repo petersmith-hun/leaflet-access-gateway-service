@@ -11,8 +11,8 @@ import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
+import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -115,6 +115,7 @@ public class JWTTokenHandler implements TokenHandler {
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setHeaderParam(JwsHeader.KEY_ID, oAuthConfigurationProperties.getToken().getKeyID())
                 .setClaims(claims.getClaimsAsMap())
                 .setAudience(oAuthTokenRequest.getAudience())
                 .setExpiration(storeAccessTokenInfoRequest.getExpiresAt())
@@ -122,7 +123,7 @@ public class JWTTokenHandler implements TokenHandler {
                 .setIssuedAt(storeAccessTokenInfoRequest.getIssuedAt())
                 .setIssuer(oAuthConfigurationProperties.getToken().getIssuer())
                 .setNotBefore(storeAccessTokenInfoRequest.getIssuedAt())
-                .signWith(SignatureAlgorithm.RS256, keyRegistry.getPrivateKey())
+                .signWith(oAuthConfigurationProperties.getToken().getSignatureAlgorithm(), keyRegistry.getPrivateKey())
                 .compact();
     }
 }

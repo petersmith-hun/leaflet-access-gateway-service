@@ -1,6 +1,7 @@
 package hu.psprog.leaflet.lags.core.domain.config;
 
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -18,6 +19,7 @@ public class OAuthConfigTestHelper {
     public static final OAuthClient SOURCE_O_AUTH_CLIENT = prepareSourceOAuthClient();
     public static final OAuthClient TARGET_O_AUTH_CLIENT = prepareTargetOAuthClient(true);
     public static final OAuthClient INVALID_TARGET_O_AUTH_CLIENT = prepareTargetOAuthClient(false);
+    public static final String KEY_ID = "unit-test-key";
 
     public static OAuthClient prepareOAuthClient(String clientName, ApplicationType applicationType, String clientID, String clientSecret, String audience) {
 
@@ -57,6 +59,8 @@ public class OAuthConfigTestHelper {
         oAuthTokenSettings.setIssuer(issuer);
         oAuthTokenSettings.setPrivateKeyFile(privateKeyfile);
         oAuthTokenSettings.setPublicKeyFile(publicKeyFile);
+        oAuthTokenSettings.setSignatureAlgorithm(SignatureAlgorithm.RS256);
+        oAuthTokenSettings.setKeyID(KEY_ID);
 
         return oAuthTokenSettings;
     }

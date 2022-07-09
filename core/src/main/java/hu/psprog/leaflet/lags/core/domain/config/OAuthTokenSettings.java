@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.domain.config;
 
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -34,4 +35,14 @@ public class OAuthTokenSettings {
      * Path of the public RSA key file to sign the tokens with.
      */
     private Path publicKeyFile;
+
+    /**
+     * Key ID ("kid") header value for the generated JWT access tokens.
+     */
+    private String keyID;
+
+    /**
+     * JWT access token signature algorithm.
+     */
+    private SignatureAlgorithm signatureAlgorithm;
 }
