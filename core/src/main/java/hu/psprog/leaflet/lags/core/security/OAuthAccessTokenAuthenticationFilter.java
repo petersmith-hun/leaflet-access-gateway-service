@@ -19,32 +19,39 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
-
-import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.QUERY_PARAMETER_TOKEN;
+import java.util.function.Function;
 
 /**
- * {@link AbstractAuthenticationProcessingFilter} implementation to verify and authenticate password reset requests.
+ * {@link AbstractAuthenticationProcessingFilter} implementation to verify and authenticate access token secured requests.
  *
- * Activates only on the /password-reset/confirmation endpoints. For the successful authentication, the filter requires
- * the access token to be passed as a query parameter named "token".
+ * Activates only on the given endpoints. For the successful authentication, the filter extracts the access token from
+ * the given source (defined by the extraction function).
  *
  * @author Peter Smith
  */
-public class PasswordResetAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class OAuthAccessTokenAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+
+    private static final String BEARER_TOKEN_PREFIX = "Bearer ";
 
     private final TokenHandler tokenHandler;
+    private final Function<HttpServletRequest, String> tokenExtractionFunction;
 
-    public PasswordResetAuthenticationFilter(TokenHandler tokenHandler) {
-        super(new AntPathRequestMatcher("/password-reset/confirmation"));
+    public OAuthAccessTokenAuthenticationFilter(TokenHandler tokenHandler, String pathPattern, Function<HttpServletRequest, String> tokenExtractionFunction) {
+        super(new AntPathRequestMatcher(pathPattern));
         this.tokenHandler = tokenHandler;
+        this.tokenExtractionFunction = tokenExtractionFunction;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-        String token = request.getParameter(QUERY_PARAMETER_TOKEN);
+        String token = tokenExtractionFunction.apply(request);
         if (Objects.isNull(token)) {
             throw new InsufficientAuthenticationException("Access token is missing");
+        }
+
+        if (token.startsWith(BEARER_TOKEN_PREFIX)) {
+            token = token.substring(BEARER_TOKEN_PREFIX.length());
         }
 
         JWTAuthenticationToken authenticationToken;

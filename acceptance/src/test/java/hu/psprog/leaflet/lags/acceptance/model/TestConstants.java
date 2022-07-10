@@ -54,7 +54,8 @@ public interface TestConstants {
 
         USE_AUTHORIZATION_CODE("useAuthorizationCode"),
         USE_RECAPTCHA_VERIFICATION("useReCaptchaVerification"),
-        USE_REDIRECT_URI("useRedirectURI");
+        USE_REDIRECT_URI("useRedirectURI"),
+        USE_TOKEN_AUTHORIZATION("useTokenAuthorization");
 
         private final String value;
 

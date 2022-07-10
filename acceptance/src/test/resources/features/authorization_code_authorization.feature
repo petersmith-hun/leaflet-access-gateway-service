@@ -44,6 +44,15 @@ Feature: OAuth2 Authorization Code authorization flow tests
       And the introspected token belongs to dummy_test_app_1 client
       And the introspected token belongs to the Administrator user with ID 1
 
+    Given the client is authorized with the formerly requested token
+
+     When the client requests userinfo
+
+     Then the application responds with HTTP status OK
+      And the userinfo response contains the key sub with a value of 1
+      And the userinfo response contains the key name with a value of Administrator
+      And the userinfo response contains the key email with a value of test-admin@ac-leaflet.local
+
   @PositiveScenario
   Scenario: Successful admin system authorization for an admin user
 

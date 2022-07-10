@@ -1,12 +1,14 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
+import hu.psprog.leaflet.lags.core.domain.internal.JWTAuthenticationToken;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
+import hu.psprog.leaflet.lags.core.domain.response.UserInfoResponse;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
 import hu.psprog.leaflet.lags.web.factory.OAuthAuthorizationRequestFactory;
 import hu.psprog.leaflet.lags.web.factory.OAuthTokenRequestFactory;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_OAUTH_USERINFO;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_AUTHORIZE;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_INTROSPECT;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_TOKEN;
@@ -140,6 +143,24 @@ public class OAuth2AuthenticationController {
         log.info("Token introspection requested by client={}", authentication.getName());
 
         return ResponseEntity.ok(oAuthAuthorizationService.introspect(token));
+    }
+
+    /**
+     * GET /oauth/userinfo
+     * Returns a user's information based on their access token.
+     *
+     * @param authentication object of type {@link Authentication} to extract the user information
+     * @return extracted user information
+     */
+    @GetMapping(PATH_OAUTH_USERINFO)
+    public ResponseEntity<UserInfoResponse> getUserInfo(Authentication authentication) {
+
+        JWTAuthenticationToken token = (JWTAuthenticationToken) authentication;
+        String accessToken = token.getCredentials().toString();
+
+        log.info("User info requested by client={}", token.getDetails().getSubject());
+
+        return ResponseEntity.ok(oAuthAuthorizationService.getUserInfo(accessToken));
     }
 
     private List<String> extractScope(ExtendedUser userDetails) {

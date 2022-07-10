@@ -5,6 +5,7 @@ import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
+import hu.psprog.leaflet.lags.core.domain.response.UserInfoResponse;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 
 /**
@@ -43,4 +44,12 @@ public interface OAuthAuthorizationService {
      * @return introspection result as {@link TokenIntrospectionResult}
      */
     TokenIntrospectionResult introspect(String accessToken);
+
+    /**
+     * Extracts user information from the given access token.
+     *
+     * @param accessToken OAuth2 access token to extract user information from
+     * @return extracted user information as {@link UserInfoResponse} object
+     */
+    UserInfoResponse getUserInfo(String accessToken);
 }

@@ -16,6 +16,7 @@ import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
+import hu.psprog.leaflet.lags.core.domain.response.UserInfoResponse;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
 import hu.psprog.leaflet.lags.core.service.factory.OAuthRequestContextFactory;
@@ -60,6 +61,7 @@ class OAuthAuthorizationServiceImplTest {
     private static final OAuthAuthorizationResponse DUMMY_O_AUTH_AUTHORIZATION_RESPONSE = prepareAuthorizationResponse();
     private static final String ACCESS_TOKEN = "jwt-token-1";
     private static final TokenClaims TOKEN_CLAIMS = prepareTokenClaims();
+    private static final UserInfoResponse USER_INFO_RESPONSE = prepareUserInfoResponse();
     private static final OAuthAuthorizationRequestContext O_AUTH_AUTHORIZATION_REQUEST_CONTEXT = prepareAuthorizationContext();
     private static final OAuthTokenRequestContext O_AUTH_TOKEN_REQUEST_CONTEXT = prepareTokenContext();
 
@@ -199,6 +201,19 @@ class OAuthAuthorizationServiceImplTest {
         verifyNoInteractions(accessTokenDAO);
     }
 
+    @Test
+    public void shouldGetUserInfoReturnExtractedUserInformationFromToken() {
+
+        // given
+        given(tokenHandler.parseToken(ACCESS_TOKEN)).willReturn(TOKEN_CLAIMS);
+
+        // when
+        UserInfoResponse result = oAuthAuthorizationService.getUserInfo(ACCESS_TOKEN);
+
+        // then
+        assertThat(result, equalTo(USER_INFO_RESPONSE));
+    }
+
     private Optional<AccessTokenInfo> prepareAccessTokenInfo(TokenStatus status) {
 
         AccessTokenInfo accessTokenInfo = null;
@@ -250,7 +265,18 @@ class OAuthAuthorizationServiceImplTest {
                 .tokenID(UUID.randomUUID().toString())
                 .clientID("client-1")
                 .username("username-1")
+                .email("email@dev.local")
+                .userID(1234L)
                 .expiration(new Date())
+                .build();
+    }
+
+    private static UserInfoResponse prepareUserInfoResponse() {
+
+        return UserInfoResponse.builder()
+                .sub("1234")
+                .email("email@dev.local")
+                .name("username-1")
                 .build();
     }
 

@@ -17,6 +17,7 @@ Feature: Well-known (meta-information) endpoints tests
      And the meta-info response contains the key token_endpoint with value http://localhost:9285/lags/oauth/token
      And the meta-info response contains the key jwks_uri with value http://localhost:9285/lags/.well-known/jwks
      And the meta-info response contains the key token_introspection_endpoint with value http://localhost:9285/lags/oauth/introspect
+     And the meta-info response contains the key userinfo_endpoint with value http://localhost:9285/lags/oauth/userinfo
      And the meta-info response contains the key grant_types_supported with values authorization_code,client_credentials,password
      And the meta-info response contains the key token_endpoint_auth_methods_supported with values client_secret_post,client_secret_basic
      And the meta-info response contains the key response_types_supported with values code

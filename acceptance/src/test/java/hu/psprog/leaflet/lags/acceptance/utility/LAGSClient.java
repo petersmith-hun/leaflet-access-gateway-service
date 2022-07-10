@@ -5,6 +5,7 @@ import hu.psprog.leaflet.lags.acceptance.model.HealthCheckResponse;
 import hu.psprog.leaflet.lags.acceptance.model.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.lags.acceptance.model.TokenIntrospectionResult;
+import hu.psprog.leaflet.lags.acceptance.model.UserInfoResponse;
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
@@ -57,6 +59,7 @@ public class LAGSClient {
     private static final String PATH_LOGOUT = "/logout";
     private static final String PATH_JWKS = "/.well-known/jwks";
     private static final String PATH_OAUTH_AUTHORIZATION_SERVER = "/.well-known/oauth-authorization-server";
+    private static final String PATH_USERINFO = "/oauth/userinfo";
 
     private final LAGSRequestHelper lagsRequestHelper;
     private final TestRestTemplate restTemplate;
@@ -69,6 +72,7 @@ public class LAGSClient {
     private final String applicationInfoEndpoint;
     private final String jwksEndpoint;
     private final String metaInfoEndpoint;
+    private final String userinfoEndpoint;
 
     @Autowired
     public LAGSClient(LAGSRequestHelper lagsRequestHelper, TestRestTemplate testRestTemplate, MockMvc mockMvc, String baseServerPath) {
@@ -82,6 +86,7 @@ public class LAGSClient {
         this.applicationInfoEndpoint = baseServerPath + PATH_APPLICATION_INFO;
         this.jwksEndpoint = baseServerPath + PATH_JWKS;
         this.metaInfoEndpoint = baseServerPath + PATH_OAUTH_AUTHORIZATION_SERVER;
+        this.userinfoEndpoint = baseServerPath + PATH_USERINFO;
     }
 
     /**
@@ -336,6 +341,24 @@ public class LAGSClient {
                 .build();
 
         return this.restTemplate.exchange(requestEntity, HASHMAP_RESPONSE_TYPE);
+    }
+
+    /**
+     * Requests user information related to the given token by sending a GET request to the /oauth/userinfo endpoint.
+     *
+     * @return user information response as {@link UserInfoResponse} wrapped in {@link ResponseEntity}
+     */
+    public ResponseEntity<UserInfoResponse> requestUserInfo() {
+
+        log.info("Calling /oauth/userinfo endpoint...");
+
+        HttpHeaders headers = new HttpHeaders();
+        if (ThreadLocalDataRegistry.getFlag(TestConstants.Flag.USE_TOKEN_AUTHORIZATION)) {
+            headers.add(TestConstants.Header.AUTHORIZATION.getValue(), ThreadLocalDataRegistry.get(TestConstants.Attribute.TOKEN));
+        }
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
+
+        return this.restTemplate.exchange(userinfoEndpoint, HttpMethod.GET, request, UserInfoResponse.class);
     }
 
     private ResponseEntity<String> convertToResponseEntity(MvcResult mvcResult) {

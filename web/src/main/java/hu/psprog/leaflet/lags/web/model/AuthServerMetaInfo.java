@@ -29,6 +29,9 @@ public class AuthServerMetaInfo {
     @JsonProperty("token_introspection_endpoint")
     private final String tokenIntrospectionEndpoint;
 
+    @JsonProperty("userinfo_endpoint")
+    private final String userinfoEndpoint;
+
     @JsonProperty("grant_types_supported")
     private final List<String> grantTypesSupported;
 

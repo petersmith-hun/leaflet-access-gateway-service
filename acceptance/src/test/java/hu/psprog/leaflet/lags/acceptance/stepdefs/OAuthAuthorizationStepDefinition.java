@@ -4,6 +4,7 @@ import hu.psprog.leaflet.lags.acceptance.model.ErrorResponse;
 import hu.psprog.leaflet.lags.acceptance.model.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.lags.acceptance.model.TokenIntrospectionResult;
+import hu.psprog.leaflet.lags.acceptance.model.UserInfoResponse;
 import hu.psprog.leaflet.lags.acceptance.utility.AuthorizationUtility;
 import hu.psprog.leaflet.lags.acceptance.utility.HTTPUtility;
 import hu.psprog.leaflet.lags.acceptance.utility.LAGSClient;
@@ -91,6 +92,9 @@ public class OAuthAuthorizationStepDefinition implements En {
             ResponseEntity<OAuthTokenResponse> response = ThreadLocalDataRegistry.getResponseEntity();
             ThreadLocalDataRegistry.put(TestConstants.Attribute.TOKEN, Objects.requireNonNull(response.getBody()).getAccessToken());
         });
+
+        Given("^the client is authorized with the formerly requested token$",
+                () -> ThreadLocalDataRegistry.putFlag(TestConstants.Flag.USE_TOKEN_AUTHORIZATION));
     }
 
     private void defineActions() {
@@ -111,6 +115,12 @@ public class OAuthAuthorizationStepDefinition implements En {
         When("^the client requests introspection$", () -> {
 
             ResponseEntity<TokenIntrospectionResult> response = lagsClient.requestIntrospection();
+            ThreadLocalDataRegistry.putResponseEntity(response);
+        });
+
+        When("^the client requests userinfo$", () -> {
+
+            ResponseEntity<UserInfoResponse> response = lagsClient.requestUserInfo();
             ThreadLocalDataRegistry.putResponseEntity(response);
         });
     }
@@ -218,6 +228,13 @@ public class OAuthAuthorizationStepDefinition implements En {
             assertThat(response.getBody(), notNullValue());
             assertThat(response.getBody().getUsername(), equalTo(username));
             assertThat(response.getBody().getClientID().endsWith(String.format("|uid=%d", userID)), is(true));
+        });
+
+        Then("^the userinfo response contains the key ([a-z]+) with a value of (.*)$", (String key, String value) -> {
+
+            ResponseEntity<UserInfoResponse> response = ThreadLocalDataRegistry.getResponseEntity();
+            assertThat(response.getBody(), notNullValue());
+            assertThat(UserInfoResponse.FIELD_EXTRACTION_MAPPING.get(key).apply(response.getBody()), equalTo(value));
         });
     }
 }
