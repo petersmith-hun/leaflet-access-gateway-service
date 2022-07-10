@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.config;
 
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
-import hu.psprog.leaflet.lags.core.security.PasswordResetAuthenticationFilter;
+import hu.psprog.leaflet.lags.core.security.OAuthAccessTokenAuthenticationFilter;
 import hu.psprog.leaflet.lags.core.security.RequestSavingLogoutSuccessHandler;
 import hu.psprog.leaflet.lags.core.security.ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
@@ -24,11 +24,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.AUTHORIZATION_HEADER;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_ACCESS_DENIED;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_LOGIN;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_OAUTH_USERINFO;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_UNKNOWN_ERROR;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.QUERY_PARAMETER_TOKEN;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.RECLAIM_AUTHORITY;
 
 /**
@@ -100,6 +103,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http
                 .addFilterBefore(passwordResetAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(userInfoAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeRequests()
                     .antMatchers(PATH_OAUTH_ROOT)
@@ -152,11 +156,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return authenticationProvider;
     }
 
-    private PasswordResetAuthenticationFilter passwordResetAuthenticationFilter() throws Exception {
+    private OAuthAccessTokenAuthenticationFilter passwordResetAuthenticationFilter() throws Exception {
 
-        PasswordResetAuthenticationFilter filter = new PasswordResetAuthenticationFilter(tokenHandler);
+        OAuthAccessTokenAuthenticationFilter filter = new OAuthAccessTokenAuthenticationFilter(tokenHandler, PATH_PASSWORD_RESET_CONFIRMATION,
+                request -> request.getParameter(QUERY_PARAMETER_TOKEN));
         filter.setAuthenticationManager(authenticationManagerBean());
         filter.setAuthenticationFailureHandler(new ForwardAuthenticationFailureHandler(PATH_ACCESS_DENIED));
+
+        return filter;
+    }
+
+    private OAuthAccessTokenAuthenticationFilter userInfoAuthenticationFilter() throws Exception {
+
+        OAuthAccessTokenAuthenticationFilter filter = new OAuthAccessTokenAuthenticationFilter(tokenHandler, PATH_OAUTH_USERINFO,
+                request -> request.getHeader(AUTHORIZATION_HEADER));
+        filter.setAuthenticationManager(authenticationManagerBean());
 
         return filter;
     }

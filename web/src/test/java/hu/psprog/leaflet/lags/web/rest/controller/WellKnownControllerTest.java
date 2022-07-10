@@ -85,6 +85,7 @@ class WellKnownControllerTest {
                 "token_endpoint", "http://localhost:9999/token",
                 "jwks_uri", "http://localhost:9999/jwks",
                 "token_introspection_endpoint", "http://localhost:9999/introspect",
+                "userinfo_endpoint", "http://localhost:9999/userinfo",
                 "grant_types_supported", List.of("authorization_code","client_credentials"),
                 "token_endpoint_auth_methods_supported", List.of("client_secret_post","client_secret_basic"),
                 "response_types_supported", List.of("code")
@@ -99,6 +100,7 @@ class WellKnownControllerTest {
                 .tokenEndpoint(ISSUER + "/token")
                 .jwksURI(ISSUER + "/jwks")
                 .tokenIntrospectionEndpoint(ISSUER + "/introspect")
+                .userinfoEndpoint(ISSUER + "/userinfo")
                 .responseTypesSupported(List.of("code"))
                 .grantTypesSupported(List.of("authorization_code", "client_credentials"))
                 .tokenEndpointAuthMethodsSupported(List.of("client_secret_post", "client_secret_basic"))

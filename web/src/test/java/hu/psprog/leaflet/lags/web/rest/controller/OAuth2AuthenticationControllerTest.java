@@ -1,5 +1,7 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
+import hu.psprog.leaflet.lags.core.domain.internal.JWTAuthenticationToken;
+import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
@@ -8,6 +10,7 @@ import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
+import hu.psprog.leaflet.lags.core.domain.response.UserInfoResponse;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
 import hu.psprog.leaflet.lags.web.factory.OAuthAuthorizationRequestFactory;
 import hu.psprog.leaflet.lags.web.factory.OAuthTokenRequestFactory;
@@ -50,6 +53,8 @@ class OAuth2AuthenticationControllerTest {
     private static final OAuthTokenResponse O_AUTH_TOKEN_RESPONSE = prepareTokenResponse();
     private static final ExtendedUser EXTENDED_USER = prepareExtendedUser();
     private static final TokenIntrospectionResult TOKEN_INTROSPECTION_RESULT = prepareTokenIntrospectionResult();
+    private static final JWTAuthenticationToken JWT_AUTHENTICATION_TOKEN = prepareJwtAuthenticationToken();
+    private static final UserInfoResponse USER_INFO_RESPONSE = prepareUserInfoResponse();
 
     @Mock
     private OAuthTokenRequestFactory oAuthTokenRequestFactory;
@@ -149,6 +154,20 @@ class OAuth2AuthenticationControllerTest {
         assertThat(result.getBody(), equalTo(TOKEN_INTROSPECTION_RESULT));
     }
 
+    @Test
+    public void shouldGetUserInfoReturnUserInfoExtractedFromAuthenticationObject() {
+
+        // given
+        given(oAuthAuthorizationService.getUserInfo(ACCESS_TOKEN)).willReturn(USER_INFO_RESPONSE);
+
+        // when
+        ResponseEntity<UserInfoResponse> result = oAuth2AuthenticationController.getUserInfo(JWT_AUTHENTICATION_TOKEN);
+
+        // then
+        assertThat(result.getStatusCode(), equalTo(HttpStatus.OK));
+        assertThat(result.getBody(), equalTo(USER_INFO_RESPONSE));
+    }
+
     private void assertLogoutRef(ModelAndView result) {
 
         String encodedLogoutRef = result.getModel().get("logoutRef").toString();
@@ -162,16 +181,19 @@ class OAuth2AuthenticationControllerTest {
                 "grant_type", "password"
         );
     }
+
     private static OAuthTokenRequest prepareTokenRequest() {
         return OAuthTokenRequest.builder()
                 .grantType(GrantType.PASSWORD)
                 .build();
     }
+
     private static OAuthTokenResponse prepareTokenResponse() {
         return OAuthTokenResponse.builder()
                 .accessToken("token1")
                 .build();
     }
+
     private static ExtendedUser prepareExtendedUser() {
         return ExtendedUser.builder()
                 .name("name1")
@@ -184,6 +206,26 @@ class OAuth2AuthenticationControllerTest {
         return TokenIntrospectionResult.builder()
                 .active(true)
                 .expiration(new Date())
+                .build();
+    }
+
+    private static JWTAuthenticationToken prepareJwtAuthenticationToken() {
+
+        return JWTAuthenticationToken.getBuilder()
+                .withClaims(TokenClaims.builder()
+                        .subject("unit-test")
+                        .scope("read:all")
+                        .build())
+                .withRawToken(ACCESS_TOKEN)
+                .build();
+    }
+
+    private static UserInfoResponse prepareUserInfoResponse() {
+
+        return UserInfoResponse.builder()
+                .sub("1234")
+                .email("email@dev.local")
+                .name("username-1")
                 .build();
     }
 }

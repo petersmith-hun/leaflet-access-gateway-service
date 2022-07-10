@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -36,11 +37,17 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         JWTAuthenticationToken jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
-        tokenTracker.retrieveTokenInfo(jwtAuthenticationToken.getDetails().getTokenID())
-                .filter(activeTokenPredicate())
-                .filter(reclaimAuthorityOnlyPredicate(jwtAuthenticationToken))
-                .filter(validAudiencePredicate(jwtAuthenticationToken))
-                .orElseThrow(() -> new RevokedTokenException(String.format("Token for user [%s] has already been revoked", authentication.getPrincipal())));
+        Optional<AccessTokenInfo> token = tokenTracker.retrieveTokenInfo(jwtAuthenticationToken.getDetails().getTokenID());
+        Object principal = authentication.getPrincipal();
+
+        token.filter(activeTokenPredicate())
+                .orElseThrow(() -> new RevokedTokenException(String.format("Token for user [%s] has already been revoked", principal)));
+
+        if (isPasswordResetRequest(jwtAuthenticationToken)) {
+            token.filter(singleAuthorityPredicate(jwtAuthenticationToken))
+                    .filter(validAudiencePredicate(jwtAuthenticationToken))
+                    .orElseThrow(() -> new RevokedTokenException(String.format("Password reset token for user [%s] is invalid", principal)));
+        }
 
         authentication.setAuthenticated(true);
 
@@ -56,10 +63,8 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
         return accessTokenInfo -> accessTokenInfo.getStatus() == TokenStatus.ACTIVE;
     }
 
-    private Predicate<AccessTokenInfo> reclaimAuthorityOnlyPredicate(JWTAuthenticationToken jwtAuthenticationToken) {
-
-        return accessTokenInfo -> jwtAuthenticationToken.getAuthorities().size() == 1
-                && jwtAuthenticationToken.getAuthorities().contains(SecurityConstants.RECLAIM_AUTHORITY);
+    private Predicate<AccessTokenInfo> singleAuthorityPredicate(JWTAuthenticationToken jwtAuthenticationToken) {
+        return accessTokenInfo -> jwtAuthenticationToken.getAuthorities().size() == 1;
     }
 
     private Predicate<AccessTokenInfo> validAudiencePredicate(JWTAuthenticationToken jwtAuthenticationToken) {
@@ -67,5 +72,9 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
         return accessTokenInfo -> authenticationConfig.getPasswordReset()
                 .getAudience()
                 .equals(jwtAuthenticationToken.getDetails().getAudience());
+    }
+
+    private boolean isPasswordResetRequest(JWTAuthenticationToken authentication) {
+        return authentication.getAuthorities().contains(SecurityConstants.RECLAIM_AUTHORITY);
     }
 }

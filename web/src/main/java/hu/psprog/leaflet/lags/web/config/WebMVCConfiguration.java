@@ -24,6 +24,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_OAUTH_USERINFO;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_AUTHORIZE;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_INTROSPECT;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_TOKEN;
@@ -78,6 +79,7 @@ public class WebMVCConfiguration implements WebMvcConfigurer {
                 .tokenEndpoint(issuer + PATH_OAUTH_TOKEN)
                 .jwksURI(issuer + PATH_WELL_KNOWN_JWKS)
                 .tokenIntrospectionEndpoint(issuer + PATH_OAUTH_INTROSPECT)
+                .userinfoEndpoint(issuer + PATH_OAUTH_USERINFO)
                 .grantTypesSupported(getSupportedItems(GrantType.class, GrantType::getGrantTypeName))
                 .responseTypesSupported(getSupportedItems(AuthorizationResponseType.class, AuthorizationResponseType::getResponseTypeName))
                 .tokenEndpointAuthMethodsSupported(TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED)

@@ -59,7 +59,7 @@ class AccessTokenAuthenticationProviderTest {
             .withRawToken(RAW_TOKEN)
             .withClaims(TokenClaims.builder()
                     .tokenID(TOKEN_ID)
-                    .scope("read:all")
+                    .scope("read:all write:all")
                     .audience(AUDIENCE)
                     .build())
             .build();
@@ -137,16 +137,16 @@ class AccessTokenAuthenticationProviderTest {
     }
 
     @Test
-    public void shouldAuthenticateThrowExceptionForNonReclaimScope() {
+    public void shouldAuthenticateCheckOnlyActiveStatusForNonReclaimScope() {
 
         // given
         given(tokenTracker.retrieveTokenInfo(TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_INFO));
 
         // when
-        assertThrows(RevokedTokenException.class, () -> accessTokenAuthenticationProvider.authenticate(JWT_AUTHENTICATION_TOKEN_WITHOUT_RECLAIM_SCOPE));
+        Authentication result = accessTokenAuthenticationProvider.authenticate(JWT_AUTHENTICATION_TOKEN_WITHOUT_RECLAIM_SCOPE);
 
         // then
-        // exception expected
+        assertThat(result.isAuthenticated(), is(true));
     }
 
     @Test

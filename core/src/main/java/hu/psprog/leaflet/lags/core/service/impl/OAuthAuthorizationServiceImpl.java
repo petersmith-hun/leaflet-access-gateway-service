@@ -12,6 +12,7 @@ import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
+import hu.psprog.leaflet.lags.core.domain.response.UserInfoResponse;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
@@ -96,6 +97,18 @@ public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService 
         }
 
         return introspectionResult;
+    }
+
+    @Override
+    public UserInfoResponse getUserInfo(String accessToken) {
+
+        TokenClaims claims = tokenHandler.parseToken(accessToken);
+
+        return UserInfoResponse.builder()
+                .sub(claims.getUserID().toString())
+                .name(claims.getUsername())
+                .email(claims.getEmail())
+                .build();
     }
 
     private boolean isTokenActive(TokenClaims claims) {
