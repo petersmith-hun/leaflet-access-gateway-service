@@ -59,8 +59,9 @@ public class JWTTokenHandler implements TokenHandler {
     @Override
     public TokenClaims parseToken(String accessToken) {
 
-        Claims claims = Jwts.parser()
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(keyRegistry.getPublicKey())
+                .build()
                 .parseClaimsJws(accessToken)
                 .getBody();
 
@@ -123,7 +124,7 @@ public class JWTTokenHandler implements TokenHandler {
                 .setIssuedAt(storeAccessTokenInfoRequest.getIssuedAt())
                 .setIssuer(oAuthConfigurationProperties.getToken().getIssuer())
                 .setNotBefore(storeAccessTokenInfoRequest.getIssuedAt())
-                .signWith(oAuthConfigurationProperties.getToken().getSignatureAlgorithm(), keyRegistry.getPrivateKey())
+                .signWith(keyRegistry.getPrivateKey(), oAuthConfigurationProperties.getToken().getSignatureAlgorithm())
                 .compact();
     }
 }

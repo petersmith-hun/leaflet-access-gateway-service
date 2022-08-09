@@ -137,7 +137,7 @@ class JWTTokenHandlerTest {
 
         // then
         // exception expected
-        assertThat(result.getMessage().startsWith("Unable to read JSON value"), is(true));
+        assertThat(result.getMessage().startsWith("Malformed JWT JSON"), is(true));
     }
 
     private void assertToken(String token, int expectedExpiration) throws IOException {
