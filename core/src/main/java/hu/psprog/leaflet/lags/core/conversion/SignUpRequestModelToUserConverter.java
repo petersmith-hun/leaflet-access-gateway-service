@@ -38,7 +38,7 @@ public class SignUpRequestModelToUserConverter implements Converter<SignUpReques
                 .password(passwordEncoder.encode(signUpRequestModel.getPassword()))
                 .enabled(authenticationConfig.isUserEnabledByDefault())
                 .created(new Date())
-                .defaultLocale(authenticationConfig.getDefaultLocale().toString())
+                .defaultLocale(authenticationConfig.getDefaultLocale())
                 .role(Role.USER)
                 .accountType(AccountType.LOCAL)
                 .build();

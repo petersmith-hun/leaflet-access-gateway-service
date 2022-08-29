@@ -1,10 +1,9 @@
 package hu.psprog.leaflet.lags.core.config;
 
+import hu.psprog.leaflet.lags.core.domain.entity.SupportedLocale;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-
-import java.util.Locale;
 
 /**
  * Authentication configuration parameters model.
@@ -23,7 +22,7 @@ import java.util.Locale;
 public class AuthenticationConfig {
 
     private boolean userEnabledByDefault = true;
-    private Locale defaultLocale = Locale.forLanguageTag("HU");
+    private SupportedLocale defaultLocale = SupportedLocale.HU;
     private String recaptchaSecret;
     private String recaptchaSiteKey;
     private PasswordResetConfig passwordReset;
