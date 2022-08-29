@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 public class StaticRoleToAuthorityMappingRegistry implements RoleToAuthorityMappingRegistry {
 
     private static final String[] USER_AUTHORITIES = {
+            "read:comments:own",
             "read:users:own",
             "write:comments:own",
             "write:users:own"

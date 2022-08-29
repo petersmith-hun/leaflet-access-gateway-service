@@ -33,6 +33,7 @@ class StaticRoleToAuthorityMappingRegistryTest {
 
         // then
         assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
+                "read:comments:own",
                 "read:users:own",
                 "write:comments:own",
                 "write:users:own"
@@ -47,6 +48,7 @@ class StaticRoleToAuthorityMappingRegistryTest {
 
         // then
         assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
+                "read:comments:own",
                 "read:users:own",
                 "write:comments:own",
                 "write:users:own",
@@ -71,6 +73,7 @@ class StaticRoleToAuthorityMappingRegistryTest {
 
         // then
         assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
+                "read:comments:own",
                 "read:users:own",
                 "write:comments:own",
                 "write:users:own",
