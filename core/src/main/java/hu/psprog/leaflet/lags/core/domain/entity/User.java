@@ -59,7 +59,8 @@ public class User {
     private String password;
 
     @Column(name = DatabaseConstants.COLUMN_DEFAULT_LOCALE)
-    private String defaultLocale;
+    @Enumerated(EnumType.STRING)
+    private SupportedLocale defaultLocale;
 
     @Column(name = DatabaseConstants.COLUMN_ACCOUNT_TYPE)
     @Enumerated(EnumType.STRING)
