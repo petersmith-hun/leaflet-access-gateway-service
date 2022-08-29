@@ -80,7 +80,7 @@ Feature: OAuth2 Authorization Code authorization flow tests
      Then the application responds with HTTP status OK
       And the response contains a token
       And the returned token expires in 30 seconds
-      And the returned token gives access to scope read:users:own write:comments:own write:users:own read:categories read:comments read:documents read:entries read:tags write:categories write:comments write:documents write:entries write:tags read:admin read:users write:admin write:users
+      And the returned token gives access to scope read:comments:own read:users:own write:comments:own write:users:own read:categories read:comments read:documents read:entries read:tags write:categories write:comments write:documents write:entries write:tags read:admin read:users write:admin write:users
       And the returned token is a Bearer type token
 
   @PositiveScenario
@@ -110,7 +110,7 @@ Feature: OAuth2 Authorization Code authorization flow tests
      Then the application responds with HTTP status OK
       And the response contains a token
       And the returned token expires in 30 seconds
-      And the returned token gives access to scope read:users:own write:comments:own write:users:own read:categories read:comments read:documents read:entries read:tags write:categories write:comments write:documents write:entries write:tags
+      And the returned token gives access to scope read:comments:own read:users:own write:comments:own write:users:own read:categories read:comments read:documents read:entries read:tags write:categories write:comments write:documents write:entries write:tags
       And the returned token is a Bearer type token
 
   @PositiveScenario
@@ -140,7 +140,7 @@ Feature: OAuth2 Authorization Code authorization flow tests
      Then the application responds with HTTP status OK
       And the response contains a token
       And the returned token expires in 30 seconds
-      And the returned token gives access to scope read:users:own write:comments:own write:users:own
+      And the returned token gives access to scope read:comments:own read:users:own write:comments:own write:users:own
       And the returned token is a Bearer type token
 
   @PositiveScenario
@@ -170,7 +170,7 @@ Feature: OAuth2 Authorization Code authorization flow tests
      Then the application responds with HTTP status OK
       And the response contains a token
       And the returned token expires in 30 seconds
-      And the returned token gives access to scope read:users:own write:comments:own write:users:own
+      And the returned token gives access to scope read:comments:own read:users:own write:comments:own write:users:own
       And the returned token is a Bearer type token
 
   @NegativeScenario
@@ -180,7 +180,7 @@ Feature: OAuth2 Authorization Code authorization flow tests
       And the response type is set to code
       And the application requests redirection to http://localhost:9291/mock/admin
       And the sent state value is state-4437
-      And the client requests access for scope read:users:own write:comments:own write:users:own read:categories read:comments read:documents read:entries read:tags write:categories write:comments write:documents write:entries write:tags
+      And the client requests access for scope read:comments:own read:users:own write:comments:own write:users:own read:categories read:comments read:documents read:entries read:tags write:categories write:comments write:documents write:entries write:tags
       And the user is signed in as test-user-1@ac-leaflet.local with password testpw01
 
      When the authorization is requested

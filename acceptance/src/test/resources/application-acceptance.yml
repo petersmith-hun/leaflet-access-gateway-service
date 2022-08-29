@@ -124,6 +124,7 @@ oauth2-config:
       client-secret: frontapp4455
       audience: dummy:acceptance:app:frontapp:test
       required-scopes:
+        - read:comments:own
         - read:users:own
         - write:comments:own
         - write:users:own
@@ -136,6 +137,7 @@ oauth2-config:
       client-secret: mockleaflet1234
       audience: dummy:acceptance:svc:mockleaflet:test
       registered-scopes:
+        - read:comments:own
         - read:users:own
         - write:comments:own
         - write:users:own
@@ -156,6 +158,7 @@ oauth2-config:
       allowed-clients:
         - name: lmsmock
           allowed-scopes:
+            - read:comments:own
             - read:users:own
             - write:comments:own
             - write:users:own
@@ -175,6 +178,7 @@ oauth2-config:
             - write:users
         - name: frontapp
           allowed-scopes:
+            - read:comments:own
             - read:users:own
             - write:comments:own
             - write:users:own
