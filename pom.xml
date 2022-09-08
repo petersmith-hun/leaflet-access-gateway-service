@@ -6,7 +6,7 @@
 
     <artifactId>leaflet-access-gateway-service</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0-dev</version>
+    <version>1.1.0-dev</version>
 
     <modules>
         <module>core</module>
@@ -25,7 +25,7 @@
     <parent>
         <groupId>hu.psprog.leaflet</groupId>
         <artifactId>leaflet-stack-base-bom</artifactId>
-        <version>2.0-r2208.1</version>
+        <version>2.0-r2208.2</version>
     </parent>
 
     <properties>
@@ -52,8 +52,8 @@
         <docker.skip>true</docker.skip>
 
         <!-- test dependency versions -->
-        <cucumber-java.version>7.3.3</cucumber-java.version>
-        <junit-platform-suite.version>1.8.2</junit-platform-suite.version>
+        <cucumber-java.version>7.6.0</cucumber-java.version>
+        <junit-platform-suite.version>1.9.0</junit-platform-suite.version>
 
     </properties>
 

@@ -1,9 +1,14 @@
 package hu.psprog.leaflet.lags.core.config;
 
 import hu.psprog.leaflet.mail.config.MailComponentConfig;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 /**
  * Service layer configuration.
@@ -14,4 +19,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Import(MailComponentConfig.class)
 @EnableScheduling
 public class CoreConfiguration {
+
+    @Bean
+    public OAuth2UserService<OAuth2UserRequest, OAuth2User> defaultOAuth2UserService() {
+        return new DefaultOAuth2UserService();
+    }
 }
