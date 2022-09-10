@@ -8,10 +8,10 @@ import hu.psprog.leaflet.bridge.client.request.RESTRequest;
 import hu.psprog.leaflet.bridge.client.request.RequestMethod;
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
 import hu.psprog.leaflet.lags.core.domain.internal.ExternalUserDefinition;
+import hu.psprog.leaflet.lags.core.domain.internal.GitHubEmailItem;
 import hu.psprog.leaflet.lags.core.domain.response.SignUpStatus;
 import hu.psprog.leaflet.lags.core.exception.ExternalAuthenticationException;
 import hu.psprog.leaflet.lags.core.service.userdetails.external.UserDataFactory;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -112,12 +112,5 @@ public class GitHubUserDataFactory implements UserDataFactory<Long> {
 
     private Supplier<ExternalAuthenticationException> supplyAuthenticationException() {
         return () -> new ExternalAuthenticationException(SignUpStatus.FAILURE, "Could not retrieve primary email address from the user's GitHub account");
-    }
-
-    @Data
-    static class GitHubEmailItem {
-
-        private boolean primary;
-        private String email;
     }
 }

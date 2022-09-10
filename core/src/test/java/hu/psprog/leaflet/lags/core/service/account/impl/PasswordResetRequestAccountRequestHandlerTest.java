@@ -1,6 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.account.impl;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
+import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
@@ -39,7 +40,8 @@ class PasswordResetRequestAccountRequestHandlerTest {
     private static final String ACCESS_TOKEN = "generated-token-1";
     private static final int EXPIRES_IN = 1800;
 
-    private static final User USER = prepareUser();
+    private static final User LOCAL_USER = prepareUser(AccountType.LOCAL);
+    private static final User EXTERNAL_USER = prepareUser(AccountType.GITHUB);
     private static final PasswordResetRequestModel PASSWORD_RESET_REQUEST_MODEL = prepareResetRequestModel();
     private static final OAuthTokenRequest EXPECTED_O_AUTH_TOKEN_REQUEST = prepareTokenRequest();
     private static final OAuthTokenResponse O_AUTH_TOKEN_RESPONSE = prepareTokenResponse();
@@ -74,7 +76,7 @@ class PasswordResetRequestAccountRequestHandlerTest {
     public void shouldProcessAccountRequestHandlePasswordResetRequestWithSuccess() {
 
         // given
-        given(userDAO.findByEmail(EMAIL)).willReturn(Optional.of(USER));
+        given(userDAO.findByEmail(EMAIL)).willReturn(Optional.of(LOCAL_USER));
         given(passwordResetConfig.getAudience()).willReturn(AUDIENCE);
         given(passwordResetConfig.getTokenExpiration()).willReturn(EXPIRES_IN);
         given(tokenHandler.generateToken(EXPECTED_O_AUTH_TOKEN_REQUEST, EXPECTED_CLAIMS, EXPIRES_IN)).willReturn(O_AUTH_TOKEN_RESPONSE);
@@ -85,6 +87,20 @@ class PasswordResetRequestAccountRequestHandlerTest {
         // then
         verify(tokenHandler).generateToken(EXPECTED_O_AUTH_TOKEN_REQUEST, EXPECTED_CLAIMS, EXPIRES_IN);
         verify(notificationAdapter).passwordResetRequested(PASSWORD_RESET_REQUEST);
+    }
+
+    @Test
+    public void shouldProcessAccountRequestFailSilentlyIfUserAccountIsExternal() {
+
+        // given
+        given(userDAO.findByEmail(EMAIL)).willReturn(Optional.of(EXTERNAL_USER));
+
+        // when
+        passwordResetRequestAccountRequestHandler.processAccountRequest(PASSWORD_RESET_REQUEST_MODEL);
+
+        // then
+        verifyNoMoreInteractions(userDAO);
+        verifyNoInteractions(passwordResetConfig, tokenHandler, notificationAdapter);
     }
 
     @Test
@@ -101,12 +117,13 @@ class PasswordResetRequestAccountRequestHandlerTest {
         verifyNoInteractions(passwordResetConfig, tokenHandler, notificationAdapter);
     }
 
-    private static User prepareUser() {
+    private static User prepareUser(AccountType accountType) {
 
         User user = new User();
         user.setUsername(USERNAME);
         user.setEmail(EMAIL);
         user.setId(USER_ID);
+        user.setAccountType(accountType);
         
         return user;
     }

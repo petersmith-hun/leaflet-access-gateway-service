@@ -28,6 +28,12 @@ public class StaticRoleToAuthorityMappingRegistry implements RoleToAuthorityMapp
             "write:users:own"
     };
 
+    private static final String[] EXTERNAL_USER_AUTHORITIES = {
+            "read:comments:own",
+            "read:users:own",
+            "write:comments:own"
+    };
+
     private static final String[] EDITOR_AUTHORITIES = Stream.concat(Stream.of(USER_AUTHORITIES), Stream.of(
             "read:categories",
             "read:comments",
@@ -50,6 +56,7 @@ public class StaticRoleToAuthorityMappingRegistry implements RoleToAuthorityMapp
 
     private static final Map<Role, List<GrantedAuthority>> ROLE_TO_AUTHORITY_LIST_MAP = Map.of(
             Role.USER, AuthorityUtils.createAuthorityList(USER_AUTHORITIES),
+            Role.EXTERNAL_USER, AuthorityUtils.createAuthorityList(EXTERNAL_USER_AUTHORITIES),
             Role.EDITOR, AuthorityUtils.createAuthorityList(EDITOR_AUTHORITIES),
             Role.ADMIN, AuthorityUtils.createAuthorityList(ADMIN_AUTHORITIES)
     );

@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.userdetails;
 
+import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
 import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
@@ -25,15 +26,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 
 /**
- * Unit tests for {@link LocalUserUserDetailsService}.
+ * Unit tests for {@link NonExternalLocalUserUserDetailsService}.
  *
  * @author Peter Smith
  */
 @ExtendWith(MockitoExtension.class)
-class LocalUserUserDetailsServiceTest {
+class NonExternalLocalUserUserDetailsServiceTest {
 
     private static final String EMAIL = "admin@dev.local";
-    private static final User USER = prepareUser();
+    private static final User LOCAL_USER = prepareUser(AccountType.LOCAL);
+    private static final User EXTERNAL_USER = prepareUser(AccountType.GITHUB);
     private static final List<GrantedAuthority> AUTHORITIES = AuthorityUtils.createAuthorityList("read:all", "write:all");
     private static final ExtendedUser EXPECTED_EXTENDED_USER = prepareExpectedExtendedUser();
 
@@ -44,21 +46,35 @@ class LocalUserUserDetailsServiceTest {
     private RoleToAuthorityMappingRegistry roleToAuthorityMappingRegistry;
 
     @InjectMocks
-    private LocalUserUserDetailsService localUserUserDetailsService;
+    private NonExternalLocalUserUserDetailsService nonExternalLocalUserUserDetailsService;
 
     @Test
-    public void shouldLoadUserByUsernameSuccessfullyLoadUser() {
+    public void shouldLoadUserByUsernameSuccessfullyLoadLocalUser() {
 
         // given
-        given(userDAO.findByEmail(EMAIL)).willReturn(Optional.of(USER));
+        given(userDAO.findByEmail(EMAIL)).willReturn(Optional.of(LOCAL_USER));
         given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.USER)).willReturn(AUTHORITIES);
 
         // when
-        UserDetails result = localUserUserDetailsService.loadUserByUsername(EMAIL);
+        UserDetails result = nonExternalLocalUserUserDetailsService.loadUserByUsername(EMAIL);
 
         // then
         assertThat(result instanceof ExtendedUser, is(true));
         assertThat(result, equalTo(EXPECTED_EXTENDED_USER));
+    }
+
+    @Test
+    public void shouldLoadUserByUsernameThrowExceptionOnLoadingExternalUser() {
+
+        // given
+        given(userDAO.findByEmail(EMAIL)).willReturn(Optional.of(EXTERNAL_USER));
+
+        // when
+        Throwable result = assertThrows(UsernameNotFoundException.class, () -> nonExternalLocalUserUserDetailsService.loadUserByUsername(EMAIL));
+
+        // then
+        // exception expected
+        assertThat(result.getMessage(), equalTo("User identified by email address [admin@dev.local] not found"));
     }
 
     @Test
@@ -68,14 +84,14 @@ class LocalUserUserDetailsServiceTest {
         given(userDAO.findByEmail(EMAIL)).willReturn(Optional.empty());
 
         // when
-        Throwable result = assertThrows(UsernameNotFoundException.class, () -> localUserUserDetailsService.loadUserByUsername(EMAIL));
+        Throwable result = assertThrows(UsernameNotFoundException.class, () -> nonExternalLocalUserUserDetailsService.loadUserByUsername(EMAIL));
 
         // then
         // exception expected
         assertThat(result.getMessage(), equalTo("User identified by email address [admin@dev.local] not found"));
     }
 
-    private static User prepareUser() {
+    private static User prepareUser(AccountType accountType) {
 
         User user = new User();
         user.setEmail(EMAIL);
@@ -84,6 +100,7 @@ class LocalUserUserDetailsServiceTest {
         user.setId(1234L);
         user.setEnabled(true);
         user.setRole(Role.USER);
+        user.setAccountType(accountType);
 
         return user;
     }
@@ -92,11 +109,11 @@ class LocalUserUserDetailsServiceTest {
 
         return ExtendedUser.builder()
                 .username(EMAIL)
-                .password(USER.getPassword())
-                .name(USER.getUsername())
-                .id(USER.getId())
-                .enabled(USER.isEnabled())
-                .role(USER.getRole().toString())
+                .password(LOCAL_USER.getPassword())
+                .name(LOCAL_USER.getUsername())
+                .id(LOCAL_USER.getId())
+                .enabled(LOCAL_USER.isEnabled())
+                .role(LOCAL_USER.getRole().toString())
                 .authorities(AUTHORITIES)
                 .build();
     }

@@ -1,6 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.account.impl;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
+import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
@@ -49,7 +50,8 @@ public class PasswordResetRequestAccountRequestHandler implements AccountRequest
     @Override
     public Void processAccountRequest(PasswordResetRequestModel passwordResetRequestModel) {
 
-        Optional<User> userOptional = userDAO.findByEmail(passwordResetRequestModel.getEmail());
+        Optional<User> userOptional = userDAO.findByEmail(passwordResetRequestModel.getEmail())
+                .filter(user -> user.getAccountType() == AccountType.LOCAL);
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -59,7 +61,7 @@ public class PasswordResetRequestAccountRequestHandler implements AccountRequest
             sendPasswordResetRequestNotification(user, reclaimToken);
             log.info("Password reset request processed for user identified by ID={}", user.getId());
         } else {
-            log.warn("User account identified by email [{}] does not exist", passwordResetRequestModel.getEmail());
+            log.warn("User account identified by email [{}] does not exist or non-local", passwordResetRequestModel.getEmail());
         }
 
         return null;

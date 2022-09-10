@@ -1,13 +1,14 @@
 package hu.psprog.leaflet.lags.core.service.userdetails;
 
+import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
 import hu.psprog.leaflet.lags.core.service.registry.RoleToAuthorityMappingRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
+
+import java.util.function.Predicate;
 
 /**
  * {@link UserDetailsService} implementation to look up local resource owner users.
@@ -15,15 +16,13 @@ import org.springframework.stereotype.Service;
  *
  * @author Peter Smith
  */
-@Service
-public class LocalUserUserDetailsService implements UserDetailsService {
+abstract class LocalUserUserDetailsService implements UserDetailsService {
 
     private static final String USERNAME_NOT_FOUND_MESSAGE_PATTERN = "User identified by email address [%s] not found";
 
     private final UserDAO userDAO;
     private final RoleToAuthorityMappingRegistry roleToAuthorityMappingRegistry;
 
-    @Autowired
     public LocalUserUserDetailsService(UserDAO userDAO, RoleToAuthorityMappingRegistry roleToAuthorityMappingRegistry) {
         this.userDAO = userDAO;
         this.roleToAuthorityMappingRegistry = roleToAuthorityMappingRegistry;
@@ -49,6 +48,7 @@ public class LocalUserUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         return userDAO.findByEmail(email)
+                .filter(userFilter())
                 .map(user -> ExtendedUser.builder()
                         .username(email)
                         .password(user.getPassword())
@@ -60,4 +60,12 @@ public class LocalUserUserDetailsService implements UserDetailsService {
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException(String.format(USERNAME_NOT_FOUND_MESSAGE_PATTERN, email)));
     }
+
+    /**
+     * Determines whether the found user should be considered for authentication. Will be called right after retrieving
+     * the user account from the database (if any).
+     *
+     * @return a filtering {@link Predicate} instance
+     */
+    protected abstract Predicate<User> userFilter();
 }

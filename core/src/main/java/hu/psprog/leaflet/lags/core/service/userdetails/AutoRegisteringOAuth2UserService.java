@@ -46,7 +46,7 @@ public class AutoRegisteringOAuth2UserService implements OAuth2UserService<OAuth
     @Autowired
     public AutoRegisteringOAuth2UserService(OAuth2UserService<OAuth2UserRequest, OAuth2User> defaultOAuth2UserService,
                                             AccountRequestHandler<ExternalUserDefinition<?>, SignUpStatus> signUpAccountRequestHandler,
-                                            @Qualifier("localUserUserDetailsService") UserDetailsService userDetailsService,
+                                            @Qualifier("allLocalUserUserDetailsService") UserDetailsService userDetailsService,
                                             List<UserDataFactory<?>> userDataFactoryList) {
         this.defaultOAuth2UserService = defaultOAuth2UserService;
         this.signUpAccountRequestHandler = signUpAccountRequestHandler;

@@ -69,7 +69,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public AuthenticationProvider localUserAuthenticationProvider(@Qualifier("localUserUserDetailsService") UserDetailsService localUserUserDetailsService,
+    public AuthenticationProvider localUserAuthenticationProvider(@Qualifier("nonExternalLocalUserUserDetailsService") UserDetailsService localUserUserDetailsService,
                                                                   PasswordEncoder passwordEncoder) {
         return createAuthenticationProvider(passwordEncoder, localUserUserDetailsService);
     }
