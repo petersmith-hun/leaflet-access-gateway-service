@@ -1,9 +1,12 @@
 package hu.psprog.leaflet.lags.acceptance.utility;
 
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utilities for HTTP call related operations..
@@ -30,6 +33,19 @@ public class HTTPUtility {
                 .get(queryParameterName.getValue())
                 .stream()
                 .findFirst()
+                .map(value -> URLDecoder.decode(value, StandardCharsets.UTF_8))
                 .orElse(null);
+    }
+
+    /**
+     * Extracts the value of the {@code Set-Cookie} header from the currently stored {@link ResponseEntity} object.
+     *
+     * @return value of the {@code Set-Cookie} header
+     */
+    public static String extractCookieFromResponse() {
+
+        return ThreadLocalDataRegistry.getResponseEntity()
+                .getHeaders()
+                .getFirst("Set-Cookie");
     }
 }

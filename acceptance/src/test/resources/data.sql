@@ -12,4 +12,5 @@ values
     (2, @CREATED_DATE, true, 'EN', 'test-user-1@ac-leaflet.local', 'USER', 'Test User 1', @TEST_PW, 'LOCAL'),
     (3, @CREATED_DATE, true, 'EN', 'test-editor-2@ac-leaflet.local', 'EDITOR', 'Test Editor 2', @TEST_PW, 'LOCAL'),
     (4, @CREATED_DATE, true, 'HU', 'test-editor-3@ac-leaflet.local', 'EDITOR', 'Test Editor 3', @TEST_PW, 'LOCAL'),
-    (5, @CREATED_DATE, true, 'HU', 'test-editor-pwgrant@ac-leaflet.local', 'EDITOR', 'Test Editor PW Grant', @TEST_PW, 'LOCAL');
+    (5, @CREATED_DATE, true, 'HU', 'test-editor-pwgrant@ac-leaflet.local', 'EDITOR', 'Test Editor PW Grant', @TEST_PW, 'LOCAL'),
+    (6, @CREATED_DATE, true, 'HU', 'test-user-github@ac-leaflet.local', 'EXTERNAL_USER', 'Test External User GitHub', null, 'GITHUB');

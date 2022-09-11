@@ -7,10 +7,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.QUERY_PARAMETER_TOKEN;
@@ -111,6 +113,26 @@ public class LAGSRequestHelper {
      */
     public String preparePasswordResetConfirmationQueryString() {
         return String.format("%s=%s", QUERY_PARAMETER_TOKEN, ThreadLocalDataRegistry.get(TestConstants.Attribute.USER_AUTH));
+    }
+
+    /**
+     * Creates a callback URL for external login return, based on the "user's decision" regarding the authorization
+     * on the external provider side.
+     *
+     * @param returnURI base OAuth callback URL
+     * @param accepted authorization result, set to {@code true} if the "user authorized" the access, {@code false} otherwise
+     * @return the created callback URL
+     */
+    public String prepareAuthorizationCallbackURL(String returnURI, boolean accepted) {
+
+        URI location = ThreadLocalDataRegistry.getResponseEntity()
+                .getHeaders()
+                .getLocation();
+        String state = HTTPUtility.getQueryParameter(location, TestConstants.Attribute.STATE);
+
+        return accepted
+                ? String.format("%s?code=%s&state=%s", returnURI, UUID.randomUUID(), state)
+                : String.format("%s?error=access_denied&state=%s", returnURI, state);
     }
 
     private MultiValueMap<String, String> prepareRequestForm(List<TestConstants.Attribute> attributeList) {

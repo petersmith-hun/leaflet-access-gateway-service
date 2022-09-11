@@ -6,6 +6,7 @@ import hu.psprog.leaflet.lags.acceptance.model.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.lags.acceptance.model.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.acceptance.model.UserInfoResponse;
+import hu.psprog.leaflet.lags.acceptance.stub.ExternalAuthenticationMock;
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +61,8 @@ public class LAGSClient {
     private static final String PATH_JWKS = "/.well-known/jwks";
     private static final String PATH_OAUTH_AUTHORIZATION_SERVER = "/.well-known/oauth-authorization-server";
     private static final String PATH_USERINFO = "/oauth/userinfo";
+    private static final String PATH_EXTERNAL_LOGIN = "/oauth2/authorization/";
+    private static final String PATH_EXTERNAL_LOGIN_RETURN = "/login/oauth2/code/";
 
     private final LAGSRequestHelper lagsRequestHelper;
     private final TestRestTemplate restTemplate;
@@ -73,6 +76,8 @@ public class LAGSClient {
     private final String jwksEndpoint;
     private final String metaInfoEndpoint;
     private final String userinfoEndpoint;
+    private final String externalLoginEndpoint;
+    private final String externalLoginReturnEndpoint;
 
     @Autowired
     public LAGSClient(LAGSRequestHelper lagsRequestHelper, TestRestTemplate testRestTemplate, MockMvc mockMvc, String baseServerPath) {
@@ -87,6 +92,8 @@ public class LAGSClient {
         this.jwksEndpoint = baseServerPath + PATH_JWKS;
         this.metaInfoEndpoint = baseServerPath + PATH_OAUTH_AUTHORIZATION_SERVER;
         this.userinfoEndpoint = baseServerPath + PATH_USERINFO;
+        this.externalLoginEndpoint = baseServerPath + PATH_EXTERNAL_LOGIN;
+        this.externalLoginReturnEndpoint = baseServerPath + PATH_EXTERNAL_LOGIN_RETURN;
     }
 
     /**
@@ -152,7 +159,7 @@ public class LAGSClient {
     /**
      * Requests a form-based login by calling the /login endpoint.
      *
-     * @return response without response body as {@link ResponseEntity}
+     * @return response with the response body as string wrapped as {@link ResponseEntity}
      */
     public ResponseEntity<String> requestLogin() {
 
@@ -177,7 +184,7 @@ public class LAGSClient {
      * Prepares a sign-up form containing the necessary parameters defined in the SIGN_UP_FORM_ATTRIBUTES attribute list,
      * then sends the request to the /signup endpoint.
      *
-     * @return response without response body as {@link ResponseEntity}
+     * @return response with the response body as string wrapped as {@link ResponseEntity}
      */
     public ResponseEntity<String> requestSignUp() {
 
@@ -203,7 +210,7 @@ public class LAGSClient {
      *
      * Prepares a user basic authorization header and sends the request to the /logout endpoint.
      *
-     * @return response without response body as {@link ResponseEntity}
+     * @return response with the response body as string wrapped as {@link ResponseEntity}
      */
     public ResponseEntity<String> requestSignOut() {
 
@@ -257,7 +264,7 @@ public class LAGSClient {
      * Prepares a reset confirmation form based on the necessary parameters defined in the PASSWORD_RESET_CONFIRMATION_FORM_ATTRIBUTES
      * attribute list, also appends the reset token to the reset confirmation URL, then sends the request to the /password-reset/confirmation endpoint.
      *
-     * @return response without response body as {@link ResponseEntity}
+     * @return response with the response body as string wrapped as {@link ResponseEntity}
      */
     public ResponseEntity<String> requestPasswordResetConfirmation() {
 
@@ -359,6 +366,54 @@ public class LAGSClient {
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
 
         return this.restTemplate.exchange(userinfoEndpoint, HttpMethod.GET, request, UserInfoResponse.class);
+    }
+
+    /**
+     * Triggers external OAuth provider based login by sending a GET request to the /oauth2/authorization/{provider} endpoint.
+     *
+     * @return response without response body as {@link ResponseEntity}
+     */
+    public ResponseEntity<Void> requestExternalLogin(ExternalAuthenticationMock.Provider provider) {
+
+        String registrationID = provider.name().toLowerCase();
+        String url = externalLoginEndpoint + registrationID;
+
+        log.info("Calling /oauth2/authorization/{} endpoint...", registrationID);
+
+        return this.restTemplate.getForEntity(url, Void.class);
+    }
+
+    /**
+     * Triggers external OAuth provider based login return by sending a GET request to the /login/oauth2/code/{provider} endpoint.
+     *
+     * @return response without response body as {@link ResponseEntity}
+     */
+    public ResponseEntity<Void> requestExternalLoginReturn(ExternalAuthenticationMock.Provider provider, boolean accepted) {
+
+        String registrationID = provider.name().toLowerCase();
+
+        log.info("Calling /login/oauth2/code/{} endpoint...", registrationID);
+
+        String url = lagsRequestHelper.prepareAuthorizationCallbackURL(externalLoginReturnEndpoint + registrationID, accepted);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cookie", HTTPUtility.extractCookieFromResponse());
+
+        return this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), Void.class);
+    }
+
+    /**
+     * Requests rendering the authorization page by sending a GET request to the /oauth/authorization endpoint.
+     *
+     * @return response with the response body as string wrapped as {@link ResponseEntity}
+     */
+    public ResponseEntity<String> requestAuthorizationPage() {
+
+        log.info("Calling /oauth/authorization endpoint...");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cookie", HTTPUtility.extractCookieFromResponse());
+
+        return this.restTemplate.exchange(authorizationEndpoint, HttpMethod.GET, new HttpEntity<>(headers), String.class);
     }
 
     private ResponseEntity<String> convertToResponseEntity(MvcResult mvcResult) {
