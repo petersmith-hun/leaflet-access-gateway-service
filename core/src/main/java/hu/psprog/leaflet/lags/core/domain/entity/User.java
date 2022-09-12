@@ -77,4 +77,8 @@ public class User {
 
     @Column(name = DatabaseConstants.COLUMN_IS_ENABLED)
     private boolean enabled;
+
+    @Column(name = DatabaseConstants.COLUMN_EXTERNAL_ID)
+    @Size(max = 255)
+    private String externalID;
 }

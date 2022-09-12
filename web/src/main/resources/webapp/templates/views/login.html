@@ -70,6 +70,33 @@
 					new bootstrap.Modal(document.getElementById('pwResetSuccessfulModal'), {}).toggle();
                 </script>
             </th:block>
+
+            <th:block th:if="${param.ext_auth != null}">
+                <div class="modal fade show" id="signUpErrorModal" tabindex="-1" aria-labelledby="signUpErrorModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="signUpErrorModalLabel" th:text="#{flash.signin.failure}">Sign-in failed</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <th:block th:if="${#strings.equals(param.ext_auth, 'ADDRESS_IN_USE')}" th:text="#{flash.signup.ext.failure.explanation.address_in_use}">
+                                    address_in_use
+                                </th:block>
+                                <th:block th:if="${#strings.equals(param.ext_auth, 'FAILURE')}" th:text="#{flash.signup.ext.failure.explanation.unknown}">
+                                    unknown_error
+                                </th:block>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    new bootstrap.Modal(document.getElementById('signUpErrorModal'), {}).toggle();
+                </script>
+            </th:block>
         </th:block>
 
         <th:block layout:fragment="content">
@@ -93,9 +120,8 @@
                             <button type="submit" class="btn btn-primary w-100 align-middle">
                                 <span th:text="#{form.signin.label.send}">Sign In</span> <i class="fas fa-sign-in-alt"></i>
                             </button>
-                            <!-- TODO revert after integration with external authorizers is implemented -->
+                            <a class="btn btn-dark mx-2" th:href="@{/oauth2/authorization/github}"><i class="fab fa-github"></i></a>
                             <!--
-                            <a class="btn btn-dark mx-2"><i class="fab fa-github"></i></a>
                             <a class="btn btn-danger"><i class="fab fa-google"></i></a>
                             -->
                         </div>

@@ -50,8 +50,18 @@ Feature: Standard user sign-in flow tests
 
      When the user signs in
 
-    Then the application responds with HTTP status FOUND
-     And the user is redirected to /login?auth=fail
+     Then the application responds with HTTP status FOUND
+      And the user is redirected to /login?auth=fail
+
+  @NegativeScenario
+  Scenario: Failed login attempt with non-local user via local sign-in flow
+
+    Given the user identifies with the email address test-user-github@ac-leaflet.local
+
+     When the user signs in
+
+     Then the application responds with HTTP status FOUND
+      And the user is redirected to /login?auth=fail
 
   @NegativeScenario
   Scenario: Failed login attempt with invalid password
@@ -61,8 +71,8 @@ Feature: Standard user sign-in flow tests
 
      When the user signs in
 
-    Then the application responds with HTTP status FOUND
-     And the user is redirected to /login?auth=fail
+     Then the application responds with HTTP status FOUND
+      And the user is redirected to /login?auth=fail
 
   @NegativeScenario
   Scenario: A new user tries to sign up with an address already in use

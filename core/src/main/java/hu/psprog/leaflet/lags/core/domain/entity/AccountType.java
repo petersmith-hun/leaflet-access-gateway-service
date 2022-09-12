@@ -10,5 +10,10 @@ public enum AccountType {
     /**
      * "Local" user account, the account is registered directly in the Leaflet system.
      */
-    LOCAL
+    LOCAL,
+
+    /**
+     * External user account, provided by GitHub.
+     */
+    GITHUB
 }

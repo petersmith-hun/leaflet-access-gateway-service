@@ -47,6 +47,18 @@ Feature: Password reset flow tests
       And the user does not receive the PASSWORD_RESET_REQUEST_MAIL mail
 
   @NegativeScenario
+  Scenario: Requesting password reset with a non-local user
+
+    Given the user identifies with the email address test-user-github@ac-leaflet.local
+      And ReCaptcha verification succeeded
+
+     When the user requests password reset
+
+     Then the application responds with HTTP status OK
+      And the UI notifies the user about the accepted password reset request
+      And the user does not receive the PASSWORD_RESET_REQUEST_MAIL mail
+
+  @NegativeScenario
   Scenario: Requesting password reset with incorrect email
 
     Given the user identifies with the email address invalid-email-address

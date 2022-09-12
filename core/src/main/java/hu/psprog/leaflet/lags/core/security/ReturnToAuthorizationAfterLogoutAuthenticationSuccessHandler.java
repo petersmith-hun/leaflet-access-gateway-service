@@ -5,6 +5,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import java.util.Optional;
  *
  * @author Peter Smith
  */
+@Component
 public class ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     private static final String LOGOUT_REF_PARAMETER = "logoutRef";

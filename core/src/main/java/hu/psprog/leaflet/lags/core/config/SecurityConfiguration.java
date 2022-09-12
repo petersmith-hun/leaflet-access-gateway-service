@@ -5,22 +5,25 @@ import hu.psprog.leaflet.lags.core.security.OAuthAccessTokenAuthenticationFilter
 import hu.psprog.leaflet.lags.core.security.RequestSavingLogoutSuccessHandler;
 import hu.psprog.leaflet.lags.core.security.ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -42,10 +45,11 @@ import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.RECL
 @Configuration
 @EnableWebSecurity
 @EnableConfigurationProperties(OAuthConfigurationProperties.class)
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
     private static final String PATH_OAUTH_ROOT = "/oauth/**";
     private static final String PATH_LOGIN_FAILURE = "/login?auth=fail";
+    private static final String PATH_LOGIN_EXTERNAL = "/login/external";
     private static final String PATH_LOGOUT = "/logout";
     private static final String PATH_WELL_KNOWN_ROOT = "/.well-known/**";
     private static final String USERNAME_PARAMETER = "email";
@@ -53,57 +57,39 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String RESOURCE_CSS = "/css/**";
     private static final String RESOURCE_JS = "/js/**";
 
-    private final UserDetailsService localUserUserDetailsService;
-    private final UserDetailsService oAuthClientUserDetailsService;
-    private final AuthenticationProvider accessTokenAuthenticationProvider;
-    private final TokenHandler tokenHandler;
-
-    @Autowired
-    public SecurityConfiguration(@Qualifier("localUserUserDetailsService") UserDetailsService localUserUserDetailsService,
-                                 @Qualifier("OAuthClientUserDetailsService") UserDetailsService oAuthClientUserDetailsService,
-                                 AuthenticationProvider accessTokenAuthenticationProvider, TokenHandler tokenHandler) {
-        this.localUserUserDetailsService = localUserUserDetailsService;
-        this.oAuthClientUserDetailsService = oAuthClientUserDetailsService;
-        this.accessTokenAuthenticationProvider = accessTokenAuthenticationProvider;
-        this.tokenHandler = tokenHandler;
-    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationProvider oAuthClientAuthenticationProvider(PasswordEncoder passwordEncoder) {
+    public AuthenticationProvider oAuthClientAuthenticationProvider(@Qualifier("OAuthClientUserDetailsService") UserDetailsService oAuthClientUserDetailsService,
+                                                                    PasswordEncoder passwordEncoder) {
         return createAuthenticationProvider(passwordEncoder, oAuthClientUserDetailsService);
     }
 
     @Bean
-    public AuthenticationProvider localUserAuthenticationProvider(PasswordEncoder passwordEncoder) {
+    public AuthenticationProvider localUserAuthenticationProvider(@Qualifier("nonExternalLocalUserUserDetailsService") UserDetailsService localUserUserDetailsService,
+                                                                  PasswordEncoder passwordEncoder) {
         return createAuthenticationProvider(passwordEncoder, localUserUserDetailsService);
     }
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public AuthenticationManager authenticationManager(AuthenticationProvider oAuthClientAuthenticationProvider,
+                                                       AuthenticationProvider localUserAuthenticationProvider,
+                                                       AuthenticationProvider accessTokenAuthenticationProvider) {
+        return new ProviderManager(oAuthClientAuthenticationProvider, localUserAuthenticationProvider, accessTokenAuthenticationProvider);
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager,
+                                                   TokenHandler tokenHandler, OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
+                                                   AuthenticationFailureHandler externalSignUpAuthenticationFailureHandler,
+                                                   ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler returnToAuthorizationAfterLogoutAuthenticationSuccessHandler) throws Exception {
 
-        auth
-                .authenticationProvider(oAuthClientAuthenticationProvider(passwordEncoder()))
-                .authenticationProvider(localUserAuthenticationProvider(passwordEncoder()))
-                .authenticationProvider(accessTokenAuthenticationProvider);
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-
-        http
-                .addFilterBefore(passwordResetAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(userInfoAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+        return http
+                .addFilterBefore(passwordResetAuthenticationFilter(authenticationManager, tokenHandler), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(userInfoAuthenticationFilter(authenticationManager, tokenHandler), UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeRequests()
                     .antMatchers(PATH_OAUTH_ROOT)
@@ -121,7 +107,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .loginPage(PATH_LOGIN)
                     .failureUrl(PATH_LOGIN_FAILURE)
                     .usernameParameter(USERNAME_PARAMETER)
-                    .successHandler(new ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler())
+                    .successHandler(returnToAuthorizationAfterLogoutAuthenticationSuccessHandler)
+                    .and()
+
+                .oauth2Login()
+                    .loginPage(PATH_LOGIN_EXTERNAL)
+                    .successHandler(returnToAuthorizationAfterLogoutAuthenticationSuccessHandler)
+                    .failureHandler(externalSignUpAuthenticationFailureHandler)
+                    .userInfoEndpoint()
+                        .userService(oAuth2UserService)
+                        .and()
                     .and()
 
                 .logout()
@@ -135,7 +130,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .and()
 
                 .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.NEVER);
+                    .sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                    .and()
+
+                .build();
     }
 
     private RequestSavingLogoutSuccessHandler getLogoutSuccessHandler() {
@@ -156,21 +154,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return authenticationProvider;
     }
 
-    private OAuthAccessTokenAuthenticationFilter passwordResetAuthenticationFilter() throws Exception {
+    private OAuthAccessTokenAuthenticationFilter passwordResetAuthenticationFilter(AuthenticationManager authenticationManager, TokenHandler tokenHandler) {
 
         OAuthAccessTokenAuthenticationFilter filter = new OAuthAccessTokenAuthenticationFilter(tokenHandler, PATH_PASSWORD_RESET_CONFIRMATION,
                 request -> request.getParameter(QUERY_PARAMETER_TOKEN));
-        filter.setAuthenticationManager(authenticationManagerBean());
+        filter.setAuthenticationManager(authenticationManager);
         filter.setAuthenticationFailureHandler(new ForwardAuthenticationFailureHandler(PATH_ACCESS_DENIED));
 
         return filter;
     }
 
-    private OAuthAccessTokenAuthenticationFilter userInfoAuthenticationFilter() throws Exception {
+    private OAuthAccessTokenAuthenticationFilter userInfoAuthenticationFilter(AuthenticationManager authenticationManager, TokenHandler tokenHandler) {
 
         OAuthAccessTokenAuthenticationFilter filter = new OAuthAccessTokenAuthenticationFilter(tokenHandler, PATH_OAUTH_USERINFO,
                 request -> request.getHeader(AUTHORIZATION_HEADER));
-        filter.setAuthenticationManager(authenticationManagerBean());
+        filter.setAuthenticationManager(authenticationManager);
 
         return filter;
     }

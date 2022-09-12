@@ -13,6 +13,11 @@ public enum Role {
     USER,
 
     /**
+     * Role for visitors logged in via external identity providers.
+     */
+    EXTERNAL_USER,
+
+    /**
      * Blog editors.
      */
     EDITOR,

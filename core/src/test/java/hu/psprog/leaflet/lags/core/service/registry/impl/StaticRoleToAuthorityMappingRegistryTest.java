@@ -41,6 +41,20 @@ class StaticRoleToAuthorityMappingRegistryTest {
     }
 
     @Test
+    public void shouldGetAuthoritiesForRoleReturnExternalUserAuthorities() {
+
+        // when
+        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.EXTERNAL_USER);
+
+        // then
+        assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
+                "read:comments:own",
+                "read:users:own",
+                "write:comments:own"
+        )));
+    }
+
+    @Test
     public void shouldGetAuthoritiesForRoleReturnEditorAuthorities() {
 
         // when

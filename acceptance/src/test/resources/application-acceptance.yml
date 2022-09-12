@@ -25,6 +25,20 @@ spring:
     defer-datasource-initialization: true
   main:
     allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: test-client-1
+            client-secret: client-secret-1
+            scope:
+              - read:user
+              - user:email
+        provider:
+          github:
+            token-uri: http://localhost:9290/githubmock/token
+            user-info-uri: http://localhost:9290/githubmock/userinfo
 
 logging:
   pattern:
@@ -38,6 +52,8 @@ tms:
 
 bridge:
   clients:
+    github:
+      host-url: http://localhost:9290/githubmock
     tms:
       host-url: http://localhost:9290/mock/tms
 
