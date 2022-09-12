@@ -3,7 +3,6 @@ package hu.psprog.leaflet.lags.core.conversion;
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExternalUserDefinition;
-import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 /**
- * Converts {@link SignUpRequestModel} model to {@link User} value object.
+ * Converts {@link ExternalUserDefinition} model to {@link User} value object.
  *
  * @author Peter Smith
  */
