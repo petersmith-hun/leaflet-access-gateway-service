@@ -15,5 +15,10 @@ public enum AccountType {
     /**
      * External user account, provided by GitHub.
      */
-    GITHUB
+    GITHUB,
+
+    /**
+     * External user account, provided by Google.
+     */
+    GOOGLE
 }

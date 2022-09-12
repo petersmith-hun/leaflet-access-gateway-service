@@ -75,13 +75,13 @@ public class AuthenticationStepDefinition implements En {
         When("^the user signs out$",
                 () -> ThreadLocalDataRegistry.putResponseEntity(lagsClient.requestSignOut()));
 
-        When("^the user requests sign-in via (GitHub)$", (String provider) -> {
+        When("^the user requests sign-in via (GitHub|Google)$", (String provider) -> {
 
             ExternalAuthenticationMock.Provider resolvedProvider = ExternalAuthenticationMock.Provider.valueOf(provider.toUpperCase());
             ThreadLocalDataRegistry.putResponseEntity(lagsClient.requestExternalLogin(resolvedProvider));
         });
 
-        When("^the user authorizes access on (GitHub)$", (String provider) -> {
+        When("^the user authorizes access on (GitHub|Google)$", (String provider) -> {
 
             ExternalAuthenticationMock.Provider resolvedProvider = ExternalAuthenticationMock.Provider.valueOf(provider.toUpperCase());
             externalAuthenticationMock.registerProviderMock(resolvedProvider);
@@ -89,7 +89,7 @@ public class AuthenticationStepDefinition implements En {
             externalAuthenticationMock.resetProviderMock();
         });
 
-        When("^the user rejects access on (GitHub)$", (String provider) -> {
+        When("^the user rejects access on (GitHub|Google)$", (String provider) -> {
 
             ExternalAuthenticationMock.Provider resolvedProvider = ExternalAuthenticationMock.Provider.valueOf(provider.toUpperCase());
             externalAuthenticationMock.registerProviderMock(resolvedProvider);
