@@ -125,7 +125,7 @@ public class AuthenticationStepDefinition implements En {
             assertThat(response.getBody(), notNullValue());
             List<String> scopes = List.of(scope.split(StringUtils.SPACE));
             assertThat(StringUtils.countMatches(response.getBody(), "??form.authorize.scope."), equalTo(scopes.size()));
-            scopes.forEach(scopeItem -> assertThat(response.getBody().contains(String.format("??form.authorize.scope.%s_hu_HU??", scopeItem)), is(true)));
+            scopes.forEach(scopeItem -> assertThat(response.getBody().contains(String.format("??form.authorize.scope.%s_", scopeItem)), is(true)));
         });
     }
 }
