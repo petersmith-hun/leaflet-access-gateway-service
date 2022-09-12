@@ -35,10 +35,19 @@ spring:
             scope:
               - read:user
               - user:email
+          google:
+            client-id: test-client-2
+            client-secret: client-secret-2
+            scope:
+              - profile
+              - email
         provider:
           github:
             token-uri: http://localhost:9290/githubmock/token
             user-info-uri: http://localhost:9290/githubmock/userinfo
+          google:
+            token-uri: http://localhost:9290/googlemock/token
+            user-info-uri: http://localhost:9290/googlemock/userinfo
 
 logging:
   pattern:

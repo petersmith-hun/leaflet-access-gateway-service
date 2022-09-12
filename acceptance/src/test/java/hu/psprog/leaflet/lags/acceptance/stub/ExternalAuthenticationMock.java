@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -92,8 +93,9 @@ public class ExternalAuthenticationMock {
         givenThat(get(userInfoEndpoint)
                 .willReturn(jsonResponse(Map.of(
                         "name", EXTERNAL_USER_NAME,
-                        "sub", EXTERNAL_USER_ID,
-                        "id", EXTERNAL_USER_ID
+                        "sub", String.valueOf(EXTERNAL_USER_ID),
+                        "id", EXTERNAL_USER_ID,
+                        "email", ThreadLocalDataRegistry.get(TestConstants.Attribute.EMAIL)
                 ), 200)));
     }
 
@@ -117,7 +119,8 @@ public class ExternalAuthenticationMock {
 
     public enum Provider {
 
-        GITHUB("/githubmock/token", "/githubmock/userinfo", List.of(ExternalAuthenticationMock::registerGitHubEmailsEndpoint));
+        GITHUB("/githubmock/token", "/githubmock/userinfo", List.of(ExternalAuthenticationMock::registerGitHubEmailsEndpoint)),
+        GOOGLE("/googlemock/token", "/googlemock/userinfo", Collections.emptyList());
 
         private final String tokenEndpoint;
         private final String userinfoEndpoint;
