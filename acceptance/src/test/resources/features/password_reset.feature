@@ -12,7 +12,7 @@ Feature: Password reset flow tests
       And the UI notifies the user about the accepted password reset request
       And the user receives the PASSWORD_RESET_REQUEST_MAIL mail
       And the mail contains a reset token
-      And the reset token expires in 15 seconds
+      And the reset token expires in 1 minutes
       And the reset token scope is limited write:reclaim authority
 
     Given the user uses the link in the mail to navigate to the confirmation form
@@ -91,7 +91,7 @@ Feature: Password reset flow tests
       And the UI notifies the user about the accepted password reset request
       And the user receives the PASSWORD_RESET_REQUEST_MAIL mail
       And the mail contains a reset token
-      And the reset token expires in 15 seconds
+      And the reset token expires in 1 minutes
       And the reset token scope is limited write:reclaim authority
 
     Given the user uses the link in the mail to navigate to the confirmation form
@@ -118,10 +118,10 @@ Feature: Password reset flow tests
       And the UI notifies the user about the accepted password reset request
       And the user receives the PASSWORD_RESET_REQUEST_MAIL mail
       And the mail contains a reset token
-      And the reset token expires in 15 seconds
+      And the reset token expires in 1 minutes
       And the reset token scope is limited write:reclaim authority
 
-    Given the client waits for 16 seconds
+    Given the client waits for 61 seconds
       And the user uses the link in the mail to navigate to the confirmation form
       And the user is authorized with the reset token
       And the user uses the password newpass111
@@ -145,7 +145,7 @@ Feature: Password reset flow tests
       And the UI notifies the user about the accepted password reset request
       And the user receives the PASSWORD_RESET_REQUEST_MAIL mail
       And the mail contains a reset token
-      And the reset token expires in 15 seconds
+      And the reset token expires in 1 minutes
       And the reset token scope is limited write:reclaim authority
 
     Given the user uses the link in the mail to navigate to the confirmation form
@@ -181,7 +181,7 @@ Feature: Password reset flow tests
       And the UI notifies the user about the accepted password reset request
       And the user receives the PASSWORD_RESET_REQUEST_MAIL mail
       And the mail contains a reset token
-      And the reset token expires in 15 seconds
+      And the reset token expires in 1 minutes
       And the reset token scope is limited write:reclaim authority
 
     Given the user uses the link in the mail to navigate to the confirmation form

@@ -10,7 +10,7 @@ import hu.psprog.leaflet.lags.core.domain.request.PasswordResetRequestModel;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
 import hu.psprog.leaflet.lags.core.service.account.AccountRequestHandler;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
+import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetRequest;
 import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -92,9 +92,14 @@ public class PasswordResetRequestAccountRequestHandler implements AccountRequest
 
         notificationAdapter.passwordResetRequested(PasswordResetRequest.builder()
                 .username(user.getUsername())
-                .participant(user.getEmail())
+                .recipient(user.getEmail())
                 .token(reclaimToken.getAccessToken())
-                .expiration(reclaimToken.getExpiresIn())
+                .resetLink(passwordResetConfig.getReturnUrl())
+                .expiration(calculateExpirationInMinutes(reclaimToken))
                 .build());
+    }
+
+    private int calculateExpirationInMinutes(OAuthTokenResponse reclaimToken) {
+        return reclaimToken.getExpiresIn() / 60;
     }
 }

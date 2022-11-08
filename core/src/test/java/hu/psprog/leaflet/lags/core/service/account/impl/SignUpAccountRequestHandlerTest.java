@@ -5,7 +5,7 @@ import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
 import hu.psprog.leaflet.lags.core.domain.response.SignUpResult;
 import hu.psprog.leaflet.lags.core.domain.response.SignUpStatus;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.SignUpConfirmation;
+import hu.psprog.leaflet.lags.core.domain.notification.SignUpConfirmation;
 import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

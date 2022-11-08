@@ -4,7 +4,7 @@ import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.PasswordResetConfirmationRequestModel;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetSuccess;
+import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetSuccess;
 import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
 import org.junit.jupiter.api.Test;
@@ -91,7 +91,7 @@ class PasswordResetConfirmationAccountRequestHandlerTest {
         verify(tokenTracker).revokeToken(TOKEN_ID);
         verify(notificationAdapter).successfulPasswordReset(PasswordResetSuccess.builder()
                 .username(USERNAME)
-                .participant(EMAIL)
+                .recipient(EMAIL)
                 .build());
     }
 

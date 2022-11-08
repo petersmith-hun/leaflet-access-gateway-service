@@ -99,7 +99,7 @@ authentication-config:
   recaptcha-site-key: placeholder
   password-reset:
     audience: dummy:acceptance:svc:lags:test
-    token-expiration: 15
+    token-expiration: 60
     return-url: ${oauth2-config.token.issuer}/password-reset/confirmation
 
 oauth2-config:

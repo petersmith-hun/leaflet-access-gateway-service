@@ -5,7 +5,7 @@ import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.PasswordResetConfirmationRequestModel;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
 import hu.psprog.leaflet.lags.core.service.account.AccountRequestHandler;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetSuccess;
+import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetSuccess;
 import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +75,7 @@ public class PasswordResetConfirmationAccountRequestHandler implements AccountRe
 
         notificationAdapter.successfulPasswordReset(PasswordResetSuccess.builder()
                 .username(user.getUsername())
-                .participant(user.getEmail())
+                .recipient(user.getEmail())
                 .build());
     }
 }

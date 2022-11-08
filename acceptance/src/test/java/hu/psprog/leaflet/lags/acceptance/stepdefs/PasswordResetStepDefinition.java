@@ -4,7 +4,7 @@ import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.lags.acceptance.utility.LAGSClient;
 import hu.psprog.leaflet.lags.acceptance.utility.ThreadLocalDataRegistry;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
+import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetRequest;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import io.cucumber.java8.En;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +75,7 @@ public class PasswordResetStepDefinition implements En {
             assertThat(passwordResetRequest.getToken(), notNullValue());
         });
 
-        Then("^the reset token expires in (\\d+) seconds$", (Integer expiration) -> {
+        Then("^the reset token expires in (\\d+) minutes$", (Integer expiration) -> {
 
             PasswordResetRequest passwordResetRequest = ThreadLocalDataRegistry.get(TestConstants.Attribute.PASSWORD_RESET_REQUEST_MAIL);
             assertThat(passwordResetRequest.getExpiration(), equalTo(expiration));

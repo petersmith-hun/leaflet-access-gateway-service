@@ -2,9 +2,9 @@ package hu.psprog.leaflet.lags.acceptance.stub;
 
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.lags.acceptance.utility.ThreadLocalDataRegistry;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetSuccess;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.SignUpConfirmation;
+import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetRequest;
+import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetSuccess;
+import hu.psprog.leaflet.lags.core.domain.notification.SignUpConfirmation;
 import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -32,5 +32,10 @@ public class NotificationAdapterStub implements NotificationAdapter {
     @Override
     public void successfulPasswordReset(PasswordResetSuccess passwordResetSuccess) {
         ThreadLocalDataRegistry.put(TestConstants.Attribute.PASSWORD_RESET_CONFIRMATION_MAIL, passwordResetSuccess);
+    }
+
+    @Override
+    public void startupFinished(String version) {
+        // do nothing
     }
 }
