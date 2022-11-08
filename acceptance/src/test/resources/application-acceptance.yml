@@ -65,6 +65,8 @@ bridge:
       host-url: http://localhost:9290/githubmock
     tms:
       host-url: http://localhost:9290/mock/tms
+    lens:
+      host-url: http://localhost:9290/mock/lens
 
 info:
   app:
