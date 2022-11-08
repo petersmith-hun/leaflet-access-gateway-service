@@ -9,7 +9,7 @@ import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.request.PasswordResetRequestModel;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
-import hu.psprog.leaflet.lags.core.service.mailing.domain.PasswordResetRequest;
+import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetRequest;
 import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +38,8 @@ class PasswordResetRequestAccountRequestHandlerTest {
     private static final String EMAIL = "user@dev.local";
     private static final String AUDIENCE = "gateway-aud-1";
     private static final String ACCESS_TOKEN = "generated-token-1";
-    private static final int EXPIRES_IN = 1800;
+    private static final int EXPIRES_IN_SEC = 1800;
+    private static final int EXPIRES_IN_MIN = 30;
 
     private static final User LOCAL_USER = prepareUser(AccountType.LOCAL);
     private static final User EXTERNAL_USER = prepareUser(AccountType.GITHUB);
@@ -78,14 +79,14 @@ class PasswordResetRequestAccountRequestHandlerTest {
         // given
         given(userDAO.findByEmail(EMAIL)).willReturn(Optional.of(LOCAL_USER));
         given(passwordResetConfig.getAudience()).willReturn(AUDIENCE);
-        given(passwordResetConfig.getTokenExpiration()).willReturn(EXPIRES_IN);
-        given(tokenHandler.generateToken(EXPECTED_O_AUTH_TOKEN_REQUEST, EXPECTED_CLAIMS, EXPIRES_IN)).willReturn(O_AUTH_TOKEN_RESPONSE);
+        given(passwordResetConfig.getTokenExpiration()).willReturn(EXPIRES_IN_SEC);
+        given(tokenHandler.generateToken(EXPECTED_O_AUTH_TOKEN_REQUEST, EXPECTED_CLAIMS, EXPIRES_IN_SEC)).willReturn(O_AUTH_TOKEN_RESPONSE);
 
         // when
         passwordResetRequestAccountRequestHandler.processAccountRequest(PASSWORD_RESET_REQUEST_MODEL);
 
         // then
-        verify(tokenHandler).generateToken(EXPECTED_O_AUTH_TOKEN_REQUEST, EXPECTED_CLAIMS, EXPIRES_IN);
+        verify(tokenHandler).generateToken(EXPECTED_O_AUTH_TOKEN_REQUEST, EXPECTED_CLAIMS, EXPIRES_IN_SEC);
         verify(notificationAdapter).passwordResetRequested(PASSWORD_RESET_REQUEST);
     }
 
@@ -145,7 +146,7 @@ class PasswordResetRequestAccountRequestHandlerTest {
     private static OAuthTokenResponse prepareTokenResponse() {
         return OAuthTokenResponse.builder()
                 .accessToken(ACCESS_TOKEN)
-                .expiresIn(EXPIRES_IN)
+                .expiresIn(EXPIRES_IN_SEC)
                 .build();
     }
 
@@ -164,9 +165,9 @@ class PasswordResetRequestAccountRequestHandlerTest {
     private static PasswordResetRequest prepareResetRequest() {
         return PasswordResetRequest.builder()
                 .username(USERNAME)
-                .participant(EMAIL)
+                .recipient(EMAIL)
                 .token(ACCESS_TOKEN)
-                .expiration(EXPIRES_IN)
+                .expiration(EXPIRES_IN_MIN)
                 .build();
     }
 }

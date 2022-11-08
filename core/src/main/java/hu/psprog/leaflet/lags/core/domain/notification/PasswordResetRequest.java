@@ -1,4 +1,4 @@
-package hu.psprog.leaflet.lags.core.service.mailing.domain;
+package hu.psprog.leaflet.lags.core.domain.notification;
 
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +12,9 @@ import lombok.Data;
 @Builder
 public class PasswordResetRequest {
 
-    private String participant;
+    private String recipient;
     private String username;
     private String token;
+    private String resetLink;
     private int expiration;
-
 }
