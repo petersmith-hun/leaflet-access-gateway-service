@@ -16,6 +16,8 @@ import java.util.List;
 @Setter(AccessLevel.PACKAGE)
 public class OAuthClient {
 
+    private static final String DEFAULT_AUDIENCE = "default-audience";
+
     /**
      * Client name (internal identifier of the registration).
      */
@@ -39,8 +41,9 @@ public class OAuthClient {
 
     /**
      * OAuth2 audience (external client identifier for consumers).
+     * Defaults to "default-audience", that can be used for UI applications.
      */
-    private String audience;
+    private String audience = DEFAULT_AUDIENCE;
 
     /**
      * Available scopes of the registered client.
