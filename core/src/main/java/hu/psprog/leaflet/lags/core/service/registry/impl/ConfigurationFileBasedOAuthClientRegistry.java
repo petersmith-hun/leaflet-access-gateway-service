@@ -37,7 +37,7 @@ public class ConfigurationFileBasedOAuthClientRegistry implements OAuthClientReg
     private Optional<OAuthClient> getClient(Function<OAuthClient, String> clientParameterMapperFunction, String identifier) {
 
         return oAuthConfigurationProperties.getClients().stream()
-                .filter(oAuthClient -> clientParameterMapperFunction.apply(oAuthClient).equals(identifier))
+                .filter(oAuthClient -> identifier.equals(clientParameterMapperFunction.apply(oAuthClient)))
                 .findFirst();
     }
 }

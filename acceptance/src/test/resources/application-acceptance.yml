@@ -119,7 +119,6 @@ oauth2-config:
       application-type: ui
       client-id: dummy_test_app_1
       client-secret: dummyapplicationpw5678
-      audience: dummy:acceptance:app:dummyapp:test
       required-scopes:
         - read:admin
         - write:admin
@@ -130,7 +129,6 @@ oauth2-config:
       application-type: ui
       client-id: mock_lms
       client-secret: mocklms1234
-      audience: dummy:acceptance:app:mocklms:test
       required-scopes:
         - read:categories
         - read:comments
@@ -149,7 +147,6 @@ oauth2-config:
       application-type: ui
       client-id: dummy_front_app_1
       client-secret: frontapp4455
-      audience: dummy:acceptance:app:frontapp:test
       required-scopes:
         - read:comments:own
         - read:users:own
