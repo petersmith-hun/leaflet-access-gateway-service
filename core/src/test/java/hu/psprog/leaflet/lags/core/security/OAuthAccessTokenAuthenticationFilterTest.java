@@ -3,8 +3,8 @@ package hu.psprog.leaflet.lags.core.security;
 import hu.psprog.leaflet.lags.core.domain.internal.JWTAuthenticationToken;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.exception.ExpiredTokenException;
+import hu.psprog.leaflet.lags.core.exception.JWTTokenParsingException;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -129,7 +129,7 @@ class OAuthAccessTokenAuthenticationFilterTest {
         // given
         prepareOAuthAccessTokenAuthenticationFilter(servletRequest -> servletRequest.getHeader("Authorization"));
         given(request.getHeader("Authorization")).willReturn(BEARER_TOKEN);
-        doThrow(ExpiredJwtException.class).when(tokenHandler).parseToken(JWT_TOKEN);
+        doThrow(JWTTokenParsingException.class).when(tokenHandler).parseToken(JWT_TOKEN);
 
         // when
         assertThrows(ExpiredTokenException.class, () -> oAuthAccessTokenAuthenticationFilter.attemptAuthentication(request, response));

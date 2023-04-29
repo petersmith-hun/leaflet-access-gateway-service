@@ -1,9 +1,16 @@
 package hu.psprog.leaflet.lags.core.config;
 
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.RSAKey;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
+import hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings;
 import hu.psprog.leaflet.lags.core.security.OAuthAccessTokenAuthenticationFilter;
 import hu.psprog.leaflet.lags.core.security.RequestSavingLogoutSuccessHandler;
 import hu.psprog.leaflet.lags.core.security.ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler;
+import hu.psprog.leaflet.lags.core.service.registry.KeyRegistry;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -21,11 +28,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
+import java.util.List;
 
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.AUTHORIZATION_HEADER;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_ACCESS_DENIED;
@@ -79,6 +94,35 @@ public class SecurityConfiguration {
                                                        AuthenticationProvider localUserAuthenticationProvider,
                                                        AuthenticationProvider accessTokenAuthenticationProvider) {
         return new ProviderManager(oAuthClientAuthenticationProvider, localUserAuthenticationProvider, accessTokenAuthenticationProvider);
+    }
+
+    @Bean
+    public JWKSet jwkSet(KeyRegistry keyRegistry, OAuthConfigurationProperties oAuthConfigurationProperties) {
+
+        OAuthTokenSettings tokenSettings = oAuthConfigurationProperties.getToken();
+        RSAKey.Builder rsaKeyBuilder = new RSAKey.Builder((RSAPublicKey) keyRegistry.getPublicKey())
+                .keyID(tokenSettings.getKeyID())
+                .keyUse(KeyUse.SIGNATURE)
+                .algorithm(tokenSettings.getSignatureAlgorithm());
+
+        return new JWKSet(rsaKeyBuilder.build());
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder(KeyRegistry keyRegistry) {
+
+        NimbusJwtDecoder nimbusJwtDecoder = NimbusJwtDecoder
+                .withPublicKey((RSAPublicKey) keyRegistry.getPublicKey())
+                .build();
+
+        nimbusJwtDecoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(List.of(new JwtTimestampValidator(Duration.ZERO))));
+
+        return nimbusJwtDecoder;
+    }
+
+    @Bean
+    public JWSSigner jwsSigner(KeyRegistry keyRegistry) {
+        return new RSASSASigner(keyRegistry.getPrivateKey());
     }
 
     @Bean

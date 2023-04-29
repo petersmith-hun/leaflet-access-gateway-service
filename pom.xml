@@ -6,7 +6,7 @@
 
     <artifactId>leaflet-access-gateway-service</artifactId>
     <packaging>pom</packaging>
-    <version>1.2.2-dev</version>
+    <version>1.3.0-dev</version>
 
     <modules>
         <module>core</module>
@@ -37,9 +37,6 @@
         <!-- Java environment version -->
         <java.version>11</java.version>
 
-        <!-- dependency version overrides -->
-        <jwt-lib.version>0.11.5</jwt-lib.version>
-
         <!-- compiler settings -->
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -56,21 +53,6 @@
         <junit-platform-suite.version>1.9.0</junit-platform-suite.version>
 
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-impl</artifactId>
-                <version>${jwt-lib.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-jackson</artifactId>
-                <version>${jwt-lib.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>

@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.domain.config;
 
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.nimbusds.jose.JWSAlgorithm;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -44,5 +44,5 @@ public class OAuthTokenSettings {
     /**
      * JWT access token signature algorithm.
      */
-    private SignatureAlgorithm signatureAlgorithm;
+    private JWSAlgorithm signatureAlgorithm;
 }

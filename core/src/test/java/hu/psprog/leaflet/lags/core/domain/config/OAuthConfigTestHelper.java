@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.domain.config;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -59,7 +59,7 @@ public class OAuthConfigTestHelper {
         oAuthTokenSettings.setIssuer(issuer);
         oAuthTokenSettings.setPrivateKeyFile(privateKeyfile);
         oAuthTokenSettings.setPublicKeyFile(publicKeyFile);
-        oAuthTokenSettings.setSignatureAlgorithm(SignatureAlgorithm.RS256);
+        oAuthTokenSettings.setSignatureAlgorithm(JWSAlgorithm.RS256);
         oAuthTokenSettings.setKeyID(KEY_ID);
 
         return oAuthTokenSettings;
