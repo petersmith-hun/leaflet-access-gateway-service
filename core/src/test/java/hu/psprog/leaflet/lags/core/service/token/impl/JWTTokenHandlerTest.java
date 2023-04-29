@@ -1,6 +1,8 @@
 package hu.psprog.leaflet.lags.core.service.token.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigTestHelper;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings;
@@ -9,9 +11,9 @@ import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
+import hu.psprog.leaflet.lags.core.exception.JWTTokenParsingException;
 import hu.psprog.leaflet.lags.core.service.registry.impl.RSAKeyRegistry;
 import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
-import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,10 +21,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
@@ -65,9 +70,14 @@ class JWTTokenHandlerTest {
 
     @BeforeEach
     public void setup() {
+
         RSAKeyRegistry rsaKeyRegistry = new RSAKeyRegistry(O_AUTH_CONFIGURATION_PROPERTIES);
         rsaKeyRegistry.readRSAKey();
-        jwtTokenHandler = new JWTTokenHandler(O_AUTH_CONFIGURATION_PROPERTIES, rsaKeyRegistry, tokenTracker);
+
+        JWSSigner jwsSigner = new RSASSASigner(rsaKeyRegistry.getPrivateKey());
+        JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey((RSAPublicKey) rsaKeyRegistry.getPublicKey()).build();
+
+        jwtTokenHandler = new JWTTokenHandler(O_AUTH_CONFIGURATION_PROPERTIES, tokenTracker, jwtDecoder, jwsSigner);
     }
 
     @Test
@@ -133,11 +143,11 @@ class JWTTokenHandlerTest {
         String invalidToken = tokenResponse.getAccessToken().substring(10);
 
         // when
-        Throwable result = assertThrows(JwtException.class, () -> jwtTokenHandler.parseToken(invalidToken));
+        Throwable result = assertThrows(JWTTokenParsingException.class, () -> jwtTokenHandler.parseToken(invalidToken));
 
         // then
         // exception expected
-        assertThat(result.getMessage().startsWith("Malformed JWT JSON"), is(true));
+        assertThat(result.getMessage().contains("Invalid unsecured/JWS/JWE header"), is(true));
     }
 
     private void assertToken(String token, int expectedExpiration) throws IOException {

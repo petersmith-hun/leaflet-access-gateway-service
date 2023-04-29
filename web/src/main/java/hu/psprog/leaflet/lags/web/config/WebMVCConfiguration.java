@@ -1,14 +1,8 @@
 package hu.psprog.leaflet.lags.web.config;
 
-import com.nimbusds.jose.Algorithm;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.KeyUse;
-import com.nimbusds.jose.jwk.RSAKey;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
-import hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings;
 import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
-import hu.psprog.leaflet.lags.core.service.registry.KeyRegistry;
 import hu.psprog.leaflet.lags.web.model.AuthServerMetaInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -52,19 +45,6 @@ public class WebMVCConfiguration implements WebMvcConfigurer {
         MVC_RESOURCES.forEach((folder, path) -> registry
                 .addResourceHandler(folder)
                 .addResourceLocations(path));
-    }
-
-    @Bean
-    @Autowired
-    public JWKSet jwkSet(KeyRegistry keyRegistry, OAuthConfigurationProperties oAuthConfigurationProperties) {
-
-        OAuthTokenSettings tokenSettings = oAuthConfigurationProperties.getToken();
-        RSAKey.Builder rsaKeyBuilder = new RSAKey.Builder((RSAPublicKey) keyRegistry.getPublicKey())
-                .keyID(tokenSettings.getKeyID())
-                .keyUse(KeyUse.SIGNATURE)
-                .algorithm(Algorithm.parse(tokenSettings.getSignatureAlgorithm().name()));
-
-        return new JWKSet(rsaKeyBuilder.build());
     }
 
     @Bean

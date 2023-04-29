@@ -3,8 +3,8 @@ package hu.psprog.leaflet.lags.core.security;
 import hu.psprog.leaflet.lags.core.domain.internal.JWTAuthenticationToken;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.exception.ExpiredTokenException;
+import hu.psprog.leaflet.lags.core.exception.JWTTokenParsingException;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
@@ -61,7 +61,7 @@ public class OAuthAccessTokenAuthenticationFilter extends AbstractAuthentication
                     .withClaims(claims)
                     .withRawToken(token)
                     .build();
-        } catch (ExpiredJwtException exception) {
+        } catch (JWTTokenParsingException exception) {
             throw new ExpiredTokenException();
         } catch (Exception exception) {
             throw new BadCredentialsException("Invalid credentials", exception);

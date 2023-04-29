@@ -17,12 +17,12 @@ import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.domain.response.UserInfoResponse;
+import hu.psprog.leaflet.lags.core.exception.JWTTokenParsingException;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.persistence.dao.AccessTokenDAO;
 import hu.psprog.leaflet.lags.core.service.factory.OAuthRequestContextFactory;
 import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
-import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,7 +64,6 @@ class OAuthAuthorizationServiceImplTest {
     private static final UserInfoResponse USER_INFO_RESPONSE = prepareUserInfoResponse();
     private static final OAuthAuthorizationRequestContext O_AUTH_AUTHORIZATION_REQUEST_CONTEXT = prepareAuthorizationContext();
     private static final OAuthTokenRequestContext O_AUTH_TOKEN_REQUEST_CONTEXT = prepareTokenContext();
-
 
     @Mock
     private GrantFlowProcessor grantFlowProcessor1;
@@ -188,7 +187,7 @@ class OAuthAuthorizationServiceImplTest {
     public void shouldIntrospectReturnIntrospectionResultWithInactiveStatusOnInvalidToken() {
 
         // given
-        doThrow(JwtException.class).when(tokenHandler).parseToken(ACCESS_TOKEN);
+        doThrow(JWTTokenParsingException.class).when(tokenHandler).parseToken(ACCESS_TOKEN);
 
         // when
         TokenIntrospectionResult result = oAuthAuthorizationService.introspect(ACCESS_TOKEN);

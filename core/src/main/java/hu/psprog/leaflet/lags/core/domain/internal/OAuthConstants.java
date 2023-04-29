@@ -36,5 +36,8 @@ public interface OAuthConstants {
         String USER_ID = "uid";
         String EXPIRATION = "exp";
         String AUDIENCE = "aud";
+        String ISSUED_AT = "iat";
+        String ISSUER = "iss";
+        String NOT_BEFORE = "nbf";
     }
 }
