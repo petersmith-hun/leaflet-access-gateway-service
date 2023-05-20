@@ -2,8 +2,8 @@ package hu.psprog.leaflet.lags.core.domain.request;
 
 import lombok.Data;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * Password reset request model.

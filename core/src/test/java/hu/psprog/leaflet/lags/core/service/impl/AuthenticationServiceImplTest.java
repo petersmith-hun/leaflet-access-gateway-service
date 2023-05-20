@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_LOGIN;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_SIGNUP;
@@ -72,8 +72,8 @@ class AuthenticationServiceImplTest {
         SignUpResult result = authenticationService.signUp(SIGN_UP_REQUEST_MODEL, request);
 
         // then
-        assertThat(result.getRedirectURI(), equalTo(PATH_LOGIN));
-        assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.SUCCESS));
+        assertThat(result.redirectURI(), equalTo(PATH_LOGIN));
+        assertThat(result.signUpStatus(), equalTo(SignUpStatus.SUCCESS));
     }
 
     @Test
@@ -86,8 +86,8 @@ class AuthenticationServiceImplTest {
         SignUpResult result = authenticationService.signUp(SIGN_UP_REQUEST_MODEL, request);
 
         // then
-        assertThat(result.getRedirectURI(), equalTo(PATH_SIGNUP));
-        assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.RE_CAPTCHA_VERIFICATION_FAILED));
+        assertThat(result.redirectURI(), equalTo(PATH_SIGNUP));
+        assertThat(result.signUpStatus(), equalTo(SignUpStatus.RE_CAPTCHA_VERIFICATION_FAILED));
 
         verifyNoInteractions(signUpRequestAccountRequestHandler);
     }

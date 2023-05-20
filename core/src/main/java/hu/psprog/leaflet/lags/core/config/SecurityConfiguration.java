@@ -48,6 +48,7 @@ import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_OAUTH_USERINFO;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
+import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_SIGNUP;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_UNKNOWN_ERROR;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.QUERY_PARAMETER_TOKEN;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.RECLAIM_AUTHORITY;
@@ -67,10 +68,26 @@ public class SecurityConfiguration {
     private static final String PATH_LOGIN_EXTERNAL = "/login/external";
     private static final String PATH_LOGOUT = "/logout";
     private static final String PATH_WELL_KNOWN_ROOT = "/.well-known/**";
+    private static final String PATH_ACTUATOR_HEALTH = "/actuator/health";
+    private static final String PATH_ACTUATOR_INFO = "/actuator/info";
     private static final String USERNAME_PARAMETER = "email";
     private static final String RESOURCE_IMAGES = "/images/**";
     private static final String RESOURCE_CSS = "/css/**";
     private static final String RESOURCE_JS = "/js/**";
+
+    private static final String[] PUBLIC_PATHS = {
+            PATH_LOGIN,
+            PATH_SIGNUP,
+            PATH_PASSWORD_RESET,
+            PATH_UNKNOWN_ERROR,
+            PATH_ACCESS_DENIED,
+            PATH_WELL_KNOWN_ROOT,
+            PATH_ACTUATOR_HEALTH,
+            PATH_ACTUATOR_INFO,
+            RESOURCE_IMAGES,
+            RESOURCE_CSS,
+            RESOURCE_JS
+    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -135,47 +152,39 @@ public class SecurityConfiguration {
                 .addFilterBefore(passwordResetAuthenticationFilter(authenticationManager, tokenHandler), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(userInfoAuthenticationFilter(authenticationManager, tokenHandler), UsernamePasswordAuthenticationFilter.class)
 
-                .authorizeRequests()
-                    .antMatchers(PATH_OAUTH_ROOT)
-                        .fullyAuthenticated()
-                    .antMatchers(PATH_PASSWORD_RESET_CONFIRMATION)
-                        .hasAuthority(RECLAIM_AUTHORITY.getAuthority())
-                    .antMatchers(PATH_LOGIN, PATH_PASSWORD_RESET, RESOURCE_IMAGES, RESOURCE_CSS, RESOURCE_JS, PATH_UNKNOWN_ERROR, PATH_ACCESS_DENIED, PATH_WELL_KNOWN_ROOT)
-                        .permitAll()
-                    .and()
+                .authorizeHttpRequests(registry -> registry
+                        .requestMatchers(PATH_OAUTH_ROOT)
+                            .fullyAuthenticated()
+                        .requestMatchers(PATH_PASSWORD_RESET_CONFIRMATION)
+                            .hasAuthority(RECLAIM_AUTHORITY.getAuthority())
+                        .requestMatchers(PUBLIC_PATHS)
+                            .permitAll())
 
-                .httpBasic()
-                    .and()
+                .httpBasic(httpBasic -> {})
 
-                .formLogin()
-                    .loginPage(PATH_LOGIN)
-                    .failureUrl(PATH_LOGIN_FAILURE)
-                    .usernameParameter(USERNAME_PARAMETER)
-                    .successHandler(returnToAuthorizationAfterLogoutAuthenticationSuccessHandler)
-                    .and()
+                .formLogin(formLogin -> formLogin
+                        .loginPage(PATH_LOGIN)
+                        .failureUrl(PATH_LOGIN_FAILURE)
+                        .usernameParameter(USERNAME_PARAMETER)
+                        .successHandler(returnToAuthorizationAfterLogoutAuthenticationSuccessHandler))
 
-                .oauth2Login()
-                    .loginPage(PATH_LOGIN_EXTERNAL)
-                    .successHandler(returnToAuthorizationAfterLogoutAuthenticationSuccessHandler)
-                    .failureHandler(externalSignUpAuthenticationFailureHandler)
-                    .userInfoEndpoint()
-                        .userService(oAuth2UserService)
-                        .and()
-                    .and()
+                .oauth2Login(oauth2Login -> oauth2Login
+                        .loginPage(PATH_LOGIN_EXTERNAL)
+                        .successHandler(returnToAuthorizationAfterLogoutAuthenticationSuccessHandler)
+                        .failureHandler(externalSignUpAuthenticationFailureHandler)
+                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(oAuth2UserService)))
 
-                .logout()
-                    .logoutUrl(PATH_LOGOUT)
-                    .logoutSuccessUrl(PATH_LOGIN)
-                    .logoutSuccessHandler(getLogoutSuccessHandler())
-                    .and()
+                .logout(logout -> logout
+                        .logoutUrl(PATH_LOGOUT)
+                        .logoutSuccessUrl(PATH_LOGIN)
+                        .logoutSuccessHandler(getLogoutSuccessHandler()))
 
-                .csrf()
-                    .ignoringAntMatchers(PATH_OAUTH_ROOT)
-                    .and()
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(PATH_OAUTH_ROOT))
 
-                .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.NEVER)
-                    .and()
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.NEVER))
 
                 .build();
     }

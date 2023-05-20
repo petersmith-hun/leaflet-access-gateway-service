@@ -143,10 +143,10 @@ class OAuthAuthorizationServiceImplTest {
         TokenIntrospectionResult result = oAuthAuthorizationService.introspect(ACCESS_TOKEN);
 
         // then
-        assertThat(result.isActive(), is(true));
-        assertThat(result.getClientID(), equalTo(TOKEN_CLAIMS.getClientID()));
-        assertThat(result.getUsername(), equalTo(TOKEN_CLAIMS.getUsername()));
-        assertThat(result.getExpiration(), equalTo(TOKEN_CLAIMS.getExpiration()));
+        assertThat(result.active(), is(true));
+        assertThat(result.clientID(), equalTo(TOKEN_CLAIMS.getClientID()));
+        assertThat(result.username(), equalTo(TOKEN_CLAIMS.getUsername()));
+        assertThat(result.expiration(), equalTo(TOKEN_CLAIMS.getExpiration()));
     }
 
     @Test
@@ -160,10 +160,10 @@ class OAuthAuthorizationServiceImplTest {
         TokenIntrospectionResult result = oAuthAuthorizationService.introspect(ACCESS_TOKEN);
 
         // then
-        assertThat(result.isActive(), is(false));
-        assertThat(result.getClientID(), equalTo(TOKEN_CLAIMS.getClientID()));
-        assertThat(result.getUsername(), equalTo(TOKEN_CLAIMS.getUsername()));
-        assertThat(result.getExpiration(), equalTo(TOKEN_CLAIMS.getExpiration()));
+        assertThat(result.active(), is(false));
+        assertThat(result.clientID(), equalTo(TOKEN_CLAIMS.getClientID()));
+        assertThat(result.username(), equalTo(TOKEN_CLAIMS.getUsername()));
+        assertThat(result.expiration(), equalTo(TOKEN_CLAIMS.getExpiration()));
     }
 
     @Test
@@ -177,10 +177,10 @@ class OAuthAuthorizationServiceImplTest {
         TokenIntrospectionResult result = oAuthAuthorizationService.introspect(ACCESS_TOKEN);
 
         // then
-        assertThat(result.isActive(), is(false));
-        assertThat(result.getClientID(), equalTo(TOKEN_CLAIMS.getClientID()));
-        assertThat(result.getUsername(), equalTo(TOKEN_CLAIMS.getUsername()));
-        assertThat(result.getExpiration(), equalTo(TOKEN_CLAIMS.getExpiration()));
+        assertThat(result.active(), is(false));
+        assertThat(result.clientID(), equalTo(TOKEN_CLAIMS.getClientID()));
+        assertThat(result.username(), equalTo(TOKEN_CLAIMS.getUsername()));
+        assertThat(result.expiration(), equalTo(TOKEN_CLAIMS.getExpiration()));
     }
 
     @Test
@@ -193,10 +193,10 @@ class OAuthAuthorizationServiceImplTest {
         TokenIntrospectionResult result = oAuthAuthorizationService.introspect(ACCESS_TOKEN);
 
         // then
-        assertThat(result.isActive(), is(false));
-        assertThat(result.getClientID(), nullValue());
-        assertThat(result.getUsername(), nullValue());
-        assertThat(result.getExpiration(), nullValue());
+        assertThat(result.active(), is(false));
+        assertThat(result.clientID(), nullValue());
+        assertThat(result.username(), nullValue());
+        assertThat(result.expiration(), nullValue());
         verifyNoInteractions(accessTokenDAO);
     }
 

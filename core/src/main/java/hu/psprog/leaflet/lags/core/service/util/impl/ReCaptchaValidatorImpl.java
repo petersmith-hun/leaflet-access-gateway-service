@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Implementation of {@link ReCaptchaValidator}.
@@ -45,10 +45,10 @@ public class ReCaptchaValidatorImpl implements ReCaptchaValidator {
         boolean successful = false;
         try {
             ReCaptchaResponse recaptchaVerificationResponse = reCaptchaClient.validate(reCaptchaRequest);
-            successful = recaptchaVerificationResponse.isSuccessful();
+            successful = recaptchaVerificationResponse.successful();
 
             if (!successful) {
-                log.error("Failed to verify ReCaptcha token - verification service response: {}", recaptchaVerificationResponse.getErrorCodes());
+                log.error("Failed to verify ReCaptcha token - verification service response: {}", recaptchaVerificationResponse.errorCodes());
             }
         } catch (CommunicationFailureException e) {
             log.error("Failed to contact ReCaptcha verification service.", e);

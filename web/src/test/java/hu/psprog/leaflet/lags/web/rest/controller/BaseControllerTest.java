@@ -22,7 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
@@ -157,8 +157,8 @@ class BaseControllerTest {
         // then
         assertThat(result.getStatusCode(), equalTo(errorCode.getMappedStatus()));
         assertThat(result.getBody(), notNullValue());
-        assertThat(result.getBody().getErrorCode(), equalTo(errorCode.getErrorCode()));
-        assertThat(result.getBody().getErrorDescription(), equalTo(message));
+        assertThat(result.getBody().errorCode(), equalTo(errorCode.getErrorCode()));
+        assertThat(result.getBody().errorDescription(), equalTo(message));
     }
 
     @Test

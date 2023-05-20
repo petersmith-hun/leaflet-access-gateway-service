@@ -72,8 +72,8 @@ class SignUpAccountRequestHandlerTest {
         SignUpResult result = signUpAccountRequestHandler.processAccountRequest(SIGN_UP_REQUEST_MODEL);
 
         // then
-        assertThat(result.getRedirectURI(), equalTo(PATH_LOGIN));
-        assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.SUCCESS));
+        assertThat(result.redirectURI(), equalTo(PATH_LOGIN));
+        assertThat(result.signUpStatus(), equalTo(SignUpStatus.SUCCESS));
 
         verify(userDAO).save(CONVERTED_USER);
         verify(notificationAdapter).signUpConfirmation(EXPECTED_SIGN_UP_CONFIRMATION);
@@ -90,8 +90,8 @@ class SignUpAccountRequestHandlerTest {
         SignUpResult result = signUpAccountRequestHandler.processAccountRequest(SIGN_UP_REQUEST_MODEL);
 
         // then
-        assertThat(result.getRedirectURI(), equalTo(PATH_SIGNUP));
-        assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.ADDRESS_IN_USE));
+        assertThat(result.redirectURI(), equalTo(PATH_SIGNUP));
+        assertThat(result.signUpStatus(), equalTo(SignUpStatus.ADDRESS_IN_USE));
 
         verifyNoInteractions(notificationAdapter);
     }
@@ -107,8 +107,8 @@ class SignUpAccountRequestHandlerTest {
         SignUpResult result = signUpAccountRequestHandler.processAccountRequest(SIGN_UP_REQUEST_MODEL);
 
         // then
-        assertThat(result.getRedirectURI(), equalTo(PATH_SIGNUP));
-        assertThat(result.getSignUpStatus(), equalTo(SignUpStatus.FAILURE));
+        assertThat(result.redirectURI(), equalTo(PATH_SIGNUP));
+        assertThat(result.signUpStatus(), equalTo(SignUpStatus.FAILURE));
 
         verifyNoInteractions(notificationAdapter);
     }

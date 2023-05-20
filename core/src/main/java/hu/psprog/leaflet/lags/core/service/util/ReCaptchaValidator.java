@@ -2,7 +2,7 @@ package hu.psprog.leaflet.lags.core.service.util;
 
 import hu.psprog.leaflet.lags.core.domain.request.ReCaptchaProtectedRequest;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Validates a captcha-protected request with Google ReCaptcha service.

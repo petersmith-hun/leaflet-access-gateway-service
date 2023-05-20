@@ -5,7 +5,7 @@ import hu.psprog.leaflet.api.rest.request.validator.PasswordConfirmCheck;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * Password reset confirmation request model.
