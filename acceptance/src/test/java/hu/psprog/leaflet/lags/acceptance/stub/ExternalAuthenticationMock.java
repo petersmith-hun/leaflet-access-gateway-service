@@ -1,5 +1,7 @@
 package hu.psprog.leaflet.lags.acceptance.stub;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
@@ -7,10 +9,10 @@ import hu.psprog.leaflet.lags.acceptance.utility.HTTPUtility;
 import hu.psprog.leaflet.lags.acceptance.utility.ThreadLocalDataRegistry;
 import hu.psprog.leaflet.lags.core.domain.internal.GitHubEmailItem;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +25,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.jsonResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * WireMock based mock server component for simulating external OAuth provider based login flows.
@@ -37,7 +40,12 @@ public class ExternalAuthenticationMock {
     private static final int EXTERNAL_USER_ID = 558890;
     private static final String EXTERNAL_USER_NAME = "Test User";
 
+    private final ObjectMapper objectMapper;
     private WireMockServer wireMockServer;
+
+    public ExternalAuthenticationMock(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @PostConstruct
     public void setup() {
@@ -75,17 +83,23 @@ public class ExternalAuthenticationMock {
         wireMockServer.resetAll();
     }
 
-    private static void registerTokenEndpoint(String tokenEndpoint) {
+    private void registerTokenEndpoint(String tokenEndpoint) {
 
         URI location = ThreadLocalDataRegistry.getResponseEntity().getHeaders().getLocation();
         String scope = HTTPUtility.getQueryParameter(location, TestConstants.Attribute.SCOPE);
 
-        givenThat(post(tokenEndpoint)
-                .willReturn(jsonResponse(OAuthTokenResponse.builder()
-                        .accessToken(UUID.randomUUID().toString())
-                        .expiresIn(EXPIRES_IN)
-                        .scope(scope)
-                        .build(), 200)));
+        try {
+            String tokenResponse = objectMapper.writeValueAsString(OAuthTokenResponse.builder()
+                    .accessToken(UUID.randomUUID().toString())
+                    .expiresIn(EXPIRES_IN)
+                    .scope(scope)
+                    .build());
+
+            givenThat(post(tokenEndpoint)
+                    .willReturn(jsonResponse(tokenResponse, 200)));
+        } catch (JsonProcessingException e) {
+            fail("Failed to prepare mocked OAuth provider response");
+        }
     }
 
     private static void registerUserInfoEndpoint(String userInfoEndpoint) {

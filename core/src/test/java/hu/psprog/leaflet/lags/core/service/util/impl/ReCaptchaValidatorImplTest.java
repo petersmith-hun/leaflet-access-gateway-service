@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -62,7 +62,7 @@ class ReCaptchaValidatorImplTest {
         given(authenticationConfig.getRecaptchaSecret()).willReturn(RECAPTCHA_SECRET);
         given(request.getRemoteAddr()).willReturn(REMOTE_IP);
         given(reCaptchaClient.validate(RE_CAPTCHA_REQUEST)).willReturn(ReCaptchaResponse.getBuilder()
-                .withSuccess(true)
+                .withSuccessful(true)
                 .build());
 
         // when
@@ -79,7 +79,7 @@ class ReCaptchaValidatorImplTest {
         given(authenticationConfig.getRecaptchaSecret()).willReturn(RECAPTCHA_SECRET);
         given(request.getRemoteAddr()).willReturn(REMOTE_IP);
         given(reCaptchaClient.validate(RE_CAPTCHA_REQUEST)).willReturn(ReCaptchaResponse.getBuilder()
-                .withSuccess(false)
+                .withSuccessful(false)
                 .withErrorCodes(Collections.singletonList(ReCaptchaErrorCode.TIMEOUT_OR_DUPLICATE))
                 .build());
 

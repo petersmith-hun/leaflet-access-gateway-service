@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import lombok.Builder;
-import lombok.Data;
 
 import java.util.Date;
 
@@ -13,21 +12,16 @@ import java.util.Date;
  *
  * @author Peter Smith
  */
-@Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class TokenIntrospectionResult {
+public record TokenIntrospectionResult(
+        boolean active,
+        String username,
+        @JsonProperty(OAuthConstants.Request.CLIENT_ID) String clientID,
+        @JsonProperty(OAuthConstants.Token.EXPIRATION) Date expiration) {
 
     public static final TokenIntrospectionResult FAILED_INTROSPECTION_RESULT = TokenIntrospectionResult.builder()
             .active(false)
             .build();
 
-    private final boolean active;
-    private final String username;
-
-    @JsonProperty(OAuthConstants.Request.CLIENT_ID)
-    private final String clientID;
-
-    @JsonProperty(OAuthConstants.Token.EXPIRATION)
-    private final Date expiration;
 }

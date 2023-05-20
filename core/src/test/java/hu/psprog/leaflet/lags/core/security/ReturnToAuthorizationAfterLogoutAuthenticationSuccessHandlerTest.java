@@ -11,9 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Base64;
 
@@ -73,7 +73,7 @@ class ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandlerTest {
 
         // then
         assertThat(response.getStatus(), equalTo(302));
-        assertThat(response.getHeader("Location"), equalTo("https://dev.local:9999"));
+        assertThat(response.getHeader("Location"), equalTo("https://dev.local:9999?continue"));
     }
 
     @Test

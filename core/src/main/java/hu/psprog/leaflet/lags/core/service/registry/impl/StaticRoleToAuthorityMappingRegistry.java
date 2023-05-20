@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -45,14 +44,14 @@ public class StaticRoleToAuthorityMappingRegistry implements RoleToAuthorityMapp
             "write:documents",
             "write:entries",
             "write:tags"
-    )).collect(Collectors.toList()).toArray(String[]::new);
+    )).toList().toArray(String[]::new);
 
     private static final String[] ADMIN_AUTHORITIES = Stream.concat(Stream.of(EDITOR_AUTHORITIES), Stream.of(
             "read:admin",
             "read:users",
             "write:admin",
             "write:users"
-    )).collect(Collectors.toList()).toArray(String[]::new);
+    )).toList().toArray(String[]::new);
 
     private static final Map<Role, List<GrantedAuthority>> ROLE_TO_AUTHORITY_LIST_MAP = Map.of(
             Role.USER, AuthorityUtils.createAuthorityList(USER_AUTHORITIES),

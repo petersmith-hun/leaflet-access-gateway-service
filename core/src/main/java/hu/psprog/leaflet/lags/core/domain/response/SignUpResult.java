@@ -1,8 +1,5 @@
 package hu.psprog.leaflet.lags.core.domain.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_LOGIN;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_SIGNUP;
 
@@ -11,12 +8,10 @@ import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH
  *
  * @author Peter Smith
  */
-@Data
-@AllArgsConstructor
-public class SignUpResult {
-
-    private final String redirectURI;
-    private final SignUpStatus signUpStatus;
+public record SignUpResult(
+        String redirectURI,
+        SignUpStatus signUpStatus
+) {
 
     /**
      * Creates a {@link SignUpResult} objects based on the specified {@link SignUpStatus}.

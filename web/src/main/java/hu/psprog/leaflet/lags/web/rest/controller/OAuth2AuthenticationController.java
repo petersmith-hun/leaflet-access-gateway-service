@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -107,7 +107,7 @@ public class OAuth2AuthenticationController {
         OAuthAuthorizationResponse oAuthAuthorizationResponse = oAuthAuthorizationService.authorize(oAuthAuthorizationRequest);
 
         return new ModelAndView(String.format(REDIRECT_URL_TEMPLATE,
-                oAuthAuthorizationResponse.getRedirectURI(), oAuthAuthorizationResponse.getCode(), oAuthAuthorizationResponse.getState()));
+                oAuthAuthorizationResponse.redirectURI(), oAuthAuthorizationResponse.code(), oAuthAuthorizationResponse.state()));
     }
 
     /**

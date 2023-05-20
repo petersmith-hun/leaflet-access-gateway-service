@@ -19,7 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * {@link AbstractGrantFlowProcessor} implementation for resource owner password grant OAuth2 authorization flow processing.
@@ -91,7 +90,7 @@ public class PasswordGrantFlowProcessor extends AbstractGrantFlowProcessor {
         if (oAuthTokenRequest.getScope().isEmpty()) {
             oAuthTokenRequest.getScope().addAll(userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList()));
+                    .toList());
         }
     }
 

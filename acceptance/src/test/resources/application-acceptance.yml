@@ -23,6 +23,7 @@ spring:
     open-in-view: false
     generate-ddl: true
     defer-datasource-initialization: true
+    database-platform: org.hibernate.dialect.H2Dialect
   main:
     allow-bean-definition-overriding: true
   security:
@@ -81,18 +82,6 @@ management:
   info:
     env:
       enabled: true
-
-mail:
-  smtp:
-    host: placeholder
-    port: 0
-    username: placeholder
-    password: placeholder
-  notification: placeholder@dev.local
-  sender:
-    address: placeholder@dev.local
-    name: placeholder
-  renderer: hu.psprog.leaflet.mail.client.renderer.impl.ThymeleafMailRenderer
 
 authentication-config:
   user-enabled-by-default: true

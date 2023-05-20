@@ -106,9 +106,9 @@ class AuthorizationCodeGrantFlowProcessorTest {
         OAuthAuthorizationResponse result = authorizationCodeGrantFlowProcessor.processAuthorizationRequest(context);
 
         // then
-        assertThat(result.getRedirectURI(), equalTo(O_AUTH_AUTHORIZATION_REQUEST.getRedirectURI()));
-        assertThat(result.getState(), equalTo(O_AUTH_AUTHORIZATION_REQUEST.getState()));
-        assertThat(result.getCode(), equalTo(AUTHORIZATION_CODE));
+        assertThat(result.redirectURI(), equalTo(O_AUTH_AUTHORIZATION_REQUEST.getRedirectURI()));
+        assertThat(result.state(), equalTo(O_AUTH_AUTHORIZATION_REQUEST.getState()));
+        assertThat(result.code(), equalTo(AUTHORIZATION_CODE));
 
         verify(ongoingAuthorizationRepository).saveOngoingAuthorization(ONGOING_AUTHORIZATION);
         verify(oAuthRequestVerifierRegistry).getAuthorizationRequestVerifiers();

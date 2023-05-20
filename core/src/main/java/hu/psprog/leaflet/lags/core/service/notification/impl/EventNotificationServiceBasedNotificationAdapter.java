@@ -89,7 +89,7 @@ public class EventNotificationServiceBasedNotificationAdapter implements Notific
 
         try {
             eventNotificationServiceClient.requestMailNotification(mailRequestWrapper);
-            log.info("Submitted mail of type [{}]", mailRequestWrapper.getContent().getMailContentType());
+            log.info("Submitted mail of type [{}]", mailRequestWrapper.content().getMailContentType());
         } catch (CommunicationFailureException exception) {
             log.error("Failed to submit mail request", exception);
         }

@@ -6,7 +6,7 @@ import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
 import hu.psprog.leaflet.lags.core.domain.response.SignUpResult;
 import hu.psprog.leaflet.lags.core.domain.response.SignUpStatus;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Service layer for authentication related operations.

@@ -6,10 +6,11 @@ import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
 import hu.psprog.leaflet.recaptcha.api.client.ReCaptchaClient;
 import hu.psprog.leaflet.recaptcha.api.domain.ReCaptchaRequest;
 import hu.psprog.leaflet.recaptcha.api.domain.ReCaptchaResponse;
+import jakarta.annotation.PostConstruct;
 import org.mockito.Mockito;
+import org.mockito.quality.Strictness;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
-
-import javax.annotation.PostConstruct;
+import wiremock.com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.withSettings;
@@ -47,11 +47,6 @@ public class UtilityConfiguration implements ApplicationContextAware {
     }
 
     @Bean
-    public TestRestTemplate restTemplate() {
-        return new TestRestTemplate();
-    }
-
-    @Bean
     public String baseServerPath(@Value("${server.port}") int serverPort, @Value("${server.servlet.context-path}") String contextPath) {
         return String.format("http://localhost:%d%s", serverPort, contextPath);
     }
@@ -69,7 +64,7 @@ public class UtilityConfiguration implements ApplicationContextAware {
     @Primary
     public ReCaptchaClient reCaptchaClient() throws CommunicationFailureException {
 
-        ReCaptchaClient reCaptchaClient = Mockito.mock(ReCaptchaClient.class, withSettings().lenient());
+        ReCaptchaClient reCaptchaClient = Mockito.mock(ReCaptchaClient.class, withSettings().strictness(Strictness.LENIENT));
         given(reCaptchaClient.validate(createReCaptchaRequest(TestConstants.Attribute.RECAPTCHA_TOKEN.getValue()))).willReturn(getReCaptchaResponse(true));
         given(reCaptchaClient.validate(createReCaptchaRequest("invalidToken"))).willReturn(getReCaptchaResponse(false));
 
@@ -80,6 +75,11 @@ public class UtilityConfiguration implements ApplicationContextAware {
     @Primary
     public BridgeClient grc() {
         return Mockito.mock(BridgeClient.class);
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 
     @Override
@@ -100,7 +100,7 @@ public class UtilityConfiguration implements ApplicationContextAware {
 
         return ReCaptchaResponse
                 .getBuilder()
-                .withSuccess(successful)
+                .withSuccessful(successful)
                 .build();
     }
 }

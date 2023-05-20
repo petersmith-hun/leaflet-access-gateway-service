@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.util.Map;
 
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_LOGIN;
@@ -101,7 +101,7 @@ public class AuthenticationController {
             log.warn("Sign-up request validation failed.");
         } else {
             SignUpResult signUpResult = authenticationService.signUp(signUpRequestModel, request);
-            String redirectURL = String.format(VIEW_REDIRECT_SIGNUP_TEMPLATE, signUpResult.getRedirectURI(), signUpResult.getSignUpStatus());
+            String redirectURL = String.format(VIEW_REDIRECT_SIGNUP_TEMPLATE, signUpResult.redirectURI(), signUpResult.signUpStatus());
             modelAndView = new ModelAndView(redirectURL);
         }
 
