@@ -4,14 +4,17 @@ import com.nimbusds.jose.jwk.JWKSet;
 import hu.psprog.leaflet.lags.web.model.AuthServerMetaInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_WELL_KNOWN_JWKS;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_WELL_KNOWN_OAUTH_AUTHORIZATION_SERVER;
+import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_WELL_KNOWN_OPENID_CONFIGURATION;
 
 /**
  * Controller for publicly available authorization server meta-information (.well-known) endpoints.
@@ -59,5 +62,16 @@ public class WellKnownController {
 
         return ResponseEntity
                 .ok(authServerMetaInfo);
+    }
+
+    /**
+     * GET /.well-known/openid-configuration
+     * Note: Required due to a recent change in Boot's error resolution. Statically returns 404, indicating that OpenID
+     * is not supported by the OAuth Authorization server.
+     */
+    @GetMapping(PATH_WELL_KNOWN_OPENID_CONFIGURATION)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void getOpenIDConfiguration() {
+        log.debug("Unsupported OpenID configuration requested");
     }
 }
