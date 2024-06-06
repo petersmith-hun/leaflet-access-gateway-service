@@ -147,7 +147,7 @@ class JWTTokenHandlerTest {
 
         // then
         // exception expected
-        assertThat(result.getMessage().contains("Invalid unsecured/JWS/JWE header"), is(true));
+        assertThat(result.getMessage().contains("Malformed token"), is(true));
     }
 
     private void assertToken(String token, int expectedExpiration) throws IOException {
