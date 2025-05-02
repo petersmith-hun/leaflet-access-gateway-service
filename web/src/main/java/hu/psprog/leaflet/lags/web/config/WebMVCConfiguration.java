@@ -4,7 +4,6 @@ import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.web.model.AuthServerMetaInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -48,7 +47,6 @@ public class WebMVCConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    @Autowired
     public AuthServerMetaInfo authServerMetaInfo(OAuthConfigurationProperties oAuthConfigurationProperties) {
 
         String issuer = oAuthConfigurationProperties.getToken().getIssuer();
