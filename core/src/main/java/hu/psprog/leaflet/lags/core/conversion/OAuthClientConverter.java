@@ -24,6 +24,7 @@ public class OAuthClientConverter implements Converter<OAuthApplication, OAuthCl
 
         return OAuthClient.builder()
                 .applicationType(source.getApplicationType())
+                .clientName(source.getName())
                 .clientId(source.getClientId())
                 .clientSecret(source.getClientSecret())
                 .audience(source.getAudience())

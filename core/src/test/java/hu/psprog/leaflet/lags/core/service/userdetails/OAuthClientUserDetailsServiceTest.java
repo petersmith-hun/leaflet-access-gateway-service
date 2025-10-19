@@ -86,7 +86,6 @@ class OAuthClientUserDetailsServiceTest {
         return User.builder()
                 .username(O_AUTH_CLIENT.getClientId())
                 .password(O_AUTH_CLIENT.getClientSecret())
-                .roles(O_AUTH_CLIENT.getAudience())
                 .authorities(AuthorityUtils.createAuthorityList("read:all", "write:all"))
                 .build();
     }
