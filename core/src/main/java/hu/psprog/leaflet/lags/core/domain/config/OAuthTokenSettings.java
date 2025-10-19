@@ -1,9 +1,7 @@
 package hu.psprog.leaflet.lags.core.domain.config;
 
 import com.nimbusds.jose.JWSAlgorithm;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Setter;
 
 import java.nio.file.Path;
 
@@ -13,7 +11,6 @@ import java.nio.file.Path;
  * @author Peter Smith
  */
 @Data
-@Setter(AccessLevel.PACKAGE)
 public class OAuthTokenSettings {
 
     /**

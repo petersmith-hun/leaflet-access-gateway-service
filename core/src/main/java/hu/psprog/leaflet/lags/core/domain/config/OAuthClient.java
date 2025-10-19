@@ -1,8 +1,9 @@
 package hu.psprog.leaflet.lags.core.domain.config;
 
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,10 +14,10 @@ import java.util.List;
  * @author Peter Smith
  */
 @Data
-@Setter(AccessLevel.PACKAGE)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OAuthClient {
-
-    private static final String DEFAULT_AUDIENCE = "default-audience";
 
     /**
      * Client name (internal identifier of the registration).
@@ -41,27 +42,30 @@ public class OAuthClient {
 
     /**
      * OAuth2 audience (external client identifier for consumers).
-     * Defaults to "default-audience", that can be used for UI applications.
      */
-    private String audience = DEFAULT_AUDIENCE;
+    private String audience;
 
     /**
      * Available scopes of the registered client.
      */
+    @Builder.Default
     private List<String> registeredScopes = Collections.emptyList();
 
     /**
      * (Minimum) required scopes of the registered client.
      */
+    @Builder.Default
     private List<String> requiredScopes = Collections.emptyList();
 
     /**
      * List of the consumer services allowed to access this client.
      */
+    @Builder.Default
     private List<OAuthClientAllowRelation> allowedClients = Collections.emptyList();
 
     /**
      * List of allowed callbacks (for UI applications).
      */
+    @Builder.Default
     private List<String> allowedCallbacks = Collections.emptyList();
 }

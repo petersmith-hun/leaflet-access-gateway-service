@@ -4,9 +4,9 @@ import hu.psprog.leaflet.lags.core.domain.internal.OngoingAuthorization;
 import hu.psprog.leaflet.lags.core.persistence.repository.OngoingAuthorizationRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * In-memory implementation of {@link OngoingAuthorizationRepository}.
@@ -16,7 +16,7 @@ import java.util.Optional;
 @Component
 public class InMemoryOngoingAuthorizationRepository implements OngoingAuthorizationRepository {
 
-    private final Map<String, OngoingAuthorization> ongoingAuthorizationStorage = new HashMap<>();
+    private final Map<String, OngoingAuthorization> ongoingAuthorizationStorage = new ConcurrentHashMap<>();
 
     @Override
     public Optional<OngoingAuthorization> getOngoingAuthorizationByCode(String authorizationCode) {
