@@ -9,13 +9,15 @@ import hu.psprog.leaflet.lags.core.exception.OAuthApplicationImportException;
 import hu.psprog.leaflet.lags.core.persistence.dao.OAuthApplicationDAO;
 import hu.psprog.leaflet.lags.core.persistence.dao.PermissionDAO;
 import hu.psprog.leaflet.lags.core.service.factory.OAuthApplicationFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -61,9 +63,11 @@ public class OAuthApplicationFactoryImpl implements OAuthApplicationFactory {
 
     private String encryptSecretIfNeeded(OAuthClient oAuthClient) {
 
-        return Objects.isNull(oAuthClient.getClientSecret()) || BCRYPT_PATTERN.matcher(oAuthClient.getClientSecret()).matches()
-                ? oAuthClient.getClientSecret()
-                : passwordEncoder.encode(oAuthClient.getClientSecret());
+        return Optional.ofNullable(oAuthClient.getClientSecret())
+                .filter(Predicate.not(StringUtils::isEmpty))
+                .filter(clientSecret -> !BCRYPT_PATTERN.matcher(oAuthClient.getClientSecret()).matches())
+                .map(passwordEncoder::encode)
+                .orElse(oAuthClient.getClientSecret());
     }
 
     private List<OAuthCallback> mapCallbacks(OAuthClient oAuthClient) {
@@ -90,7 +94,7 @@ public class OAuthApplicationFactoryImpl implements OAuthApplicationFactory {
 
     private List<Permission> mapPermissions(List<String> scopes) {
 
-        List<Permission> assignedPermissions = permissionDAO.findAllByNameIn(scopes);
+        List<Permission> assignedPermissions = permissionDAO.findAllByNames(scopes);
         if (scopes.size() != assignedPermissions.size()) {
             throw new OAuthApplicationImportException("Permission count mismatch (requested %d, found %d)".formatted(scopes.size(), assignedPermissions.size()));
         }

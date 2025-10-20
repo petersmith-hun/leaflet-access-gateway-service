@@ -26,5 +26,5 @@ public interface PermissionDAO {
      * @param names name of each permission to be retrieved
      * @return identified {@link Permission} entities
      */
-    List<Permission> findAllByNameIn(List<String> names);
+    List<Permission> findAllByNames(List<String> names);
 }

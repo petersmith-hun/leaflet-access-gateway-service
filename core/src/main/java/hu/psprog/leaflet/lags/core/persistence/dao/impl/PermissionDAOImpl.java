@@ -29,7 +29,7 @@ public class PermissionDAOImpl implements PermissionDAO {
     }
 
     @Override
-    public List<Permission> findAllByNameIn(List<String> names) {
+    public List<Permission> findAllByNames(List<String> names) {
         return permissionRepository.findAllByNameIn(names);
     }
 }

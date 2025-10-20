@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.importer;
 
+import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.domain.entity.Permission;
 import hu.psprog.leaflet.lags.core.persistence.dao.PermissionDAO;
@@ -54,11 +55,18 @@ class PermissionImporter {
 
         return oAuthConfigurationProperties.getClients()
                 .stream()
-                .flatMap(client -> Stream.concat(
-                        client.getAllowedClients().stream()
-                                .flatMap(relation -> relation.getAllowedScopes().stream()),
-                        Stream.concat(client.getRegisteredScopes().stream(), client.getRequiredScopes().stream())
-                ))
+                .flatMap(client -> extractAllPermissions(client)
+                        .reduce(Stream.empty(), Stream::concat))
                 .distinct();
+    }
+
+    private Stream<Stream<String>> extractAllPermissions(OAuthClient client) {
+
+        return Stream.of(
+                client.getRegisteredScopes().stream(),
+                client.getRequiredScopes().stream(),
+                client.getAllowedClients().stream()
+                        .flatMap(relation -> relation.getAllowedScopes().stream())
+        );
     }
 }

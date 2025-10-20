@@ -9,7 +9,10 @@ import hu.psprog.leaflet.lags.core.domain.entity.Permission;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Converts the given {@link OAuthApplication} object to {@link OAuthClient}.
@@ -36,11 +39,7 @@ public class OAuthClientConverter implements Converter<OAuthApplication, OAuthCl
     }
 
     private List<OAuthClientAllowRelation> mapClients(OAuthApplication source) {
-
-        return source.getAllowedClients()
-                .stream()
-                .map(this::mapRelation)
-                .toList();
+        return safeMapList(source.getAllowedClients(), this::mapRelation);
     }
 
     private OAuthClientAllowRelation mapRelation(OAuthAllowedClient client) {
@@ -52,17 +51,19 @@ public class OAuthClientConverter implements Converter<OAuthApplication, OAuthCl
     }
 
     private List<String> mapCallbacks(OAuthApplication source) {
-
-        return source.getCallbacks()
-                .stream()
-                .map(OAuthCallback::getUrl)
-                .toList();
+        return safeMapList(source.getCallbacks(), OAuthCallback::getUrl);
     }
 
     private List<String> mapPermissions(List<Permission> permissions) {
+        return safeMapList(permissions, Permission::getName);
+    }
 
-        return permissions.stream()
-                .map(Permission::getName)
+    private <S, T> List<T> safeMapList(List<S> sourceList, Function<S, T> mapperFunction) {
+
+        return Optional.ofNullable(sourceList)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(mapperFunction)
                 .toList();
     }
 }

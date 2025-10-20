@@ -2,6 +2,7 @@ package hu.psprog.leaflet.lags.core.service.importer;
 
 import hu.psprog.leaflet.lags.core.domain.config.OAuthClient;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
+import hu.psprog.leaflet.lags.core.exception.OAuthApplicationImportException;
 import hu.psprog.leaflet.lags.core.persistence.dao.OAuthApplicationDAO;
 import hu.psprog.leaflet.lags.core.service.factory.OAuthApplicationFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +61,6 @@ class ClientImporter {
                 .stream()
                 .filter(oAuthClient -> oAuthClient.getClientName().equals(clientName))
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(() -> new OAuthApplicationImportException("OAuth application registration by name %s not found".formatted(clientName)));
     }
 }
