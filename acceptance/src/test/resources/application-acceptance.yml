@@ -102,6 +102,8 @@ oauth2-config:
     key-id: acceptance-test-public-key
     signature-algorithm: RS256
   auth-code-expiration: PT1M
+  auto-import: true
+  enable-legacy-registration: false
   clients:
 
     - client-name: testapp1

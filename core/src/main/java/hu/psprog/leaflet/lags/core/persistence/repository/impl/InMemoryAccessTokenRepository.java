@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * In-memory implementation of {@link AccessTokenRepository}.
@@ -23,7 +23,7 @@ import java.util.Optional;
 @Slf4j
 public class InMemoryAccessTokenRepository implements AccessTokenRepository {
 
-    private final Map<String, AccessTokenInfo> accessTokenInfoStorage = new HashMap<>();
+    private final Map<String, AccessTokenInfo> accessTokenInfoStorage = new ConcurrentHashMap<>();
 
     @Override
     public void save(AccessTokenInfo accessTokenInfo) {

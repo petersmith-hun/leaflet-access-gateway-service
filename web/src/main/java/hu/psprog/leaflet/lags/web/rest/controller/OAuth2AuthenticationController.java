@@ -121,9 +121,11 @@ public class OAuth2AuthenticationController {
     @PostMapping(PATH_OAUTH_TOKEN)
     public ResponseEntity<OAuthTokenResponse> claimToken(@RequestParam Map<String, String> requestParameters, Authentication authentication) {
 
-        log.info("Access token requested by client={}", requestParameters.get(OAuthConstants.Request.CLIENT_ID));
+        UserDetails principal = (UserDetails) authentication.getPrincipal();
 
-        OAuthTokenRequest oAuthTokenRequest = oAuthTokenRequestFactory.createTokenRequest(requestParameters, (UserDetails) authentication.getPrincipal());
+        log.info("Access token requested by client={}", principal.getUsername());
+
+        OAuthTokenRequest oAuthTokenRequest = oAuthTokenRequestFactory.createTokenRequest(requestParameters, principal);
         OAuthTokenResponse oAuthTokenResponse = oAuthAuthorizationService.authorize(oAuthTokenRequest);
 
         return createResponse(oAuthTokenResponse);

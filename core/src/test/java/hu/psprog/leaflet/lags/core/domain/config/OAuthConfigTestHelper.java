@@ -73,10 +73,6 @@ public class OAuthConfigTestHelper {
         oAuthClient.setRequiredScopes(requiredScopes);
     }
 
-    public static void setAllowedClients(OAuthClient oAuthClient, List<OAuthClientAllowRelation> allowedClients) {
-        oAuthClient.setAllowedClients(allowedClients);
-    }
-
     public static void setAllowedCallbacks(OAuthClient oAuthClient, List<String> allowedCallbacks) {
         oAuthClient.setAllowedCallbacks(allowedCallbacks);
     }

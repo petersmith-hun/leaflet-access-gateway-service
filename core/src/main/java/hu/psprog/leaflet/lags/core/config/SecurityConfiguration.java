@@ -13,7 +13,6 @@ import hu.psprog.leaflet.lags.core.security.ReturnToAuthorizationAfterLogoutAuth
 import hu.psprog.leaflet.lags.core.service.registry.KeyRegistry;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -60,7 +59,6 @@ import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.RECL
  */
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(OAuthConfigurationProperties.class)
 public class SecurityConfiguration {
 
     private static final String PATH_OAUTH_ROOT = "/oauth/**";
