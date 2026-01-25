@@ -1,12 +1,14 @@
 package hu.psprog.leaflet.lags.core.exception;
 
 import hu.psprog.leaflet.lags.core.domain.response.OAuthErrorCode;
+import lombok.Getter;
 
 /**
  * Generic OAuth authorization exception.
  *
  * @author Peter Smith
  */
+@Getter
 public class OAuthAuthorizationException extends RuntimeException {
 
     private final OAuthErrorCode errorCode;
@@ -30,14 +32,5 @@ public class OAuthAuthorizationException extends RuntimeException {
     public OAuthAuthorizationException(OAuthErrorCode errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
-    }
-
-    /**
-     * Returns the assigned OAuth error code.
-     *
-     * @return assigned OAuth error code as {@link OAuthErrorCode} enum constant
-     */
-    public OAuthErrorCode getErrorCode() {
-        return errorCode;
     }
 }

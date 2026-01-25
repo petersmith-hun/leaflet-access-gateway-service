@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * JPA repository interface for {@link Permission} entity operations.
@@ -12,7 +13,7 @@ import java.util.List;
  * @author Peter Smith
  */
 @Repository
-public interface PermissionRepository extends JpaRepository<Permission, Long> {
+public interface PermissionRepository extends JpaRepository<Permission, UUID> {
 
     /**
      * Retrieves all {@link Permission} entities by the given list of names.

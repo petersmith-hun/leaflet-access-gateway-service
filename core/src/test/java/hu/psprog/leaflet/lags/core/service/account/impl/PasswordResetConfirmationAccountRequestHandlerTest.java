@@ -2,19 +2,21 @@ package hu.psprog.leaflet.lags.core.service.account.impl;
 
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetSuccess;
 import hu.psprog.leaflet.lags.core.domain.request.PasswordResetConfirmationRequestModel;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
-import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetSuccess;
 import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
+import hu.psprog.leaflet.lags.core.service.token.impl.JWTTokenHandler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.util.Optional;
 
@@ -66,7 +68,13 @@ class PasswordResetConfirmationAccountRequestHandlerTest {
     private TokenTracker tokenTracker;
 
     @Mock
-    private Authentication authentication;
+    private JwtAuthenticationToken authentication;
+
+    @Mock
+    private JWTTokenHandler jwtTokenHandler;
+
+    @Mock
+    private Jwt jwt;
 
     @InjectMocks
     private PasswordResetConfirmationAccountRequestHandler passwordResetConfirmationAccountRequestHandler;
@@ -76,7 +84,8 @@ class PasswordResetConfirmationAccountRequestHandlerTest {
 
         // given
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        given(authentication.getDetails()).willReturn(TOKEN_CLAIMS);
+        given(authentication.getToken()).willReturn(jwt);
+        given(jwtTokenHandler.extractClaims(jwt)).willReturn(TOKEN_CLAIMS);
         given(userDAO.findByEmail(EMAIL)).willReturn(Optional.of(USER));
         given(passwordEncoder.encode(PASSWORD_NEW)).willReturn(PASSWORD_NEW_ENCODED);
 
@@ -100,7 +109,8 @@ class PasswordResetConfirmationAccountRequestHandlerTest {
 
         // given
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        given(authentication.getDetails()).willReturn(TOKEN_CLAIMS);
+        given(authentication.getToken()).willReturn(jwt);
+        given(jwtTokenHandler.extractClaims(jwt)).willReturn(TOKEN_CLAIMS);
         given(userDAO.findByEmail(EMAIL)).willReturn(Optional.empty());
 
         // when

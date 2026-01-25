@@ -1,16 +1,16 @@
 package hu.psprog.leaflet.lags.web.rest.filter;
 
 import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -32,13 +32,13 @@ public class AuthenticationClientVerificationFilter extends OncePerRequestFilter
 
     private final RequestCache requestCache;
 
-    @Autowired
     public AuthenticationClientVerificationFilter() {
         this.requestCache = new HttpSessionRequestCache();
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         verifySavedRequestPresence(request, response);
         filterChain.doFilter(request, response);

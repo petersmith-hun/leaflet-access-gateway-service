@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -79,6 +80,9 @@ class OAuthAuthorizationServiceImplTest {
 
     @Mock
     private OAuthRequestContextFactory oAuthRequestContextFactory;
+
+    @Mock
+    private Jwt jwt;
 
     private OAuthAuthorizationServiceImpl oAuthAuthorizationService;
 
@@ -204,10 +208,10 @@ class OAuthAuthorizationServiceImplTest {
     public void shouldGetUserInfoReturnExtractedUserInformationFromToken() {
 
         // given
-        given(tokenHandler.parseToken(ACCESS_TOKEN)).willReturn(TOKEN_CLAIMS);
+        given(tokenHandler.extractClaims(jwt)).willReturn(TOKEN_CLAIMS);
 
         // when
-        UserInfoResponse result = oAuthAuthorizationService.getUserInfo(ACCESS_TOKEN);
+        UserInfoResponse result = oAuthAuthorizationService.getUserInfo(jwt);
 
         // then
         assertThat(result, equalTo(USER_INFO_RESPONSE));

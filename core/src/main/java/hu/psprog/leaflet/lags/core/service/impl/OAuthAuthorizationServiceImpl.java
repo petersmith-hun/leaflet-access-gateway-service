@@ -21,6 +21,7 @@ import hu.psprog.leaflet.lags.core.service.processor.GrantFlowProcessor;
 import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -100,9 +101,9 @@ public class OAuthAuthorizationServiceImpl implements OAuthAuthorizationService 
     }
 
     @Override
-    public UserInfoResponse getUserInfo(String accessToken) {
+    public UserInfoResponse getUserInfo(Jwt jwt) {
 
-        TokenClaims claims = tokenHandler.parseToken(accessToken);
+        TokenClaims claims = tokenHandler.extractClaims(jwt);
 
         return UserInfoResponse.builder()
                 .sub(claims.getUserID().toString())

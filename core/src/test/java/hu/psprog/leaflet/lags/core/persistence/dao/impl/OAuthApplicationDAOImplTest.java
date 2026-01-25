@@ -7,6 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
+
+import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
 
@@ -17,6 +20,9 @@ import static org.mockito.Mockito.verify;
  */
 @ExtendWith(MockitoExtension.class)
 class OAuthApplicationDAOImplTest {
+
+    @Mock
+    private Pageable pageable;
 
     @Mock
     private OAuthApplicationRepository oAuthApplicationRepository;
@@ -35,6 +41,29 @@ class OAuthApplicationDAOImplTest {
 
         // then
         verify(oAuthApplicationRepository).saveAndFlush(entity);
+    }
+
+    @Test
+    public void shouldFindAll() {
+
+        // when
+        oAuthApplicationDAO.findAll(pageable);
+
+        // then
+        verify(oAuthApplicationRepository).findAll(pageable);
+    }
+
+    @Test
+    public void shouldFindByID() {
+
+        // given
+        var id = UUID.randomUUID();
+
+        // when
+        oAuthApplicationDAO.findByID(id);
+
+        // then
+        verify(oAuthApplicationRepository).findById(id);
     }
 
     @Test
@@ -77,6 +106,19 @@ class OAuthApplicationDAOImplTest {
     }
 
     @Test
+    public void findResourceServersForTargetApplication() {
+
+        // given
+        var id = UUID.randomUUID();
+
+        // when
+        oAuthApplicationDAO.findResourceServersForTargetApplication(id);
+
+        // then
+        verify(oAuthApplicationRepository).findAllByAllowedClientsTargetApplicationId(id);
+    }
+
+    @Test
     public void shouldCount() {
 
         // when
@@ -84,5 +126,18 @@ class OAuthApplicationDAOImplTest {
 
         // then
         verify(oAuthApplicationRepository).count();
+    }
+
+    @Test
+    public void shouldDelete() {
+
+        // given
+        var id = UUID.randomUUID();
+
+        // when
+        oAuthApplicationDAO.delete(id);
+
+        // then
+        verify(oAuthApplicationRepository).deleteById(id);
     }
 }

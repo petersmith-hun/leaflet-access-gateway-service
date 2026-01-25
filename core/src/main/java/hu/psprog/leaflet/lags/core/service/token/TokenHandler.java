@@ -4,6 +4,7 @@ import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.exception.JWTTokenParsingException;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
  * Handler for generating and parsing tokens OAuth2 access tokens.
@@ -42,4 +43,12 @@ public interface TokenHandler {
      * @throws JWTTokenParsingException when the token cannot be parsed for some reason
      */
     TokenClaims parseToken(String accessToken);
+
+    /**
+     * Returns the payload contents of the already resolved token (i.e. the claims).
+     *
+     * @param jwt the {@link Jwt} representation of the access token to extract claims from
+     * @return extracted claims as {@link TokenClaims}
+     */
+    TokenClaims extractClaims(Jwt jwt);
 }

@@ -73,28 +73,33 @@ public class JWTTokenHandler implements TokenHandler {
     public TokenClaims parseToken(String accessToken) {
 
         try {
-            Jwt jwt = jwtDecoder.decode(accessToken);
+            return extractClaims(jwtDecoder.decode(accessToken));
 
-            return TokenClaims.builder()
-                    .tokenID(jwt.getId())
-                    .username(String.valueOf(jwt.getClaimAsString(OAuthConstants.Token.NAME)))
-                    .email(String.valueOf(jwt.getClaimAsString(OAuthConstants.Token.USER)))
-                    .clientID(jwt.getSubject())
-                    .scope(jwt.getClaimAsString(OAuthConstants.Token.SCOPE))
-                    .expiration(Date.from(Objects.requireNonNull(jwt.getExpiresAt())))
-                    .audience(jwt.getAudience()
-                            .stream()
-                            .findFirst()
-                            .orElse(StringUtils.EMPTY))
-                    .role(String.valueOf(jwt.getClaimAsString(OAuthConstants.Token.ROLE)))
-                    .userID(Optional.ofNullable(jwt.getClaimAsString(OAuthConstants.Token.USER_ID))
-                            .map(Long::parseLong)
-                            .orElse(0L))
-                    .build();
         } catch (RuntimeException exception) {
             log.error("Failed to parse access token", exception);
             throw new JWTTokenParsingException(exception);
         }
+    }
+
+    @Override
+    public TokenClaims extractClaims(Jwt jwt) {
+
+        return TokenClaims.builder()
+                .tokenID(jwt.getId())
+                .username(String.valueOf(jwt.getClaimAsString(OAuthConstants.Token.NAME)))
+                .email(String.valueOf(jwt.getClaimAsString(OAuthConstants.Token.USER)))
+                .clientID(jwt.getSubject())
+                .scope(jwt.getClaimAsString(OAuthConstants.Token.SCOPE))
+                .expiration(Date.from(Objects.requireNonNull(jwt.getExpiresAt())))
+                .audience(jwt.getAudience()
+                        .stream()
+                        .findFirst()
+                        .orElse(StringUtils.EMPTY))
+                .role(String.valueOf(jwt.getClaimAsString(OAuthConstants.Token.ROLE)))
+                .userID(Optional.ofNullable(jwt.getClaimAsString(OAuthConstants.Token.USER_ID))
+                        .map(Long::parseLong)
+                        .orElse(0L))
+                .build();
     }
 
     private String createToken(OAuthTokenRequest oAuthTokenRequest, TokenClaims claims, int expirationInSeconds) {
@@ -138,6 +143,21 @@ public class JWTTokenHandler implements TokenHandler {
                 .keyID(oAuthConfigurationProperties.getToken().getKeyID())
                 .build();
 
+        Payload payload = createPayload(oAuthTokenRequest, claims, storeAccessTokenInfoRequest);
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+
+        try {
+            jwsObject.sign(jwsSigner);
+        } catch (JOSEException exception) {
+            log.error("Failed to sign token", exception);
+            throw new OAuthTokenRequestException(OAuthErrorCode.SERVER_ERROR, exception.getMessage());
+        }
+
+        return jwsObject.serialize();
+    }
+
+    private Payload createPayload(OAuthTokenRequest oAuthTokenRequest, TokenClaims claims, StoreAccessTokenInfoRequest storeAccessTokenInfoRequest) {
+
         long expiresAt = convertToSeconds(storeAccessTokenInfoRequest.getExpiresAt());
         long issuedAt = convertToSeconds(storeAccessTokenInfoRequest.getIssuedAt());
 
@@ -149,17 +169,7 @@ public class JWTTokenHandler implements TokenHandler {
         rawClaims.put(OAuthConstants.Token.ISSUER, oAuthConfigurationProperties.getToken().getIssuer());
         rawClaims.put(OAuthConstants.Token.NOT_BEFORE, issuedAt);
 
-        Payload payload = new Payload(rawClaims);
-        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
-
-        try {
-            jwsObject.sign(jwsSigner);
-        } catch (JOSEException exception) {
-            log.error("Failed to sign token", exception);
-            throw new OAuthTokenRequestException(OAuthErrorCode.SERVER_ERROR, exception.getMessage());
-        }
-
-        return jwsObject.serialize();
+        return new Payload(rawClaims);
     }
 
     private long convertToSeconds(Date dateClaim) {

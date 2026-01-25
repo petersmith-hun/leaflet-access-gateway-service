@@ -2,16 +2,18 @@ package hu.psprog.leaflet.lags.core.service.account.impl;
 
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
+import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetSuccess;
 import hu.psprog.leaflet.lags.core.domain.request.PasswordResetConfirmationRequestModel;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
 import hu.psprog.leaflet.lags.core.service.account.AccountRequestHandler;
-import hu.psprog.leaflet.lags.core.domain.notification.PasswordResetSuccess;
 import hu.psprog.leaflet.lags.core.service.notification.NotificationAdapter;
 import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
+import hu.psprog.leaflet.lags.core.service.token.impl.JWTTokenHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -35,14 +37,17 @@ public class PasswordResetConfirmationAccountRequestHandler implements AccountRe
     private final NotificationAdapter notificationAdapter;
     private final PasswordEncoder passwordEncoder;
     private final TokenTracker tokenTracker;
+    private final JWTTokenHandler jwtTokenHandler;
 
     @Autowired
     public PasswordResetConfirmationAccountRequestHandler(UserDAO userDAO, NotificationAdapter notificationAdapter,
-                                                          PasswordEncoder passwordEncoder, TokenTracker tokenTracker) {
+                                                          PasswordEncoder passwordEncoder, TokenTracker tokenTracker,
+                                                          JWTTokenHandler jwtTokenHandler) {
         this.userDAO = userDAO;
         this.notificationAdapter = notificationAdapter;
         this.passwordEncoder = passwordEncoder;
         this.tokenTracker = tokenTracker;
+        this.jwtTokenHandler = jwtTokenHandler;
     }
 
     @Override
@@ -68,7 +73,7 @@ public class PasswordResetConfirmationAccountRequestHandler implements AccountRe
     }
 
     private TokenClaims extractTokenClaims() {
-        return (TokenClaims) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        return jwtTokenHandler.extractClaims(((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getToken());
     }
 
     private void sendPasswordResetConfirmationNotification(User user) {

@@ -7,8 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
 
@@ -21,10 +23,64 @@ import static org.mockito.Mockito.verify;
 class PermissionDAOImplTest {
 
     @Mock
+    private Pageable pageable;
+
+    @Mock
     private PermissionRepository permissionRepository;
 
     @InjectMocks
     private PermissionDAOImpl permissionDAO;
+
+    @Test
+    public void shouldFindAllByNames() {
+
+        // given
+        var permissions = List.of("permission-1", "permission-2", "permission-3");
+
+        // when
+        permissionDAO.findAllByNames(permissions);
+
+        // then
+        verify(permissionRepository).findAllByNameIn(permissions);
+    }
+
+    @Test
+    public void shouldFindAll() {
+
+        // when
+        permissionDAO.findAll(pageable);
+
+        // then
+        verify(permissionRepository).findAll(pageable);
+    }
+
+    @Test
+    public void shouldFindByID() {
+
+        // given
+        var id = UUID.randomUUID();
+
+        // when
+        permissionDAO.findByID(id);
+
+        // then
+        verify(permissionRepository).findById(id);
+    }
+
+    @Test
+    public void shouldSave() {
+
+        // given
+        var permission = Permission.builder()
+                .name("permission-1")
+                .build();
+
+        // when
+        permissionDAO.save(permission);
+
+        // then
+        verify(permissionRepository).save(permission);
+    }
 
     @Test
     public void shouldSaveAll() {
@@ -40,15 +96,15 @@ class PermissionDAOImplTest {
     }
 
     @Test
-    public void shouldFindAllByNames() {
+    public void shouldDelete() {
 
         // given
-        var permissions = List.of("permission-1", "permission-2", "permission-3");
+        var id = UUID.randomUUID();
 
         // when
-        permissionDAO.findAllByNames(permissions);
+        permissionDAO.delete(id);
 
         // then
-        verify(permissionRepository).findAllByNameIn(permissions);
+        verify(permissionRepository).deleteById(id);
     }
 }

@@ -1,7 +1,6 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
-import hu.psprog.leaflet.lags.core.domain.internal.JWTAuthenticationToken;
 import hu.psprog.leaflet.lags.core.domain.internal.OAuthConstants;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
@@ -12,6 +11,7 @@ import hu.psprog.leaflet.lags.core.domain.response.UserInfoResponse;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
 import hu.psprog.leaflet.lags.web.factory.OAuthAuthorizationRequestFactory;
 import hu.psprog.leaflet.lags.web.factory.OAuthTokenRequestFactory;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
@@ -21,13 +21,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -157,12 +157,11 @@ public class OAuth2AuthenticationController {
     @GetMapping(PATH_OAUTH_USERINFO)
     public ResponseEntity<UserInfoResponse> getUserInfo(Authentication authentication) {
 
-        JWTAuthenticationToken token = (JWTAuthenticationToken) authentication;
-        String accessToken = token.getCredentials().toString();
+        JwtAuthenticationToken token = (JwtAuthenticationToken) authentication;
 
-        log.info("User info requested by client={}", token.getDetails().getSubject());
+        log.info("User info requested by client={}", token.getToken().getSubject());
 
-        return ResponseEntity.ok(oAuthAuthorizationService.getUserInfo(accessToken));
+        return ResponseEntity.ok(oAuthAuthorizationService.getUserInfo(token.getToken()));
     }
 
     private List<String> extractScope(ExtendedUser userDetails) {

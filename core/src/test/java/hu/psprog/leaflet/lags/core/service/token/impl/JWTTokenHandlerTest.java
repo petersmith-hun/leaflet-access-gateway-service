@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.token.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -59,6 +60,7 @@ class JWTTokenHandlerTest {
     private static final String AUDIENCE = "target-svc-aud-1";
     private static final long USER_ID = 6643L;
     private static final String ROLE = "EDITOR";
+    private static final TypeReference<Map<String, Object>> CLAIMS_TYPE_REFERENCE = new TypeReference<>() { };
 
     private JWTTokenHandler jwtTokenHandler;
 
@@ -197,7 +199,7 @@ class JWTTokenHandlerTest {
 
         byte[] decodedString = Base64.getDecoder().decode(tokenPart);
 
-        return OBJECT_MAPPER.readValue(decodedString, Map.class);
+        return OBJECT_MAPPER.readValue(decodedString, CLAIMS_TYPE_REFERENCE);
     }
 
     private static OAuthConfigurationProperties prepareOAuthConfigurationProperties() {

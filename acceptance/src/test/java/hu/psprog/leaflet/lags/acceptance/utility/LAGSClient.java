@@ -361,7 +361,7 @@ public class LAGSClient {
 
         HttpHeaders headers = new HttpHeaders();
         if (ThreadLocalDataRegistry.getFlag(TestConstants.Flag.USE_TOKEN_AUTHORIZATION)) {
-            headers.add(TestConstants.Header.AUTHORIZATION.getValue(), ThreadLocalDataRegistry.get(TestConstants.Attribute.TOKEN));
+            headers.add(TestConstants.Header.AUTHORIZATION.getValue(), "Bearer %s".formatted((String) ThreadLocalDataRegistry.get(TestConstants.Attribute.TOKEN)));
         }
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
 
