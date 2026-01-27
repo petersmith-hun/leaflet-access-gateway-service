@@ -6,6 +6,9 @@ import hu.psprog.leaflet.lags.core.domain.request.PasswordResetRequestModel;
 import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
 import hu.psprog.leaflet.lags.core.domain.response.SignUpResult;
 import hu.psprog.leaflet.lags.core.service.AuthenticationService;
+import hu.psprog.leaflet.lags.web.security.Permit;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,8 +18,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import java.util.Map;
 
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_LOGIN;
@@ -157,6 +158,7 @@ public class AuthenticationController {
      *
      * @return populated {@link ModelAndView} object
      */
+    @Permit.Write.PasswordReset
     @GetMapping(value = PATH_PASSWORD_RESET_CONFIRMATION, params = QUERY_PARAMETER_TOKEN)
     public ModelAndView renderPasswordResetConfirmationForm(@ModelAttribute PasswordResetConfirmationRequestModel passwordResetConfirmationRequestModel) {
 
@@ -175,6 +177,7 @@ public class AuthenticationController {
      *
      * @return populated {@link ModelAndView} object (redirection to the login page)
      */
+    @Permit.Write.PasswordReset
     @PostMapping(value = PATH_PASSWORD_RESET_CONFIRMATION, params = QUERY_PARAMETER_TOKEN)
     public ModelAndView processPasswordResetConfirmation(@ModelAttribute @Valid PasswordResetConfirmationRequestModel passwordResetConfirmationRequestModel,
                                                          BindingResult bindingResult, HttpServletRequest request) {

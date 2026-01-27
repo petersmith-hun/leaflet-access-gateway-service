@@ -94,7 +94,7 @@ public class OAuthApplication {
     private List<OAuthAllowedClient> allowedClients;
 
     @CreatedDate
-    @Column(name = DatabaseConstants.COLUMN_DATE_CREATED)
+    @Column(name = DatabaseConstants.COLUMN_DATE_CREATED, updatable = false)
     private Date createdAt;
 
     @LastModifiedDate

@@ -4,7 +4,9 @@ import hu.psprog.leaflet.lags.core.domain.entity.OAuthApplication;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * JPA repository interface for {@link OAuthApplication} operations.
@@ -12,7 +14,7 @@ import java.util.Optional;
  * @author Peter Smith
  */
 @Repository
-public interface OAuthApplicationRepository extends JpaRepository<OAuthApplication, Long> {
+public interface OAuthApplicationRepository extends JpaRepository<OAuthApplication, UUID> {
 
     /**
      * Retrieves an {@link OAuthApplication} record by its name.
@@ -37,4 +39,12 @@ public interface OAuthApplicationRepository extends JpaRepository<OAuthApplicati
      * @return identified {@link OAuthApplication} record wrapped as {@link Optional} or empty {@link Optional} if none found
      */
     Optional<OAuthApplication> findByAudience(String audience);
+
+    /**
+     * Retrieves the related resource server application definitions for the given target application.
+     *
+     * @param targetApplicationID ID of the application to retrieve resource servers of
+     * @return list of related {@link OAuthApplication} entities
+     */
+    List<OAuthApplication> findAllByAllowedClientsTargetApplicationId(UUID targetApplicationID);
 }

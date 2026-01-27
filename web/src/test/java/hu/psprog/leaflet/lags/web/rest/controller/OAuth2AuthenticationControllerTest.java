@@ -1,19 +1,18 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
-import hu.psprog.leaflet.lags.core.domain.internal.JWTAuthenticationToken;
-import hu.psprog.leaflet.lags.core.domain.internal.TokenClaims;
-import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
+import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthAuthorizationRequest;
-import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthTokenRequest;
+import hu.psprog.leaflet.lags.core.domain.response.OAuthAuthorizationResponse;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.domain.response.UserInfoResponse;
 import hu.psprog.leaflet.lags.core.service.OAuthAuthorizationService;
 import hu.psprog.leaflet.lags.web.factory.OAuthAuthorizationRequestFactory;
 import hu.psprog.leaflet.lags.web.factory.OAuthTokenRequestFactory;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,13 +22,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.servlet.ModelAndView;
 
-import jakarta.servlet.http.HttpServletRequest;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -53,7 +56,7 @@ class OAuth2AuthenticationControllerTest {
     private static final OAuthTokenResponse O_AUTH_TOKEN_RESPONSE = prepareTokenResponse();
     private static final ExtendedUser EXTENDED_USER = prepareExtendedUser();
     private static final TokenIntrospectionResult TOKEN_INTROSPECTION_RESULT = prepareTokenIntrospectionResult();
-    private static final JWTAuthenticationToken JWT_AUTHENTICATION_TOKEN = prepareJwtAuthenticationToken();
+    private static final JwtAuthenticationToken JWT_AUTHENTICATION_TOKEN = prepareJwtAuthenticationToken();
     private static final UserInfoResponse USER_INFO_RESPONSE = prepareUserInfoResponse();
 
     @Mock
@@ -158,7 +161,7 @@ class OAuth2AuthenticationControllerTest {
     public void shouldGetUserInfoReturnUserInfoExtractedFromAuthenticationObject() {
 
         // given
-        given(oAuthAuthorizationService.getUserInfo(ACCESS_TOKEN)).willReturn(USER_INFO_RESPONSE);
+        given(oAuthAuthorizationService.getUserInfo(JWT_AUTHENTICATION_TOKEN.getToken())).willReturn(USER_INFO_RESPONSE);
 
         // when
         ResponseEntity<UserInfoResponse> result = oAuth2AuthenticationController.getUserInfo(JWT_AUTHENTICATION_TOKEN);
@@ -209,15 +212,17 @@ class OAuth2AuthenticationControllerTest {
                 .build();
     }
 
-    private static JWTAuthenticationToken prepareJwtAuthenticationToken() {
+    private static JwtAuthenticationToken prepareJwtAuthenticationToken() {
 
-        return JWTAuthenticationToken.getBuilder()
-                .withClaims(TokenClaims.builder()
-                        .subject("unit-test")
-                        .scope("read:all")
-                        .build())
-                .withRawToken(ACCESS_TOKEN)
+        Jwt token = Jwt.withTokenValue(ACCESS_TOKEN)
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plusSeconds(20L))
+                .subject("unit-test")
+                .header("alg", "HS256")
                 .build();
+        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("read:all"));
+
+        return new JwtAuthenticationToken(token, authorities);
     }
 
     private static UserInfoResponse prepareUserInfoResponse() {

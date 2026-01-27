@@ -7,6 +7,7 @@ import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import hu.psprog.leaflet.lags.core.domain.response.TokenIntrospectionResult;
 import hu.psprog.leaflet.lags.core.domain.response.UserInfoResponse;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
  * OAuth2 authorization related operations.
@@ -48,8 +49,8 @@ public interface OAuthAuthorizationService {
     /**
      * Extracts user information from the given access token.
      *
-     * @param accessToken OAuth2 access token to extract user information from
+     * @param jwt internal representation of an OAuth2 access token to extract user information from
      * @return extracted user information as {@link UserInfoResponse} object
      */
-    UserInfoResponse getUserInfo(String accessToken);
+    UserInfoResponse getUserInfo(Jwt jwt);
 }

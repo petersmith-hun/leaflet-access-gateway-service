@@ -2,12 +2,11 @@ package hu.psprog.leaflet.lags.core.security;
 
 import hu.psprog.leaflet.lags.core.domain.response.SignUpStatus;
 import hu.psprog.leaflet.lags.core.exception.ExternalAuthenticationException;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.stereotype.Component;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+
 import java.io.IOException;
 
 /**
@@ -17,7 +16,6 @@ import java.io.IOException;
  *
  * @author Peter Smith
  */
-@Component
 public class ExternalSignUpAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
     private static final String REDIRECT_PATH_TEMPLATE = "/login?ext_auth=%s";

@@ -3,10 +3,12 @@ package hu.psprog.leaflet.lags.acceptance.config;
 import hu.psprog.leaflet.bridge.client.BridgeClient;
 import hu.psprog.leaflet.bridge.client.exception.CommunicationFailureException;
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
+import hu.psprog.leaflet.lags.core.security.PasswordResetTokenCopyFilter;
 import hu.psprog.leaflet.recaptcha.api.client.ReCaptchaClient;
 import hu.psprog.leaflet.recaptcha.api.domain.ReCaptchaRequest;
 import hu.psprog.leaflet.recaptcha.api.domain.ReCaptchaResponse;
 import jakarta.annotation.PostConstruct;
+import org.jspecify.annotations.NonNull;
 import org.mockito.Mockito;
 import org.mockito.quality.Strictness;
 import org.springframework.beans.BeansException;
@@ -57,6 +59,7 @@ public class UtilityConfiguration implements ApplicationContextAware {
         return MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
+                .addFilter(new PasswordResetTokenCopyFilter())
                 .build();
     }
 
@@ -83,7 +86,7 @@ public class UtilityConfiguration implements ApplicationContextAware {
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 

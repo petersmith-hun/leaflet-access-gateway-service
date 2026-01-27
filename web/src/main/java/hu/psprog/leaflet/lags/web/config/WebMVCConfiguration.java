@@ -4,8 +4,10 @@ import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.domain.request.AuthorizationResponseType;
 import hu.psprog.leaflet.lags.core.domain.request.GrantType;
 import hu.psprog.leaflet.lags.web.model.AuthServerMetaInfo;
+import lombok.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -28,6 +30,7 @@ import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_WEL
  * @author Peter Smith
  */
 @Configuration
+@EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class WebMVCConfiguration implements WebMvcConfigurer {
 
     private final static Map<String, String> MVC_RESOURCES = Map.of(
@@ -39,7 +42,7 @@ public class WebMVCConfiguration implements WebMvcConfigurer {
             Arrays.asList("client_secret_post", "client_secret_basic");
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
 
         MVC_RESOURCES.forEach((folder, path) -> registry
                 .addResourceHandler(folder)

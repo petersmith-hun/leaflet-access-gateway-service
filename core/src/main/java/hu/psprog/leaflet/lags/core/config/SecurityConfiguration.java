@@ -7,11 +7,15 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthTokenSettings;
-import hu.psprog.leaflet.lags.core.security.OAuthAccessTokenAuthenticationFilter;
+import hu.psprog.leaflet.lags.core.security.ExternalSignUpAuthenticationFailureHandler;
+import hu.psprog.leaflet.lags.core.security.OAuthAuthenticationEntryPoint;
+import hu.psprog.leaflet.lags.core.security.PasswordResetTokenCopyFilter;
 import hu.psprog.leaflet.lags.core.security.RequestSavingLogoutSuccessHandler;
 import hu.psprog.leaflet.lags.core.security.ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler;
 import hu.psprog.leaflet.lags.core.service.registry.KeyRegistry;
-import hu.psprog.leaflet.lags.core.service.token.TokenHandler;
+import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
+import hu.psprog.leaflet.lags.core.service.token.validator.PasswordResetTokenValidator;
+import hu.psprog.leaflet.lags.core.service.token.validator.TrackedStatusTokenValidator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +23,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -33,24 +39,19 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.util.List;
 
-import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.AUTHORIZATION_HEADER;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_ACCESS_DENIED;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_LOGIN;
-import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_OAUTH_USERINFO;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_PASSWORD_RESET_CONFIRMATION;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_SIGNUP;
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_UNKNOWN_ERROR;
-import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.QUERY_PARAMETER_TOKEN;
-import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.RECLAIM_AUTHORITY;
 
 /**
  * OAuth2 security configuration.
@@ -59,9 +60,11 @@ import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.RECL
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfiguration {
 
     private static final String PATH_OAUTH_ROOT = "/oauth/**";
+    private static final String PATH_ACCESS_MANAGEMENT_ROOT = "/access-management/**";
     private static final String PATH_LOGIN_FAILURE = "/login?auth=fail";
     private static final String PATH_LOGIN_EXTERNAL = "/login/external";
     private static final String PATH_LOGOUT = "/logout";
@@ -87,6 +90,12 @@ public class SecurityConfiguration {
             RESOURCE_JS
     };
 
+    private static final String[] PRIVATE_PATHS = {
+            PATH_OAUTH_ROOT,
+            PATH_ACCESS_MANAGEMENT_ROOT,
+            PATH_PASSWORD_RESET_CONFIRMATION
+    };
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -106,9 +115,8 @@ public class SecurityConfiguration {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationProvider oAuthClientAuthenticationProvider,
-                                                       AuthenticationProvider localUserAuthenticationProvider,
-                                                       AuthenticationProvider accessTokenAuthenticationProvider) {
-        return new ProviderManager(oAuthClientAuthenticationProvider, localUserAuthenticationProvider, accessTokenAuthenticationProvider);
+                                                       AuthenticationProvider localUserAuthenticationProvider) {
+        return new ProviderManager(oAuthClientAuthenticationProvider, localUserAuthenticationProvider);
     }
 
     @Bean
@@ -124,13 +132,18 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(KeyRegistry keyRegistry) {
+    public JwtDecoder jwtDecoder(KeyRegistry keyRegistry, TokenTracker tokenTracker,
+                                 AuthenticationConfig authenticationConfig) {
 
         NimbusJwtDecoder nimbusJwtDecoder = NimbusJwtDecoder
                 .withPublicKey((RSAPublicKey) keyRegistry.getPublicKey())
                 .build();
 
-        nimbusJwtDecoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(List.of(new JwtTimestampValidator(Duration.ZERO))));
+        nimbusJwtDecoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(List.of(
+                new JwtTimestampValidator(Duration.ZERO),
+                new TrackedStatusTokenValidator(tokenTracker),
+                new PasswordResetTokenValidator(authenticationConfig)
+        )));
 
         return nimbusJwtDecoder;
     }
@@ -141,20 +154,16 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager,
-                                                   TokenHandler tokenHandler, OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
-                                                   AuthenticationFailureHandler externalSignUpAuthenticationFailureHandler,
-                                                   ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler returnToAuthorizationAfterLogoutAuthenticationSuccessHandler) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService) throws Exception {
+
+        SavedRequestAwareAuthenticationSuccessHandler authenticationSuccessHandler = new ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler();
 
         return http
-                .addFilterBefore(passwordResetAuthenticationFilter(authenticationManager, tokenHandler), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(userInfoAuthenticationFilter(authenticationManager, tokenHandler), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new PasswordResetTokenCopyFilter(), UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(registry -> registry
-                        .requestMatchers(PATH_OAUTH_ROOT)
+                        .requestMatchers(PRIVATE_PATHS)
                             .fullyAuthenticated()
-                        .requestMatchers(PATH_PASSWORD_RESET_CONFIRMATION)
-                            .hasAuthority(RECLAIM_AUTHORITY.getAuthority())
                         .requestMatchers(PUBLIC_PATHS)
                             .permitAll())
 
@@ -164,14 +173,18 @@ public class SecurityConfiguration {
                         .loginPage(PATH_LOGIN)
                         .failureUrl(PATH_LOGIN_FAILURE)
                         .usernameParameter(USERNAME_PARAMETER)
-                        .successHandler(returnToAuthorizationAfterLogoutAuthenticationSuccessHandler))
+                        .successHandler(authenticationSuccessHandler))
 
                 .oauth2Login(oauth2Login -> oauth2Login
                         .loginPage(PATH_LOGIN_EXTERNAL)
-                        .successHandler(returnToAuthorizationAfterLogoutAuthenticationSuccessHandler)
-                        .failureHandler(externalSignUpAuthenticationFailureHandler)
+                        .successHandler(authenticationSuccessHandler)
+                        .failureHandler(new ExternalSignUpAuthenticationFailureHandler())
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(oAuth2UserService)))
+
+                .oauth2ResourceServer(resourceServer -> resourceServer
+                        .authenticationEntryPoint(new OAuthAuthenticationEntryPoint())
+                        .jwt(Customizer.withDefaults()))
 
                 .logout(logout -> logout
                         .logoutUrl(PATH_LOGOUT)
@@ -203,24 +216,5 @@ public class SecurityConfiguration {
         authenticationProvider.setUserDetailsService(userDetailsService);
 
         return authenticationProvider;
-    }
-
-    private OAuthAccessTokenAuthenticationFilter passwordResetAuthenticationFilter(AuthenticationManager authenticationManager, TokenHandler tokenHandler) {
-
-        OAuthAccessTokenAuthenticationFilter filter = new OAuthAccessTokenAuthenticationFilter(tokenHandler, PATH_PASSWORD_RESET_CONFIRMATION,
-                request -> request.getParameter(QUERY_PARAMETER_TOKEN));
-        filter.setAuthenticationManager(authenticationManager);
-        filter.setAuthenticationFailureHandler(new ForwardAuthenticationFailureHandler(PATH_ACCESS_DENIED));
-
-        return filter;
-    }
-
-    private OAuthAccessTokenAuthenticationFilter userInfoAuthenticationFilter(AuthenticationManager authenticationManager, TokenHandler tokenHandler) {
-
-        OAuthAccessTokenAuthenticationFilter filter = new OAuthAccessTokenAuthenticationFilter(tokenHandler, PATH_OAUTH_USERINFO,
-                request -> request.getHeader(AUTHORIZATION_HEADER));
-        filter.setAuthenticationManager(authenticationManager);
-
-        return filter;
     }
 }
