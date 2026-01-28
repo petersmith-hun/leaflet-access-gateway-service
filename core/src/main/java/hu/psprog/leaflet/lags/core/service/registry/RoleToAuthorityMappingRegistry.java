@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.registry;
 
-import hu.psprog.leaflet.lags.core.domain.entity.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.List;
@@ -18,5 +18,5 @@ public interface RoleToAuthorityMappingRegistry {
      * @param role user role to retrieve authorities for
      * @return list of allowed OAuth2 scopes wrapped as {@link GrantedAuthority} objects
      */
-    List<GrantedAuthority> getAuthoritiesForRole(Role role);
+    List<GrantedAuthority> getAuthoritiesForRole(LegacyRole role);
 }

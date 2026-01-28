@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.userdetails;
 
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
@@ -55,7 +55,7 @@ class AllLocalUserUserDetailsServiceTest {
 
         // given
         given(userDAO.findByEmail(LOCAL_USER_EMAIL)).willReturn(Optional.of(LOCAL_USER));
-        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.ADMIN)).willReturn(AUTHORITIES);
+        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.ADMIN)).willReturn(AUTHORITIES);
 
         // when
         UserDetails result = allLocalUserUserDetailsService.loadUserByUsername(LOCAL_USER_EMAIL);
@@ -70,7 +70,7 @@ class AllLocalUserUserDetailsServiceTest {
 
         // given
         given(userDAO.findByEmail(EXTERNAL_USER_EMAIL)).willReturn(Optional.of(EXTERNAL_USER));
-        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.USER)).willReturn(AUTHORITIES);
+        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.USER)).willReturn(AUTHORITIES);
 
         // when
         UserDetails result = allLocalUserUserDetailsService.loadUserByUsername(EXTERNAL_USER_EMAIL);
@@ -104,11 +104,11 @@ class AllLocalUserUserDetailsServiceTest {
         if (accountType == AccountType.LOCAL) {
             user.setEmail(LOCAL_USER_EMAIL);
             user.setId(1234L);
-            user.setRole(Role.ADMIN);
+            user.setRole(LegacyRole.ADMIN);
         } else {
             user.setEmail(EXTERNAL_USER_EMAIL);
             user.setId(5678L);
-            user.setRole(Role.USER);
+            user.setRole(LegacyRole.USER);
         }
 
         return user;

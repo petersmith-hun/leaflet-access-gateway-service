@@ -5,7 +5,7 @@ package hu.psprog.leaflet.lags.core.domain.entity;
  *
  * @author Peter Smith
  */
-public enum Role {
+public enum LegacyRole {
 
     /**
      * Default user role for visitors.

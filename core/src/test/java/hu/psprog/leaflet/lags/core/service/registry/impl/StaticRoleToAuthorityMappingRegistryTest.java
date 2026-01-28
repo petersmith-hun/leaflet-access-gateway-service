@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.registry.impl;
 
-import hu.psprog.leaflet.lags.core.domain.entity.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,7 +29,7 @@ class StaticRoleToAuthorityMappingRegistryTest {
     public void shouldGetAuthoritiesForRoleReturnUserAuthorities() {
 
         // when
-        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.USER);
+        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.USER);
 
         // then
         assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
@@ -44,7 +44,7 @@ class StaticRoleToAuthorityMappingRegistryTest {
     public void shouldGetAuthoritiesForRoleReturnExternalUserAuthorities() {
 
         // when
-        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.EXTERNAL_USER);
+        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.EXTERNAL_USER);
 
         // then
         assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
@@ -58,7 +58,7 @@ class StaticRoleToAuthorityMappingRegistryTest {
     public void shouldGetAuthoritiesForRoleReturnEditorAuthorities() {
 
         // when
-        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.EDITOR);
+        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.EDITOR);
 
         // then
         assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
@@ -83,7 +83,7 @@ class StaticRoleToAuthorityMappingRegistryTest {
     public void shouldGetAuthoritiesForRoleReturnAdminAuthorities() {
 
         // when
-        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.ADMIN);
+        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.ADMIN);
 
         // then
         assertThat(result, equalTo(AuthorityUtils.createAuthorityList(
@@ -112,7 +112,7 @@ class StaticRoleToAuthorityMappingRegistryTest {
     public void shouldGetAuthoritiesForRoleReturnEmptyAuthorityListForNonConfiguredRole() {
 
         // when
-        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.NO_LOGIN);
+        List<GrantedAuthority> result = staticRoleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.NO_LOGIN);
 
         // then
         assertThat(result.isEmpty(), is(true));
