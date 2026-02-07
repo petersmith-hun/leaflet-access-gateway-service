@@ -9,6 +9,9 @@ parameters:
   app_name:
     type: string
     default: "lags"
+  app_name_standby_instance:
+    type: string
+    default: "lags-standby"
   release_tag_pattern:
     type: string
     default: 's/v[0-9]+\.[0-9]+\.[0-9]+\.([0-9]+)-release/\1/'
@@ -130,10 +133,21 @@ jobs:
           command: |
             set -e
             
-            echo "Using predefined access token"
+            echo "Requesting access token ..."
+            token="$(domino-cli --cicd auth --generate-token)" || exit 1
+            export DOMINO_CLI_PREAUTHORIZED_TOKEN=$token
+            
+            domino-cli --cicd import .domino/deployment-standby.yml
+            echo "Deployment definition successfully imported for hot-standby instance"
+            
+            domino-cli --cicd deploy << pipeline.parameters.app_name_standby_instance >> ${PROJECT_VERSION}
+            echo "Successfully deployed application << pipeline.parameters.app_name_standby_instance >> v${PROJECT_VERSION}"
+            
+            domino-cli --cicd start << pipeline.parameters.app_name_standby_instance >>
+            echo "Successfully started application << pipeline.parameters.app_name_standby_instance >>"
             
             domino-cli --cicd import
-            echo "Deployment definition successfully imported"
+            echo "Deployment definition successfully imported for live instance"
             
             domino-cli --cicd deploy << pipeline.parameters.app_name >> ${PROJECT_VERSION}
             echo "Successfully deployed application << pipeline.parameters.app_name >> v${PROJECT_VERSION}"
@@ -207,7 +221,7 @@ workflows:
       - deploy:
           context:
             - common-tech
-            - domino-direct-auth
+            - domino
           requires:
             - deploy-approval
           post-steps:

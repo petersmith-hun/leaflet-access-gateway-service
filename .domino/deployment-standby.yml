@@ -1,0 +1,41 @@
+domino:
+  deployments:
+    lags-standby:
+      source:
+        type: DOCKER
+        home: "[dsm:common.home.docker]"
+        resource: lags
+      target:
+        hosts:
+          - psproghu
+      execution:
+        command-name: app_lags
+        via: STANDARD
+        args:
+          ports:
+            9185: 9085
+          network-mode: host
+          environment:
+            APP_ARGS: |
+              --spring.profiles.active=production
+              --spring.config.location=/opt/lags/appconfig_lags.yml
+              --server.port=9185
+          volumes:
+            "[dsm:volume.logs]": "/opt/lags/logs:rw"
+            "[dsm:volume.config.lags]": "/opt/lags/appconfig_lags.yml:ro"
+            "[dsm:volume.rsa]": "/opt/lags/rsa_keys:ro"
+            "/etc/timezone": "/etc/timezone:ro"
+            "/etc/localtime": "/etc/localtime:ro"
+          restart-policy: unless-stopped
+      health-check:
+        enabled: true
+        delay: 20 seconds
+        timeout: 2 seconds
+        max-attempts: 3
+        endpoint: "http://127.0.0.1:9185/actuator/health"
+      info:
+        enabled: true
+        endpoint: "http://127.0.0.1:9185/actuator/info"
+        field-mapping:
+          abbreviation: $.app.abbreviation
+          version: $.build.version
