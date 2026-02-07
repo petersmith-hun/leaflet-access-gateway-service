@@ -1,40 +1,79 @@
 package hu.psprog.leaflet.lags.core.domain.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
 /**
- * User roles.
+ * Entity class representing a role.
  *
  * @author Peter Smith
  */
-public enum Role {
+@Data
+@Entity
+@Table(name = DatabaseConstants.TABLE_ROLES, uniqueConstraints = {
+        @UniqueConstraint(columnNames = DatabaseConstants.COLUMN_NAME, name = DatabaseConstants.UK_ROLE_NAME)
+})
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+public class Role {
 
-    /**
-     * Default user role for visitors.
-     */
-    USER,
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    /**
-     * Role for visitors logged in via external identity providers.
-     */
-    EXTERNAL_USER,
+    @Column
+    private String name;
 
-    /**
-     * Blog editors.
-     */
-    EDITOR,
+    @Column
+    private String description;
 
-    /**
-     * Administrators.
-     */
-    ADMIN,
+    @Column(name = DatabaseConstants.COLUMN_LOCAL_DEFAULT)
+    private boolean localDefault;
 
-    /**
-     * Virtual users used by external services, like CBFS.
-     */
-    SERVICE,
+    @Column(name = DatabaseConstants.COLUMN_EXTERNAL_DEFAULT)
+    private boolean externalDefault;
 
-    /**
-     * Non-registered user type, which is created when a user comments without registration.
-     * These users are not allowed to log in, though their role can be elevated to USER.
-     */
-    NO_LOGIN
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @JoinTable(
+            foreignKey = @ForeignKey(name = DatabaseConstants.FK_NM_ROLE_PERMISSIONS_ROLE_ID),
+            inverseForeignKey = @ForeignKey(name = DatabaseConstants.FK_NM_ROLE_PERMISSIONS_PERMISSION_ID))
+    @Builder.Default
+    private List<Permission> permissions = Collections.emptyList();
+
+    @CreatedDate
+    @Column(name = DatabaseConstants.COLUMN_DATE_CREATED, updatable = false)
+    private Date createdAt;
+
+    @LastModifiedDate
+    @Column(name = DatabaseConstants.COLUMN_DATE_LAST_MODIFIED)
+    private Date updatedAt;
+
+    @Column
+    @Builder.Default
+    private boolean enabled = true;
 }

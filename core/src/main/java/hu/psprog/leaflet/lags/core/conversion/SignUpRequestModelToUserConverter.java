@@ -2,7 +2,7 @@ package hu.psprog.leaflet.lags.core.conversion;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class SignUpRequestModelToUserConverter implements Converter<SignUpReques
                 .enabled(authenticationConfig.isUserEnabledByDefault())
                 .created(new Date())
                 .defaultLocale(authenticationConfig.getDefaultLocale())
-                .role(Role.USER)
+                .role(LegacyRole.USER)
                 .accountType(AccountType.LOCAL)
                 .build();
     }

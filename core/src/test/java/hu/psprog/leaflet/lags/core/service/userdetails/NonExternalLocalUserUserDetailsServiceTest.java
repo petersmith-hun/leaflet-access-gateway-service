@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.userdetails;
 
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
@@ -53,7 +53,7 @@ class NonExternalLocalUserUserDetailsServiceTest {
 
         // given
         given(userDAO.findByEmail(EMAIL)).willReturn(Optional.of(LOCAL_USER));
-        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(Role.USER)).willReturn(AUTHORITIES);
+        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.USER)).willReturn(AUTHORITIES);
 
         // when
         UserDetails result = nonExternalLocalUserUserDetailsService.loadUserByUsername(EMAIL);
@@ -99,7 +99,7 @@ class NonExternalLocalUserUserDetailsServiceTest {
         user.setUsername("user1");
         user.setId(1234L);
         user.setEnabled(true);
-        user.setRole(Role.USER);
+        user.setRole(LegacyRole.USER);
         user.setAccountType(accountType);
 
         return user;

@@ -2,7 +2,7 @@ package hu.psprog.leaflet.lags.core.conversion;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.domain.entity.SupportedLocale;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
@@ -69,7 +69,7 @@ class SignUpRequestModelToUserConverterTest {
         assertThat(result.getPassword(), equalTo(ENCODED_PASSWORD));
         assertThat(result.isEnabled(), is(USER_ENABLED_BY_DEFAULT));
         assertThat(result.getDefaultLocale(), equalTo(DEFAULT_LOCALE));
-        assertThat(result.getRole(), equalTo(Role.USER));
+        assertThat(result.getRole(), equalTo(LegacyRole.USER));
         assertThat(result.getAccountType(), equalTo(AccountType.LOCAL));
         assertThat(System.currentTimeMillis() - result.getCreated().getTime() < 100, is(true));
         assertThat(result.getLastLogin(), nullValue());

@@ -52,7 +52,7 @@ public class User {
     @Column(name = DatabaseConstants.COLUMN_ROLE)
     @NotNull
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private LegacyRole role;
 
     @Column(name = DatabaseConstants.COLUMN_PASSWORD)
     @Size(max = 255)

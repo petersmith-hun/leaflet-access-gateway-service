@@ -2,7 +2,7 @@ package hu.psprog.leaflet.lags.core.conversion;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.domain.entity.SupportedLocale;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExternalUserDefinition;
@@ -56,7 +56,7 @@ class ExternalUserDefinitionToUserConverterTest {
         assertThat(result.getEmail(), equalTo(EMAIL));
         assertThat(result.isEnabled(), is(USER_ENABLED_BY_DEFAULT));
         assertThat(result.getDefaultLocale(), equalTo(DEFAULT_LOCALE));
-        assertThat(result.getRole(), equalTo(Role.EXTERNAL_USER));
+        assertThat(result.getRole(), equalTo(LegacyRole.EXTERNAL_USER));
         assertThat(result.getAccountType(), equalTo(AccountType.GITHUB));
         assertThat(result.getExternalID(), equalTo("provider=github|ext_uid=1234"));
         assertThat(System.currentTimeMillis() - result.getCreated().getTime() < 100, is(true));

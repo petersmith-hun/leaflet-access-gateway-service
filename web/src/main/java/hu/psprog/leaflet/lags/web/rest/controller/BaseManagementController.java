@@ -3,10 +3,8 @@ package hu.psprog.leaflet.lags.web.rest.controller;
 import hu.psprog.leaflet.api.rest.response.common.ErrorMessageDataModel;
 import hu.psprog.leaflet.api.rest.response.common.ValidationErrorMessageDataModel;
 import hu.psprog.leaflet.api.rest.response.common.ValidationErrorMessageListDataModel;
-import hu.psprog.leaflet.lags.core.exception.ConflictingOAuthApplicationRegistrationException;
-import hu.psprog.leaflet.lags.core.exception.ConflictingPermissionException;
-import hu.psprog.leaflet.lags.core.exception.OAuthApplicationNotFoundException;
-import hu.psprog.leaflet.lags.core.exception.PermissionNotFoundException;
+import hu.psprog.leaflet.lags.core.exception.ConflictingResourceException;
+import hu.psprog.leaflet.lags.core.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +51,7 @@ abstract class BaseManagementController {
                         .build());
 
         return ValidationErrorMessageListDataModel.getBuilder()
-                .withValidation(Stream.concat(globalErrors, fieldErrors).toList())
+                .withValidation(Stream.concat(fieldErrors, globalErrors).toList())
                 .build();
     }
 
@@ -70,11 +68,9 @@ abstract class BaseManagementController {
 
         return ResponseEntity
                 .status(switch (exception) {
-                    case OAuthApplicationNotFoundException ignored -> HttpStatus.NOT_FOUND;
-                    case PermissionNotFoundException ignored -> HttpStatus.NOT_FOUND;
+                    case ResourceNotFoundException ignored -> HttpStatus.NOT_FOUND;
                     case AuthorizationDeniedException ignored -> HttpStatus.FORBIDDEN;
-                    case ConflictingOAuthApplicationRegistrationException ignored -> HttpStatus.CONFLICT;
-                    case ConflictingPermissionException ignored -> HttpStatus.CONFLICT;
+                    case ConflictingResourceException ignored -> HttpStatus.CONFLICT;
                     case IllegalArgumentException ignored -> HttpStatus.BAD_REQUEST;
                     default -> HttpStatus.INTERNAL_SERVER_ERROR;
                 })

@@ -1,6 +1,6 @@
 package hu.psprog.leaflet.lags.core.service.registry.impl;
 
-import hu.psprog.leaflet.lags.core.domain.entity.Role;
+import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.service.registry.RoleToAuthorityMappingRegistry;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -53,15 +53,15 @@ public class StaticRoleToAuthorityMappingRegistry implements RoleToAuthorityMapp
             "write:users"
     )).toList().toArray(String[]::new);
 
-    private static final Map<Role, List<GrantedAuthority>> ROLE_TO_AUTHORITY_LIST_MAP = Map.of(
-            Role.USER, AuthorityUtils.createAuthorityList(USER_AUTHORITIES),
-            Role.EXTERNAL_USER, AuthorityUtils.createAuthorityList(EXTERNAL_USER_AUTHORITIES),
-            Role.EDITOR, AuthorityUtils.createAuthorityList(EDITOR_AUTHORITIES),
-            Role.ADMIN, AuthorityUtils.createAuthorityList(ADMIN_AUTHORITIES)
+    private static final Map<LegacyRole, List<GrantedAuthority>> ROLE_TO_AUTHORITY_LIST_MAP = Map.of(
+            LegacyRole.USER, AuthorityUtils.createAuthorityList(USER_AUTHORITIES),
+            LegacyRole.EXTERNAL_USER, AuthorityUtils.createAuthorityList(EXTERNAL_USER_AUTHORITIES),
+            LegacyRole.EDITOR, AuthorityUtils.createAuthorityList(EDITOR_AUTHORITIES),
+            LegacyRole.ADMIN, AuthorityUtils.createAuthorityList(ADMIN_AUTHORITIES)
     );
 
     @Override
-    public List<GrantedAuthority> getAuthoritiesForRole(Role role) {
+    public List<GrantedAuthority> getAuthoritiesForRole(LegacyRole role) {
         return ROLE_TO_AUTHORITY_LIST_MAP.getOrDefault(role, Collections.emptyList());
     }
 }

@@ -21,15 +21,22 @@ public interface Permit {
          * Allows reading OAuth application definitions.
          */
         @Retention(RetentionPolicy.RUNTIME)
-        @PreAuthorize("hasAuthority('SCOPE_read:oauth:applications')")
+        @PreAuthorize("hasAuthority('SCOPE_read:access:applications')")
         @interface Applications { }
 
         /**
          * Allows reading permissions.
          */
         @Retention(RetentionPolicy.RUNTIME)
-        @PreAuthorize("hasAuthority('SCOPE_read:permissions')")
+        @PreAuthorize("hasAuthority('SCOPE_read:access:permissions')")
         @interface Permissions { }
+
+        /**
+         * Allows reading roles.
+         */
+        @Retention(RetentionPolicy.RUNTIME)
+        @PreAuthorize("hasAuthority('SCOPE_read:access:roles')")
+        @interface Roles { }
     }
 
     /**
@@ -41,15 +48,22 @@ public interface Permit {
          * Allows writing (creating, editing and deleting) OAuth application definitions.
          */
         @Retention(RetentionPolicy.RUNTIME)
-        @PreAuthorize("hasAuthority('SCOPE_write:oauth:applications')")
+        @PreAuthorize("hasAuthority('SCOPE_write:access:applications')")
         @interface Applications { }
 
         /**
          * Allows writing (creating, editing and deleting) permissions.
          */
         @Retention(RetentionPolicy.RUNTIME)
-        @PreAuthorize("hasAuthority('SCOPE_write:permissions')")
+        @PreAuthorize("hasAuthority('SCOPE_write:access:permissions')")
         @interface Permissions { }
+
+        /**
+         * Allows writing (creating, editing and deleting) roles.
+         */
+        @Retention(RetentionPolicy.RUNTIME)
+        @PreAuthorize("hasAuthority('SCOPE_write:access:roles')")
+        @interface Roles { }
 
         /**
          * Allows resetting the password.
