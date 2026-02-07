@@ -5,8 +5,8 @@ import hu.psprog.leaflet.lags.core.domain.request.OAuthApplicationRegistrationRe
 import hu.psprog.leaflet.lags.core.domain.response.OAuthApplicationRegistrationResponse;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthApplicationResponse;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthApplicationSummaryResponse;
-import hu.psprog.leaflet.lags.core.exception.ConflictingOAuthApplicationRegistrationException;
-import hu.psprog.leaflet.lags.core.exception.OAuthApplicationNotFoundException;
+import hu.psprog.leaflet.lags.core.exception.ConflictingResourceException;
+import hu.psprog.leaflet.lags.core.exception.ResourceNotFoundException;
 import hu.psprog.leaflet.lags.core.mapper.OAuthApplicationMapper;
 import hu.psprog.leaflet.lags.core.mapper.OAuthApplicationRegistrationRequestMapper;
 import hu.psprog.leaflet.lags.core.persistence.dao.OAuthApplicationDAO;
@@ -113,7 +113,7 @@ class OAuthApplicationServiceImplTest {
         given(oAuthApplicationDAO.save(mappedEntity)).willThrow(DataIntegrityViolationException.class);
 
         // when
-        assertThrows(ConflictingOAuthApplicationRegistrationException.class,
+        assertThrows(ConflictingResourceException.class,
                 () -> oAuthApplicationService.createApplication(request));
 
         // then
@@ -164,7 +164,7 @@ class OAuthApplicationServiceImplTest {
         given(oAuthApplicationDAO.findByID(applicationID)).willReturn(Optional.empty());
 
         // when
-        assertThrows(OAuthApplicationNotFoundException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> oAuthApplicationService.editApplication(applicationID, request));
 
         // then
@@ -206,7 +206,7 @@ class OAuthApplicationServiceImplTest {
         given(oAuthApplicationDAO.findByID(applicationID)).willReturn(Optional.empty());
 
         // when
-        assertThrows(OAuthApplicationNotFoundException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> oAuthApplicationService.getApplication(applicationID));
 
         // then
@@ -369,7 +369,7 @@ class OAuthApplicationServiceImplTest {
         doThrow(DataIntegrityViolationException.class).when(oAuthApplicationDAO).delete(applicationID);
 
         // when
-        assertThrows(ConflictingOAuthApplicationRegistrationException.class,
+        assertThrows(ConflictingResourceException.class,
                 () -> oAuthApplicationService.deleteApplication(applicationID));
 
         // then

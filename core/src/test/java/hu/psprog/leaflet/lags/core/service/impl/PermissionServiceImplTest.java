@@ -3,8 +3,8 @@ package hu.psprog.leaflet.lags.core.service.impl;
 import hu.psprog.leaflet.lags.core.domain.entity.Permission;
 import hu.psprog.leaflet.lags.core.domain.request.PermissionRequest;
 import hu.psprog.leaflet.lags.core.domain.response.PermissionResponse;
-import hu.psprog.leaflet.lags.core.exception.ConflictingPermissionException;
-import hu.psprog.leaflet.lags.core.exception.PermissionNotFoundException;
+import hu.psprog.leaflet.lags.core.exception.ConflictingResourceException;
+import hu.psprog.leaflet.lags.core.exception.ResourceNotFoundException;
 import hu.psprog.leaflet.lags.core.mapper.PermissionMapper;
 import hu.psprog.leaflet.lags.core.persistence.dao.PermissionDAO;
 import org.junit.jupiter.api.Test;
@@ -124,7 +124,7 @@ class PermissionServiceImplTest {
         given(permissionDAO.findByID(permissionID)).willReturn(Optional.empty());
 
         // when
-        assertThrows(PermissionNotFoundException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> permissionService.getPermission(permissionID));
 
         // then
@@ -175,7 +175,7 @@ class PermissionServiceImplTest {
         given(permissionDAO.save(mappedEntity)).willThrow(DataIntegrityViolationException.class);
 
         // when
-        assertThrows(ConflictingPermissionException.class,
+        assertThrows(ConflictingResourceException.class,
                 () -> permissionService.createPermission(request));
 
         // then
@@ -290,7 +290,7 @@ class PermissionServiceImplTest {
         doThrow(DataIntegrityViolationException.class).when(permissionDAO).delete(permissionID);
 
         // when
-        assertThrows(ConflictingPermissionException.class,
+        assertThrows(ConflictingResourceException.class,
                 () -> permissionService.deletePermission(permissionID));
 
         // then

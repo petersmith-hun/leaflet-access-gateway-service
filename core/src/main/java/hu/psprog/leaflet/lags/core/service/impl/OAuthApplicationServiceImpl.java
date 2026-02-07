@@ -1,12 +1,13 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
 import hu.psprog.leaflet.lags.core.domain.entity.OAuthApplication;
+import hu.psprog.leaflet.lags.core.domain.internal.ManagedResourceType;
 import hu.psprog.leaflet.lags.core.domain.request.OAuthApplicationRegistrationRequest;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthApplicationRegistrationResponse;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthApplicationResponse;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthApplicationSummaryResponse;
-import hu.psprog.leaflet.lags.core.exception.ConflictingOAuthApplicationRegistrationException;
-import hu.psprog.leaflet.lags.core.exception.OAuthApplicationNotFoundException;
+import hu.psprog.leaflet.lags.core.exception.ConflictingResourceException;
+import hu.psprog.leaflet.lags.core.exception.ResourceNotFoundException;
 import hu.psprog.leaflet.lags.core.mapper.OAuthApplicationMapper;
 import hu.psprog.leaflet.lags.core.mapper.OAuthApplicationRegistrationRequestMapper;
 import hu.psprog.leaflet.lags.core.persistence.dao.OAuthApplicationDAO;
@@ -152,7 +153,7 @@ public class OAuthApplicationServiceImpl implements OAuthApplicationService {
                 .map(mapperFunction)
                 .orElseThrow(() -> {
                     log.error("OAuth application by ID={} not found", applicationID);
-                    return new OAuthApplicationNotFoundException(applicationID);
+                    return ResourceNotFoundException.application(applicationID);
                 });
     }
 
@@ -163,7 +164,7 @@ public class OAuthApplicationServiceImpl implements OAuthApplicationService {
 
         } catch (DataIntegrityViolationException exception) {
             log.error("Conflicting definition: {}", exception.getMessage(), exception);
-            throw ConflictingOAuthApplicationRegistrationException.onCreate();
+            throw ConflictingResourceException.onCreate(ManagedResourceType.APPLICATION);
         }
     }
 
@@ -174,7 +175,7 @@ public class OAuthApplicationServiceImpl implements OAuthApplicationService {
 
         } catch (DataIntegrityViolationException exception) {
             log.error("Conflicting definition: {}", exception.getMessage(), exception);
-            throw ConflictingOAuthApplicationRegistrationException.onDelete();
+            throw ConflictingResourceException.onDelete(ManagedResourceType.APPLICATION);
         }
     }
 }

@@ -1,10 +1,11 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
 import hu.psprog.leaflet.lags.core.domain.entity.Permission;
+import hu.psprog.leaflet.lags.core.domain.internal.ManagedResourceType;
 import hu.psprog.leaflet.lags.core.domain.request.PermissionRequest;
 import hu.psprog.leaflet.lags.core.domain.response.PermissionResponse;
-import hu.psprog.leaflet.lags.core.exception.ConflictingPermissionException;
-import hu.psprog.leaflet.lags.core.exception.PermissionNotFoundException;
+import hu.psprog.leaflet.lags.core.exception.ConflictingResourceException;
+import hu.psprog.leaflet.lags.core.exception.ResourceNotFoundException;
 import hu.psprog.leaflet.lags.core.mapper.PermissionMapper;
 import hu.psprog.leaflet.lags.core.persistence.dao.PermissionDAO;
 import hu.psprog.leaflet.lags.core.service.PermissionService;
@@ -100,13 +101,13 @@ public class PermissionServiceImpl implements PermissionService {
         log.info("Permission {} deleted successfully", permissionID);
     }
 
-    private <T> T findRequiredPermission(UUID permissionsID, Function<Permission, T> mapperFunction) {
+    private <T> T findRequiredPermission(UUID permissionID, Function<Permission, T> mapperFunction) {
 
-        return permissionDAO.findByID(permissionsID)
+        return permissionDAO.findByID(permissionID)
                 .map(mapperFunction)
                 .orElseThrow(() -> {
-                    log.error("Permission by ID={} not found", permissionsID);
-                    return new PermissionNotFoundException(permissionsID);
+                    log.error("Permission by ID={} not found", permissionID);
+                    return ResourceNotFoundException.permission(permissionID);
                 });
     }
 
@@ -117,7 +118,7 @@ public class PermissionServiceImpl implements PermissionService {
 
         } catch (DataIntegrityViolationException exception) {
             log.error("Conflicting permission: {}", exception.getMessage(), exception);
-            throw ConflictingPermissionException.onCreate();
+            throw ConflictingResourceException.onCreate(ManagedResourceType.PERMISSION);
         }
     }
 
@@ -128,7 +129,7 @@ public class PermissionServiceImpl implements PermissionService {
 
         } catch (DataIntegrityViolationException exception) {
             log.error("Conflicting permission: {}", exception.getMessage(), exception);
-            throw ConflictingPermissionException.onDelete();
+            throw ConflictingResourceException.onDelete(ManagedResourceType.PERMISSION);
         }
     }
 }
