@@ -31,6 +31,10 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class UserMapperTest {
 
+    private static final Instant BASELINE_INSTANT_CREATED = Instant.ofEpochMilli(System.currentTimeMillis());
+    private static final Instant BASELINE_INSTANT_UPDATED = BASELINE_INSTANT_CREATED.plusSeconds(60);
+    private static final Instant BASELINE_INSTANT_LAST_LOGIN = BASELINE_INSTANT_CREATED.minusSeconds(60);
+
     @Mock
     private SecretGenerator secretGenerator;
 
@@ -53,9 +57,9 @@ class UserMapperTest {
                 .accountType(AccountType.GITHUB)
                 .externalID("githubID=1")
                 .enabled(true)
-                .created(Date.from(Instant.parse("2026-02-20T18:56:30.000+01:00")))
-                .lastModified(Date.from(Instant.parse("2026-02-21T15:00:10.000+01:00")))
-                .lastLogin(Date.from(Instant.parse("2026-02-21T13:00:10.000+01:00")))
+                .created(Date.from(BASELINE_INSTANT_CREATED))
+                .lastModified(Date.from(BASELINE_INSTANT_UPDATED))
+                .lastLogin(Date.from(BASELINE_INSTANT_LAST_LOGIN))
                 .build();
 
         var expectedResponse = UserDetailsResponse.builder()
@@ -67,9 +71,9 @@ class UserMapperTest {
                 .accountType(AccountType.GITHUB)
                 .externalID("githubID=1")
                 .enabled(true)
-                .created(ZonedDateTime.of(2026, 2, 20, 18, 56, 30, 0, ZoneId.systemDefault()))
-                .lastModified(ZonedDateTime.of(2026, 2, 21, 15, 0, 10, 0, ZoneId.systemDefault()))
-                .lastLogin(ZonedDateTime.of(2026, 2, 21, 13, 0, 10, 0, ZoneId.systemDefault()))
+                .created(ZonedDateTime.ofInstant(BASELINE_INSTANT_CREATED, ZoneId.systemDefault()))
+                .lastModified(ZonedDateTime.ofInstant(BASELINE_INSTANT_UPDATED, ZoneId.systemDefault()))
+                .lastLogin(ZonedDateTime.ofInstant(BASELINE_INSTANT_LAST_LOGIN, ZoneId.systemDefault()))
                 .build();
 
         // when
