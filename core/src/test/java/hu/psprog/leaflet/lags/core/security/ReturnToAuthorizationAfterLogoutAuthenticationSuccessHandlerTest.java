@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.security;
 
+import hu.psprog.leaflet.lags.core.service.UserManagementService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +21,7 @@ import java.util.Base64;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for {@link ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler}.
@@ -37,6 +39,9 @@ class ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandlerTest {
 
     @Mock
     private Authentication authentication;
+
+    @Mock
+    private UserManagementService userManagementService;
 
     @InjectMocks
     private ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler returnToAuthorizationAfterLogoutAuthenticationSuccessHandler;
@@ -56,6 +61,8 @@ class ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandlerTest {
         assertThat(response.getStatus(), equalTo(302));
         assertThat(response.getHeader("Location"), equalTo(LOGOUT_REF));
         assertThat(requestCache.getRequest(request, response), nullValue());
+
+        verify(userManagementService).updateLastLogin(authentication);
     }
 
     @Test
@@ -74,6 +81,8 @@ class ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandlerTest {
         // then
         assertThat(response.getStatus(), equalTo(302));
         assertThat(response.getHeader("Location"), equalTo("https://dev.local:9999?continue"));
+
+        verify(userManagementService).updateLastLogin(authentication);
     }
 
     @Test
@@ -85,6 +94,8 @@ class ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandlerTest {
         // then
         assertThat(response.getStatus(), equalTo(302));
         assertThat(response.getHeader("Location"), equalTo("/"));
+
+        verify(userManagementService).updateLastLogin(authentication);
     }
 
     private static String prepareBase64EncodedLogoutRef() {

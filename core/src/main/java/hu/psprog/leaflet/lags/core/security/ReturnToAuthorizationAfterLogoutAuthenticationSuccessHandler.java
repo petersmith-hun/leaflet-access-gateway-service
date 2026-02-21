@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.security;
 
+import hu.psprog.leaflet.lags.core.service.UserManagementService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,10 +25,17 @@ public class ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler extend
 
     private static final String LOGOUT_REF_PARAMETER = "logoutRef";
 
+    private final UserManagementService userManagementService;
     private final RequestCache requestCache = new HttpSessionRequestCache();
+
+    public ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler(UserManagementService userManagementService) {
+        this.userManagementService = userManagementService;
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
+
+        userManagementService.updateLastLogin(authentication);
 
         SavedRequest savedRequest = requestCache.getRequest(request, response);
         if (Objects.nonNull(savedRequest)) {

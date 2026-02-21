@@ -12,6 +12,7 @@ import hu.psprog.leaflet.lags.core.security.OAuthAuthenticationEntryPoint;
 import hu.psprog.leaflet.lags.core.security.PasswordResetTokenCopyFilter;
 import hu.psprog.leaflet.lags.core.security.RequestSavingLogoutSuccessHandler;
 import hu.psprog.leaflet.lags.core.security.ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler;
+import hu.psprog.leaflet.lags.core.service.UserManagementService;
 import hu.psprog.leaflet.lags.core.service.registry.KeyRegistry;
 import hu.psprog.leaflet.lags.core.service.token.TokenTracker;
 import hu.psprog.leaflet.lags.core.service.token.validator.PasswordResetTokenValidator;
@@ -19,6 +20,7 @@ import hu.psprog.leaflet.lags.core.service.token.validator.TrackedStatusTokenVal
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -154,9 +156,14 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService) throws Exception {
+    @Primary
+    public SavedRequestAwareAuthenticationSuccessHandler savedRequestAwareAuthenticationSuccessHandler(UserManagementService userManagementService) {
+        return new ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler(userManagementService);
+    }
 
-        SavedRequestAwareAuthenticationSuccessHandler authenticationSuccessHandler = new ReturnToAuthorizationAfterLogoutAuthenticationSuccessHandler();
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
+                                                   SavedRequestAwareAuthenticationSuccessHandler authenticationSuccessHandler) throws Exception {
 
         return http
                 .addFilterBefore(new PasswordResetTokenCopyFilter(), UsernamePasswordAuthenticationFilter.class)

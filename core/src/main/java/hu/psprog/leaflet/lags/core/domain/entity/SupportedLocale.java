@@ -1,5 +1,7 @@
 package hu.psprog.leaflet.lags.core.domain.entity;
 
+import lombok.Getter;
+
 import java.util.Locale;
 
 /**
@@ -7,6 +9,7 @@ import java.util.Locale;
  *
  * @author Peter Smith
  */
+@Getter
 public enum SupportedLocale {
 
     /**
@@ -23,14 +26,5 @@ public enum SupportedLocale {
 
     SupportedLocale(Locale locale) {
         this.locale = locale;
-    }
-
-    /**
-     * Returns the JDK {@link Locale} object assigned to a specific supported locale.
-     *
-     * @return assigned JDK {@link Locale} object
-     */
-    public Locale getLocale() {
-        return locale;
     }
 }

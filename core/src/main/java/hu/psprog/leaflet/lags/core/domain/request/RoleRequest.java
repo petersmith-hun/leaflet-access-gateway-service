@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 
 /**
- * Response model representing a role.
+ * Request model representing a role.
  *
  * @param name role name
  * @param description optional role description

@@ -1,5 +1,6 @@
 package hu.psprog.leaflet.lags.core.domain.entity;
 
+import jakarta.persistence.EntityListeners;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,10 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.util.Date;
 
 /**
@@ -33,6 +38,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     @Id
@@ -69,14 +75,17 @@ public class User {
     @Column(name = DatabaseConstants.COLUMN_DATE_LAST_LOGIN)
     private Date lastLogin;
 
-    @Column(name = DatabaseConstants.COLUMN_DATE_CREATED)
+    @CreatedDate
+    @Column(name = DatabaseConstants.COLUMN_DATE_CREATED, updatable = false)
     private Date created;
 
+    @LastModifiedDate
     @Column(name = DatabaseConstants.COLUMN_DATE_LAST_MODIFIED)
     private Date lastModified;
 
     @Column(name = DatabaseConstants.COLUMN_IS_ENABLED)
-    private boolean enabled;
+    @Builder.Default
+    private boolean enabled = true;
 
     @Column(name = DatabaseConstants.COLUMN_EXTERNAL_ID)
     @Size(max = 255)
