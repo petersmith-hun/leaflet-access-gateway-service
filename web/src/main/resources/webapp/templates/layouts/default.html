@@ -12,6 +12,7 @@
         <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
     </head>
     <body>
+        <div id="vantajs-background"></div>
         <div class="container-md">
 
             <th:block layout:fragment="modal" />
@@ -40,7 +41,7 @@
     </body>
     <script>
 		VANTA.WAVES({
-			el: "body",
+			el: "#vantajs-background",
 			mouseControls: true,
 			touchControls: true,
 			gyroControls: false,

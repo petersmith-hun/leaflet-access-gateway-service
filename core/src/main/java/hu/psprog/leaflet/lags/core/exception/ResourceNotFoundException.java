@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 public class ResourceNotFoundException extends RuntimeException {
 
-    private ResourceNotFoundException(ManagedResourceType resourceType, UUID id) {
+    private ResourceNotFoundException(ManagedResourceType resourceType, Object id) {
         super("%s by ID=%s not found: ".formatted(resourceType.getDisplayName(), id));
     }
 
@@ -23,6 +23,16 @@ public class ResourceNotFoundException extends RuntimeException {
      */
     public static ResourceNotFoundException role(UUID id) {
         return new ResourceNotFoundException(ManagedResourceType.ROLE, id);
+    }
+
+    /**
+     * Creates a {@link ResourceNotFoundException} for a missing user.
+     *
+     * @param id requested resource ID
+     * @return populated {@link ResourceNotFoundException} instance
+     */
+    public static ResourceNotFoundException user(Long id) {
+        return new ResourceNotFoundException(ManagedResourceType.USER, id);
     }
 
     /**

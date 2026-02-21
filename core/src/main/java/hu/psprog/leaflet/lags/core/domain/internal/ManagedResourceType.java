@@ -11,7 +11,8 @@ public enum ManagedResourceType {
 
     APPLICATION,
     PERMISSION,
-    ROLE;
+    ROLE,
+    USER;
 
     /**
      * Returns the enum with starting with the first character uppercase, and the rest lowercase.

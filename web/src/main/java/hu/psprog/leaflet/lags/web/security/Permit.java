@@ -37,6 +37,13 @@ public interface Permit {
         @Retention(RetentionPolicy.RUNTIME)
         @PreAuthorize("hasAuthority('SCOPE_read:access:roles')")
         @interface Roles { }
+
+        /**
+         * Allows reading users.
+         */
+        @Retention(RetentionPolicy.RUNTIME)
+        @PreAuthorize("hasAuthority('SCOPE_read:access:users')")
+        @interface Users { }
     }
 
     /**
@@ -64,6 +71,13 @@ public interface Permit {
         @Retention(RetentionPolicy.RUNTIME)
         @PreAuthorize("hasAuthority('SCOPE_write:access:roles')")
         @interface Roles { }
+
+        /**
+         * Allows writing (creating, changing role of, and enabling/disabling) users.
+         */
+        @Retention(RetentionPolicy.RUNTIME)
+        @PreAuthorize("hasAuthority('SCOPE_write:access:users')")
+        @interface Users { }
 
         /**
          * Allows resetting the password.

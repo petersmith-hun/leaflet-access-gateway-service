@@ -7,12 +7,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for {@link UserDAOImpl}.
@@ -22,8 +24,12 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class UserDAOImplTest {
 
+    private static final Long ID = 1L;
     private static final User USER = new User();
     private static final String EMAIL_ADDRESS = "test1@dev.local";
+
+    @Mock
+    private Pageable pageable;
 
     @Mock
     private UserRepository userRepository;
@@ -32,16 +38,23 @@ class UserDAOImplTest {
     private UserDAOImpl userDAO;
 
     @Test
-    public void shouldSave() {
-
-        // given
-        given(userRepository.save(USER)).willReturn(USER);
+    public void shouldFindAll() {
 
         // when
-        User result = userDAO.save(USER);
+        userDAO.findAll(pageable);
 
         // then
-        assertThat(result, equalTo(USER));
+        verify(userRepository).findAll(pageable);
+    }
+
+    @Test
+    public void shouldFindByID() {
+
+        // when
+        userDAO.findByID(ID);
+
+        // then
+        verify(userRepository).findById(ID);
     }
 
     @Test
@@ -56,5 +69,28 @@ class UserDAOImplTest {
         // then
         assertThat(result.isPresent(), equalTo(true));
         assertThat(result.get(), equalTo(USER));
+    }
+
+    @Test
+    public void shouldSave() {
+
+        // given
+        given(userRepository.saveAndFlush(USER)).willReturn(USER);
+
+        // when
+        User result = userDAO.save(USER);
+
+        // then
+        assertThat(result, equalTo(USER));
+    }
+
+    @Test
+    public void shouldUpdateLastLogin() {
+
+        // when
+        userDAO.updateLastLogin(ID);
+
+        // then
+        verify(userRepository).updateLastLoginDate(ID);
     }
 }
