@@ -5,6 +5,7 @@ import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.domain.entity.SupportedLocale;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.request.UserRequest;
+import hu.psprog.leaflet.lags.core.domain.response.ProfileModel;
 import hu.psprog.leaflet.lags.core.domain.response.UserDetailsResponse;
 import hu.psprog.leaflet.lags.core.service.util.SecretGenerator;
 import org.junit.jupiter.api.Test;
@@ -112,5 +113,28 @@ class UserMapperTest {
 
         // then
         assertThat(result, equalTo(expectedUser));
+    }
+
+    @Test
+    public void shouldMapEntityToProfileModel() {
+
+        // given
+        var user = User.builder()
+                .username("username")
+                .email("user2@dev.local")
+                .defaultLocale(SupportedLocale.HU)
+                .build();
+
+        var expectedProfileModel = ProfileModel.builder()
+                .username("username")
+                .email("user2@dev.local")
+                .locale(SupportedLocale.HU.name())
+                .build();
+
+        // when
+        var result = userMapper.mapToProfile(user);
+
+        // then
+        assertThat(result, equalTo(expectedProfileModel));
     }
 }

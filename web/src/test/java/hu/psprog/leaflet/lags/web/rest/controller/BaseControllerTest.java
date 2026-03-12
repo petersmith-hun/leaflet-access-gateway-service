@@ -7,6 +7,9 @@ import hu.psprog.leaflet.lags.core.exception.ExpiredTokenException;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
 import hu.psprog.leaflet.lags.core.exception.RevokedTokenException;
+import hu.psprog.leaflet.lags.web.exception.MissingReturnDirectiveException;
+import hu.psprog.leaflet.lags.web.exception.NonLocalAccountEditAttemptException;
+import hu.psprog.leaflet.lags.web.exception.UserProfileAccessException;
 import hu.psprog.leaflet.lags.web.model.AuthorizationError;
 import hu.psprog.leaflet.lags.web.model.TokenRequestError;
 import org.junit.jupiter.api.Test;
@@ -96,6 +99,49 @@ class BaseControllerTest {
         )));
     }
 
+    @Test
+    public void shouldHandleUserProfileAccessExceptionRenderAccessDeniedPageForMissingReturnDirectiveException() {
+
+        // given
+        UserProfileAccessException exception = new MissingReturnDirectiveException();
+        String redirectURI = "http://localhost:9999/callback/default?auth=failed";
+
+        given(oAuthConfigurationProperties.getDefaultRedirectOnError()).willReturn(redirectURI);
+
+        // when
+        ModelAndView result = baseController.handleUserProfileAccessException(request, exception);
+
+        // then
+        assertThat(result.getViewName(), equalTo("views/error"));
+        assertThat(result.getModel().size(), equalTo(3));
+        assertThat(result.getModel(), equalTo(Map.of(
+                "error_code", OAuthErrorCode.ACCESS_DENIED,
+                "error_description", "A registered return directive must be present",
+                "redirect_uri", redirectURI
+        )));
+    }
+
+    @Test
+    public void shouldHandleUserProfileAccessExceptionRenderAccessDeniedPageForNonLocalAccountEditAttemptException() {
+
+        // given
+        UserProfileAccessException exception = new NonLocalAccountEditAttemptException();
+        String redirectURI = "http://localhost:9999/callback/default?auth=failed";
+
+        given(oAuthConfigurationProperties.getDefaultRedirectOnError()).willReturn(redirectURI);
+
+        // when
+        ModelAndView result = baseController.handleUserProfileAccessException(request, exception);
+
+        // then
+        assertThat(result.getViewName(), equalTo("views/error"));
+        assertThat(result.getModel().size(), equalTo(3));
+        assertThat(result.getModel(), equalTo(Map.of(
+                "error_code", OAuthErrorCode.ACCESS_DENIED,
+                "error_description", "Non-local account edit attempt",
+                "redirect_uri", redirectURI
+        )));
+    }
 
     @Test
     public void shouldHandleErrorRenderServerErrorPage() {

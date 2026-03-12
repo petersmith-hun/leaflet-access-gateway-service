@@ -93,4 +93,14 @@ class UserDAOImplTest {
         // then
         verify(userRepository).updateLastLoginDate(ID);
     }
+
+    @Test
+    public void shouldDelete() {
+
+        // when
+        userDAO.delete(ID);
+
+        // then
+        verify(userRepository).deleteById(ID);
+    }
 }

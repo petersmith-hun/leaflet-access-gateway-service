@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/access-management/users")
-public class UserManagementController {
+public class UserManagementController extends BaseManagementController {
 
     private final UserManagementService userManagementService;
 

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="hu" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/default}">
+    <head>
+        <title th:text="#{profile.navigation.delete-account}">profile_delete_account</title>
+    </head>
+    <body>
+        <th:block layout:fragment="modal">
+            <th:block th:if="${param.status != null}">
+                <div class="modal fade show" id="profileOperationResultModal" tabindex="-1" aria-labelledby="profileOperationResultModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="profileOperationResultModalLabel" th:text="#{flash.profile-update.failure}">modal_title</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" th:switch="${#strings.toString(param.status)}">
+                                <span th:case="'current-password-mismatch'" th:text="#{flash.profile-update.delete-account.result.current-password-mismatch}"></span>
+                                <span th:case="*" th:text="#{flash.profile-update.unknown.result}"></span>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+					new bootstrap.Modal(document.getElementById('profileOperationResultModal'), {}).toggle();
+                </script>
+            </th:block>
+        </th:block>
+
+        <th:block layout:fragment="content">
+            <div class="row justify-content-center">
+                <div class="col-12 mt-3" style="text-align: center;">
+                    <h3 class="" th:text="#{profile.navigation.delete-account}">placeholder:delete_account</h3>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <form th:object="${accountDeletionModel}" th:action="@{''}" method="post" accept-charset="utf-8">
+                        <p class="mb-3 text-danger text-center" style="font-weight: bold" th:text="#{form.profile-update.account-deletion.warning}">deletion-warning</p>
+                        <div class="mb-3" th:if="${localAccount}">
+                            <label for="currentPassword" th:text="#{form.profile-update.label.current-password-for-deletion}">placeholder:currentPassword</label>
+                            <input name="currentPassword" class="form-control" required="required" maxlength="255" type="password" id="currentPassword" />
+                        </div>
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-danger w-100 mt-3 align-middle" th:text="#{form.profile-update.delete}">placeholder:submit</button>
+                        </div>
+                        <div class="mb-3">
+                            <a class="btn btn-secondary w-100 align-middle" href="/" th:href="@{/profile}">
+                                <span th:text="#{profile.navigation.cancel}">cancel</span> <i class="fas fa-angle-left"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </th:block>
+    </body>
+</html>
