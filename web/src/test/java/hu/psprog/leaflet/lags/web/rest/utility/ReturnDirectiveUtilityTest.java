@@ -65,6 +65,7 @@ class ReturnDirectiveUtilityTest {
         // given
         var returnDirective = "test123";
 
+        given(request.getParameter("return")).willReturn(null);
         given(request.getSession()).willReturn(session);
         given(session.getAttribute("returnDirective")).willReturn(returnDirective);
 
@@ -73,6 +74,24 @@ class ReturnDirectiveUtilityTest {
 
         // then
         verifyNoMoreInteractions(request, session);
+    }
+
+    @Test
+    public void shouldEnsureReturnDirectiveOverwriteExistingDirectiveIfPresentInQueryParameter() {
+
+        // given
+        var returnDirective = "test123";
+        var newReturnDirective = "new-directive";
+
+        given(request.getParameter("return")).willReturn(newReturnDirective);
+        given(request.getSession()).willReturn(session);
+        given(session.getAttribute("returnDirective")).willReturn(returnDirective);
+
+        // when
+        returnDirectiveUtility.ensureReturnDirective(request);
+
+        // then
+        verify(session).setAttribute("returnDirective", newReturnDirective);
     }
 
     @Test

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -38,13 +39,13 @@ public class ReturnDirectiveUtility {
      */
     public void ensureReturnDirective(HttpServletRequest request) {
 
-        if (getReturnDirective(request).isPresent()) {
+        String returnDirectiveFromQuery = request.getParameter(RETURN_DIRECTIVE_QUERY_PARAMETER);
+
+        if (getReturnDirective(request).isPresent() && Objects.isNull(returnDirectiveFromQuery)) {
             return;
         }
 
-        request.getSession()
-                .setAttribute(SESSION_PARAMETER_RETURN_DIRECTIVE, request.getParameter(RETURN_DIRECTIVE_QUERY_PARAMETER));
-
+        request.getSession().setAttribute(SESSION_PARAMETER_RETURN_DIRECTIVE, returnDirectiveFromQuery);
         getRequiredReturnDirective(request);
     }
 
