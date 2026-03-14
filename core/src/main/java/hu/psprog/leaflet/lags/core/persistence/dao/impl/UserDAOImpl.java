@@ -49,4 +49,9 @@ public class UserDAOImpl implements UserDAO {
     public void updateLastLogin(Long id) {
         userRepository.updateLastLoginDate(id);
     }
+
+    @Override
+    public void delete(Long id) {
+        userRepository.deleteById(id);
+    }
 }

@@ -6,8 +6,10 @@ import hu.psprog.leaflet.lags.core.exception.AuthenticationException;
 import hu.psprog.leaflet.lags.core.exception.ExpiredTokenException;
 import hu.psprog.leaflet.lags.core.exception.OAuthAuthorizationException;
 import hu.psprog.leaflet.lags.core.exception.OAuthTokenRequestException;
+import hu.psprog.leaflet.lags.web.exception.UserProfileAccessException;
 import hu.psprog.leaflet.lags.web.model.AuthorizationError;
 import hu.psprog.leaflet.lags.web.model.TokenRequestError;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.ModelAndView;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_ACCESS_DENIED;
@@ -74,6 +75,22 @@ public class BaseController {
         String errorDescription = getErrorDescription(exception);
 
         return renderErrorPage(OAuthErrorCode.ACCESS_DENIED, errorDescription, request);
+    }
+
+    /**
+     * Exception handler for exceptions extending the {@link UserProfileAccessException} exception base type. Renders the
+     * standard /access-denied page with the error description set in the received exception.
+     *
+     * @param request  {@link HttpServletRequest} object
+     * @param exception exception to be handled
+     * @return populated {@link ModelAndView}
+     */
+    @ExceptionHandler(UserProfileAccessException.class)
+    public ModelAndView handleUserProfileAccessException(HttpServletRequest request, UserProfileAccessException exception) {
+
+        log.error(exception.getMessage(), exception);
+
+        return renderErrorPage(OAuthErrorCode.ACCESS_DENIED, exception.getMessage(), request);
     }
 
     /**

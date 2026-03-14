@@ -67,6 +67,7 @@ public class SecurityConfiguration {
 
     private static final String PATH_OAUTH_ROOT = "/oauth/**";
     private static final String PATH_ACCESS_MANAGEMENT_ROOT = "/access-management/**";
+    private static final String PATH_PROFILE_ROOT = "/profile/**";
     private static final String PATH_LOGIN_FAILURE = "/login?auth=fail";
     private static final String PATH_LOGIN_EXTERNAL = "/login/external";
     private static final String PATH_LOGOUT = "/logout";
@@ -95,7 +96,8 @@ public class SecurityConfiguration {
     private static final String[] PRIVATE_PATHS = {
             PATH_OAUTH_ROOT,
             PATH_ACCESS_MANAGEMENT_ROOT,
-            PATH_PASSWORD_RESET_CONFIRMATION
+            PATH_PASSWORD_RESET_CONFIRMATION,
+            PATH_PROFILE_ROOT
     };
 
     @Bean

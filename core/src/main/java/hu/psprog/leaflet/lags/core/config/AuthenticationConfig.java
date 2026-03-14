@@ -6,6 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 /**
  * Authentication configuration parameters model.
  * Expects the {@code authentication-config} parameter to be present in the application config.
@@ -48,6 +50,11 @@ public class AuthenticationConfig {
     @NestedConfigurationProperty
     private PasswordResetConfig passwordReset;
 
+    /**
+     * Defines the map acceptable return directives with their corresponding return URLs.
+     */
+    private Map<String, ReturnDefinition> returnDefinitions;
+
     @Data
     public static class PasswordResetConfig {
 
@@ -65,5 +72,19 @@ public class AuthenticationConfig {
          * Client application return URL for the password reset process.
          */
         private String returnUrl;
+    }
+
+    @Data
+    public static class ReturnDefinition {
+
+        /**
+         * Target URL to return the browser to.
+         */
+        private String returnUrl;
+
+        /**
+         * Display name of the URL.
+         */
+        private String displayName;
     }
 }

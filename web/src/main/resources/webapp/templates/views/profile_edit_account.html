@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="hu" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/default}">
+    <head>
+        <title th:text="#{profile.navigation.edit-account}">profile_edit_account</title>
+    </head>
+    <body>
+        <th:block layout:fragment="modal">
+            <th:block th:if="${param.status != null}">
+                <div class="modal fade show" id="profileOperationResultModal" tabindex="-1" aria-labelledby="profileOperationResultModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="profileOperationResultModalLabel" th:text="#{flash.profile-update.failure}">modal_title</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" th:switch="${#strings.toString(param.status)}">
+                                <span th:case="'email-in-use'" th:text="#{flash.profile-update.edit-account.result.email-in-use}"></span>
+                                <span th:case="*" th:text="#{flash.profile-update.unknown.result}"></span>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+					new bootstrap.Modal(document.getElementById('profileOperationResultModal'), {}).toggle();
+                </script>
+            </th:block>
+        </th:block>
+
+        <th:block layout:fragment="content">
+            <div class="row justify-content-center">
+                <div class="col-12 mt-3" style="text-align: center;">
+                    <h3 class="" th:text="#{profile.navigation.edit-account}">placeholder:edit_account</h3>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <form th:object="${accountData}" th:action="@{''}" method="post" accept-charset="utf-8">
+                        <div class="mb-3">
+                            <label for="username" th:text="#{form.profile-update.label.username}">placeholder:username</label>
+                            <input name="username" class="form-control" required="required" th:value="*{username}" maxlength="255" type="text" id="username" />
+                            <span class="validationError" th:if="${#fields.hasErrors('username')}" th:text="#{form.profile-update.validation.username}">placeholder:val_err_username</span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" th:text="#{form.profile-update.label.email}">placeholder:email</label>
+                            <input name="email" class="form-control" required="required" th:value="*{email}" maxlength="255" type="text" id="email" />
+                            <span class="validationError" th:if="${#fields.hasErrors('email')}" th:text="#{form.profile-update.validation.email}">placeholder:val_err_email</span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="locale" th:text="#{form.profile-update.label.locale}">placeholder:locale</label>
+                            <select class="form-control" name="locale" id="locale" th:with="localeList = ${ {'HU', 'EN'} }">
+                                <option th:each="supportedLocale : ${localeList}"
+                                        th:selected="${supportedLocale == accountData.locale}"
+                                        th:value="${supportedLocale}"
+                                        th:text="#{form.profile-update.label.locale.option.__${supportedLocale}__}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary w-100 mt-3 align-middle" th:text="#{form.profile-update.submit}">placeholder:submit</button>
+                        </div>
+                        <div class="mb-3">
+                            <a class="btn btn-secondary w-100 align-middle" href="/" th:href="@{/profile}">
+                                <span th:text="#{profile.navigation.cancel}">cancel</span> <i class="fas fa-angle-left"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </th:block>
+    </body>
+</html>

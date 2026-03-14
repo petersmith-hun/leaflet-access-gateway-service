@@ -3,6 +3,7 @@ package hu.psprog.leaflet.lags.core.mapper;
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.request.UserRequest;
+import hu.psprog.leaflet.lags.core.domain.response.ProfileModel;
 import hu.psprog.leaflet.lags.core.domain.response.UserDetailsResponse;
 import hu.psprog.leaflet.lags.core.service.util.SecretGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,21 @@ public class UserMapper extends AbstractCommonMapper {
                 .created(convertDate(user.getCreated()))
                 .lastModified(convertDate(user.getLastModified()))
                 .lastLogin(convertDate(user.getLastLogin()))
+                .build();
+    }
+
+    /**
+     * Maps the given {@link User} entity to {@link ProfileModel} (UI response model).
+     *
+     * @param user source {@link User} entity object
+     * @return mapped {@link ProfileModel} object
+     */
+    public ProfileModel mapToProfile(User user) {
+
+        return ProfileModel.builder()
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .locale(user.getDefaultLocale().name())
                 .build();
     }
 

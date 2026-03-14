@@ -51,4 +51,11 @@ public interface UserDAO {
      * @param id ID of the user to update last login timestamp of
      */
     void updateLastLogin(Long id);
+
+    /**
+     * Deletes the given user by its ID.
+     *
+     * @param id ID of the user to be deleted
+     */
+    void delete(Long id);
 }
