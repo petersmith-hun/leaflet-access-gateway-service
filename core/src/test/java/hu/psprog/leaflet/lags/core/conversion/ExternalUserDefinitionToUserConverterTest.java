@@ -2,21 +2,23 @@ package hu.psprog.leaflet.lags.core.conversion;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.domain.entity.SupportedLocale;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExternalUserDefinition;
+import hu.psprog.leaflet.lags.core.exception.MissingDefaultRoleException;
+import hu.psprog.leaflet.lags.core.persistence.dao.RoleDAO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import java.util.Optional;
+
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -37,6 +39,9 @@ class ExternalUserDefinitionToUserConverterTest {
     @Mock
     private AuthenticationConfig authenticationConfig;
 
+    @Mock
+    private RoleDAO roleDAO;
+
     @InjectMocks
     private ExternalUserDefinitionToUserConverter externalUserDefinitionToUserConverter;
 
@@ -44,8 +49,11 @@ class ExternalUserDefinitionToUserConverterTest {
     public void shouldConvertSignUpRequestToLocalUserObject() {
 
         // given
+        var role = Role.builder().name("External user").build();
+
         given(authenticationConfig.isUserEnabledByDefault()).willReturn(USER_ENABLED_BY_DEFAULT);
         given(authenticationConfig.getDefaultLocale()).willReturn(DEFAULT_LOCALE);
+        given(roleDAO.findExternalDefault()).willReturn(Optional.of(role));
 
         // when
         User result = externalUserDefinitionToUserConverter.convert(EXTERNAL_USER_DEFINITION);
@@ -56,7 +64,7 @@ class ExternalUserDefinitionToUserConverterTest {
         assertThat(result.getEmail(), equalTo(EMAIL));
         assertThat(result.isEnabled(), is(USER_ENABLED_BY_DEFAULT));
         assertThat(result.getDefaultLocale(), equalTo(DEFAULT_LOCALE));
-        assertThat(result.getRole(), equalTo(LegacyRole.EXTERNAL_USER));
+        assertThat(result.getRole(), equalTo(role));
         assertThat(result.getAccountType(), equalTo(AccountType.GITHUB));
         assertThat(result.getExternalID(), equalTo("provider=github|ext_uid=1234"));
         assertThat(System.currentTimeMillis() - result.getCreated().getTime() < 100, is(true));
@@ -64,6 +72,22 @@ class ExternalUserDefinitionToUserConverterTest {
         assertThat(result.getLastModified(), nullValue());
         assertThat(result.getPassword(), nullValue());
     }
+
+    @Test
+    public void shouldConvertThrowExceptionOnMissingExternalDefaultRole() {
+
+        // given
+        given(authenticationConfig.isUserEnabledByDefault()).willReturn(USER_ENABLED_BY_DEFAULT);
+        given(authenticationConfig.getDefaultLocale()).willReturn(DEFAULT_LOCALE);
+        given(roleDAO.findExternalDefault()).willReturn(Optional.empty());
+
+        // when
+        assertThrows(MissingDefaultRoleException.class, () -> externalUserDefinitionToUserConverter.convert(EXTERNAL_USER_DEFINITION));
+
+        // then
+        // exception expected
+    }
+
 
     private static ExternalUserDefinition<Long> prepareExternalUserDefinition() {
 

@@ -1,10 +1,10 @@
 package hu.psprog.leaflet.lags.core.domain.request;
 
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * Request model for updating user role.
@@ -15,6 +15,6 @@ import java.io.Serializable;
 public class UpdateRoleRequestModel implements Serializable {
 
     @NotNull
-    private LegacyRole role;
+    private UUID roleID;
 
 }

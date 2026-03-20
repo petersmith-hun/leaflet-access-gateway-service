@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.domain.entity.SupportedLocale;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -90,14 +91,16 @@ public class UserServiceImpl implements UserManagementService, UserProfileServic
 
     @Override
     @Transactional
-    public UserDetailsResponse updateUserRole(Long userID, LegacyRole role) {
+    public UserDetailsResponse updateUserRole(Long userID, UUID roleID) {
 
         User currentUserData = findRequiredUser(userID, Function.identity());
-        currentUserData.setRole(role);
+        currentUserData.setRole(Role.builder()
+                .id(roleID)
+                .build());
 
         exceptionAwareCall(() -> userDAO.save(currentUserData));
 
-        log.info("Role of user {} ({}) has been updated to {}", currentUserData.getEmail(), userID, role);
+        log.info("Role of user {} ({}) has been updated to {}", currentUserData.getEmail(), userID, roleID);
 
         return userMapper.map(currentUserData);
     }

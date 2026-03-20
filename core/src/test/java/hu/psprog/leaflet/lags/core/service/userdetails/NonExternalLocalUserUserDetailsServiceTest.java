@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.userdetails;
 
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -53,7 +54,7 @@ class NonExternalLocalUserUserDetailsServiceTest {
 
         // given
         given(userDAO.findByEmail(EMAIL)).willReturn(Optional.of(LOCAL_USER));
-        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.USER)).willReturn(AUTHORITIES);
+        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(LOCAL_USER.getRole())).willReturn(AUTHORITIES);
 
         // when
         UserDetails result = nonExternalLocalUserUserDetailsService.loadUserByUsername(EMAIL);
@@ -99,7 +100,10 @@ class NonExternalLocalUserUserDetailsServiceTest {
         user.setUsername("user1");
         user.setId(1234L);
         user.setEnabled(true);
-        user.setRole(LegacyRole.USER);
+        user.setRole(Role.builder()
+                .id(UUID.randomUUID())
+                .name("User")
+                .build());
         user.setAccountType(accountType);
 
         return user;
@@ -113,7 +117,7 @@ class NonExternalLocalUserUserDetailsServiceTest {
                 .name(LOCAL_USER.getUsername())
                 .id(LOCAL_USER.getId())
                 .enabled(LOCAL_USER.isEnabled())
-                .role(LOCAL_USER.getRole().toString())
+                .role(LOCAL_USER.getRole().getName())
                 .authorities(AUTHORITIES)
                 .build();
     }

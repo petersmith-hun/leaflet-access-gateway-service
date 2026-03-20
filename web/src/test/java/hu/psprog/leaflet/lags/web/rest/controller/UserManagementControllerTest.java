@@ -1,6 +1,5 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.domain.request.UpdateRoleRequestModel;
 import hu.psprog.leaflet.lags.core.domain.request.UserRequest;
 import hu.psprog.leaflet.lags.core.service.UserManagementService;
@@ -9,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 /**
  * Unit tests for {@link UserManagementController}.
@@ -19,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class UserManagementControllerTest {
 
     private static final long USER_ID = 1L;
+    private static final UUID ROLE_ID = UUID.randomUUID();
     private static final UserRequest USER_REQUEST = UserRequest.builder().build();
 
     @Mock
@@ -62,13 +64,13 @@ class UserManagementControllerTest {
 
         // given
         var updateRoleRequestModel = new UpdateRoleRequestModel();
-        updateRoleRequestModel.setRole(LegacyRole.ADMIN);
+        updateRoleRequestModel.setRoleID(ROLE_ID);
 
         // when
         userManagementController.changeUserRole(USER_ID, updateRoleRequestModel);
 
         // then
-        userManagementService.updateUserRole(USER_ID, LegacyRole.ADMIN);
+        userManagementService.updateUserRole(USER_ID, ROLE_ID);
     }
 
     @Test

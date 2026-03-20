@@ -85,7 +85,7 @@ public class UserManagementController extends BaseManagementController {
     @PutMapping("/{userID}/role")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDetailsResponse changeUserRole(@PathVariable Long userID, @RequestBody UpdateRoleRequestModel request) {
-        return userManagementService.updateUserRole(userID, request.getRole());
+        return userManagementService.updateUserRole(userID, request.getRoleID());
     }
 
     /**

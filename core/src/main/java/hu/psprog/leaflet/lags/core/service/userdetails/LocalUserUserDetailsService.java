@@ -55,7 +55,7 @@ abstract class LocalUserUserDetailsService implements UserDetailsService {
                         .name(user.getUsername())
                         .id(user.getId())
                         .enabled(user.isEnabled())
-                        .role(user.getRole().name())
+                        .role(user.getRole().getName())
                         .authorities(roleToAuthorityMappingRegistry.getAuthoritiesForRole(user.getRole()))
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException(String.format(USERNAME_NOT_FOUND_MESSAGE_PATTERN, email)));

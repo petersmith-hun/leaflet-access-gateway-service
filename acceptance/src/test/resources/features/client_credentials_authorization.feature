@@ -20,7 +20,7 @@ Feature: OAuth2 Client Credentials authorization flow tests
     Examples:
       | clientID             | clientSecret       | audience                            | scope                        |
       | dummy_test_service_1 | dummyservicepw1234 | dummy:acceptance:svc:othersvc:test  | write:schedule               |
-      | dummy_test_service_1 | dummyservicepw1234 | dummy:acceptance:svc:othersvc:test  | write:schedule read:schedule |
+      | dummy_test_service_1 | dummyservicepw1234 | dummy:acceptance:svc:othersvc:test  | read:schedule write:schedule |
       | dummy_test_service_2 | dummyservicepw9876 | dummy:acceptance:svc:fourthsvc:test | read:accounts write:accounts |
       | dummy_test_service_2 | dummyservicepw9876 | dummy:acceptance:svc:fourthsvc:test | write:accounts               |
       | dummy_test_service_2 | dummyservicepw9876 | dummy:acceptance:svc:thirdsvc:test  | read:admin                   |

@@ -15,7 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -152,7 +155,10 @@ public class OAuthAuthorizationStepDefinition implements En {
 
             ResponseEntity<OAuthTokenResponse> response = ThreadLocalDataRegistry.getResponseEntity();
             assertThat(response.getBody(), notNullValue());
-            assertThat(response.getBody().getScope(), equalTo(scope));
+            assertThat(response.getBody().getScope(), equalTo(Arrays
+                    .stream(scope.split(" "))
+                    .sorted(Comparator.naturalOrder())
+                    .collect(Collectors.joining(" "))));
         });
 
         Then("^the user is redirected to the specified redirection$", () -> {

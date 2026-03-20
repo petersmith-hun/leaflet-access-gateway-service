@@ -2,10 +2,12 @@ package hu.psprog.leaflet.lags.core.conversion;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.domain.entity.SupportedLocale;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
+import hu.psprog.leaflet.lags.core.exception.MissingDefaultRoleException;
+import hu.psprog.leaflet.lags.core.persistence.dao.RoleDAO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,11 +15,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import java.util.Optional;
+
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -48,6 +50,9 @@ class SignUpRequestModelToUserConverterTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private RoleDAO roleDAO;
+
     @InjectMocks
     private SignUpRequestModelToUserConverter signUpRequestModelToUserConverter;
 
@@ -55,9 +60,12 @@ class SignUpRequestModelToUserConverterTest {
     public void shouldConvertSignUpRequestToLocalUserObject() {
 
         // given
+        var role = Role.builder().name("User").build();
+
         given(authenticationConfig.isUserEnabledByDefault()).willReturn(USER_ENABLED_BY_DEFAULT);
         given(authenticationConfig.getDefaultLocale()).willReturn(DEFAULT_LOCALE);
         given(passwordEncoder.encode(PASSWORD)).willReturn(ENCODED_PASSWORD);
+        given(roleDAO.findLocalDefault()).willReturn(Optional.of(role));
 
         // when
         User result = signUpRequestModelToUserConverter.convert(SIGN_UP_REQUEST_MODEL);
@@ -69,10 +77,28 @@ class SignUpRequestModelToUserConverterTest {
         assertThat(result.getPassword(), equalTo(ENCODED_PASSWORD));
         assertThat(result.isEnabled(), is(USER_ENABLED_BY_DEFAULT));
         assertThat(result.getDefaultLocale(), equalTo(DEFAULT_LOCALE));
-        assertThat(result.getRole(), equalTo(LegacyRole.USER));
+        assertThat(result.getRole(), equalTo(role));
         assertThat(result.getAccountType(), equalTo(AccountType.LOCAL));
         assertThat(System.currentTimeMillis() - result.getCreated().getTime() < 100, is(true));
         assertThat(result.getLastLogin(), nullValue());
         assertThat(result.getLastModified(), nullValue());
+    }
+
+
+    @Test
+    public void shouldConvertThrowExceptionOnMissingLocalDefaultRole() {
+
+        // given
+
+        given(authenticationConfig.isUserEnabledByDefault()).willReturn(USER_ENABLED_BY_DEFAULT);
+        given(authenticationConfig.getDefaultLocale()).willReturn(DEFAULT_LOCALE);
+        given(passwordEncoder.encode(PASSWORD)).willReturn(ENCODED_PASSWORD);
+        given(roleDAO.findLocalDefault()).willReturn(Optional.empty());
+
+        // when
+        assertThrows(MissingDefaultRoleException.class, () -> signUpRequestModelToUserConverter.convert(SIGN_UP_REQUEST_MODEL));
+
+        // then
+        // exception expected
     }
 }

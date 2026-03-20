@@ -22,7 +22,7 @@ public final class DatabaseConstants {
     static final String COLUMN_IS_ENABLED = "is_enabled";
     static final String COLUMN_USERNAME = "username";
     static final String COLUMN_EMAIL = "email";
-    static final String COLUMN_ROLE = "role";
+    static final String COLUMN_ROLE_ID = "role_id";
     static final String COLUMN_PASSWORD = "password";
     static final String COLUMN_DEFAULT_LOCALE = "default_locale";
     static final String COLUMN_ACCOUNT_TYPE = "account_type";
@@ -52,6 +52,7 @@ public final class DatabaseConstants {
     static final String FK_NM_REGISTERED_PERMISSIONS_PERMISSION_ID = "fk_nm_registered_permissions_permission_id";
     static final String FK_OAUTH_CALLBACK_OAUTH_APPLICATION_ID = "fk_oauth_callback_oauth_application_id";
     static final String FK_OAUTH_ALLOWED_CLIENT_SELF_APPLICATION_ID = "fk_oauth_allowed_client_self_application_id";
+    static final String FK_USER_ROLE = "fk_user_role";
     static final String UK_PERMISSION_NAME = "uk_permission_name";
 
     private DatabaseConstants() {}
