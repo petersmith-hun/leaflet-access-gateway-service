@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.impl;
 
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.domain.entity.SupportedLocale;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
@@ -31,6 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -189,21 +190,22 @@ class UserServiceImplTest {
     public void shouldUpdateUserRole() {
 
         // given
+        var newRoleID = UUID.randomUUID();
         var user = User.builder()
                 .username("user1")
-                .role(LegacyRole.ADMIN)
                 .build();
         var expectedUserResponse = UserDetailsResponse.builder().username("user1").build();
+        var expectedRole = Role.builder().id(newRoleID).build();
 
         given(userDAO.findByID(USER_ID)).willReturn(Optional.of(user));
         given(userMapper.map(user)).willReturn(expectedUserResponse);
 
         // when
-        var result = userService.updateUserRole(USER_ID, LegacyRole.EDITOR);
+        var result = userService.updateUserRole(USER_ID, newRoleID);
 
         // then
         assertThat(result, equalTo(expectedUserResponse));
-        assertThat(user.getRole(), equalTo(LegacyRole.EDITOR));
+        assertThat(user.getRole(), equalTo(expectedRole));
 
         verify(userDAO).save(user);
     }
@@ -215,7 +217,7 @@ class UserServiceImplTest {
         given(userDAO.findByID(USER_ID)).willReturn(Optional.empty());
 
         // when
-        assertThrows(ResourceNotFoundException.class, () -> userService.updateUserRole(USER_ID, LegacyRole.EDITOR));
+        assertThrows(ResourceNotFoundException.class, () -> userService.updateUserRole(USER_ID, UUID.randomUUID()));
 
         // then
         // exception expected

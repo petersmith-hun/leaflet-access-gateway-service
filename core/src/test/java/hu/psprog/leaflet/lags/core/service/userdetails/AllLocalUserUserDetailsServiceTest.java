@@ -1,7 +1,7 @@
 package hu.psprog.leaflet.lags.core.service.userdetails;
 
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.internal.ExtendedUser;
 import hu.psprog.leaflet.lags.core.persistence.dao.UserDAO;
@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -55,7 +56,7 @@ class AllLocalUserUserDetailsServiceTest {
 
         // given
         given(userDAO.findByEmail(LOCAL_USER_EMAIL)).willReturn(Optional.of(LOCAL_USER));
-        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.ADMIN)).willReturn(AUTHORITIES);
+        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(LOCAL_USER.getRole())).willReturn(AUTHORITIES);
 
         // when
         UserDetails result = allLocalUserUserDetailsService.loadUserByUsername(LOCAL_USER_EMAIL);
@@ -70,7 +71,7 @@ class AllLocalUserUserDetailsServiceTest {
 
         // given
         given(userDAO.findByEmail(EXTERNAL_USER_EMAIL)).willReturn(Optional.of(EXTERNAL_USER));
-        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(LegacyRole.USER)).willReturn(AUTHORITIES);
+        given(roleToAuthorityMappingRegistry.getAuthoritiesForRole(EXTERNAL_USER.getRole())).willReturn(AUTHORITIES);
 
         // when
         UserDetails result = allLocalUserUserDetailsService.loadUserByUsername(EXTERNAL_USER_EMAIL);
@@ -104,14 +105,22 @@ class AllLocalUserUserDetailsServiceTest {
         if (accountType == AccountType.LOCAL) {
             user.setEmail(LOCAL_USER_EMAIL);
             user.setId(1234L);
-            user.setRole(LegacyRole.ADMIN);
+            user.setRole(prepareRole("Admin"));
         } else {
             user.setEmail(EXTERNAL_USER_EMAIL);
             user.setId(5678L);
-            user.setRole(LegacyRole.USER);
+            user.setRole(prepareRole("External user"));
         }
 
         return user;
+    }
+
+    private static Role prepareRole(String name) {
+
+        return Role.builder()
+                .id(UUID.randomUUID())
+                .name(name)
+                .build();
     }
 
     private static ExtendedUser prepareExpectedExtendedUser(User sourceUser) {
@@ -122,7 +131,7 @@ class AllLocalUserUserDetailsServiceTest {
                 .name(sourceUser.getUsername())
                 .id(sourceUser.getId())
                 .enabled(sourceUser.isEnabled())
-                .role(sourceUser.getRole().toString())
+                .role(sourceUser.getRole().getName())
                 .authorities(AUTHORITIES)
                 .build();
     }

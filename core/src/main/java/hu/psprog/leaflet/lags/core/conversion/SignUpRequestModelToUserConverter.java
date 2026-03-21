@@ -2,9 +2,10 @@ package hu.psprog.leaflet.lags.core.conversion;
 
 import hu.psprog.leaflet.lags.core.config.AuthenticationConfig;
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.request.SignUpRequestModel;
+import hu.psprog.leaflet.lags.core.exception.MissingDefaultRoleException;
+import hu.psprog.leaflet.lags.core.persistence.dao.RoleDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,11 +23,13 @@ public class SignUpRequestModelToUserConverter implements Converter<SignUpReques
 
     private final AuthenticationConfig authenticationConfig;
     private final PasswordEncoder passwordEncoder;
+    private final RoleDAO roleDAO;
 
     @Autowired
-    public SignUpRequestModelToUserConverter(AuthenticationConfig authenticationConfig, PasswordEncoder passwordEncoder) {
+    public SignUpRequestModelToUserConverter(AuthenticationConfig authenticationConfig, PasswordEncoder passwordEncoder, RoleDAO roleDAO) {
         this.authenticationConfig = authenticationConfig;
         this.passwordEncoder = passwordEncoder;
+        this.roleDAO = roleDAO;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class SignUpRequestModelToUserConverter implements Converter<SignUpReques
                 .enabled(authenticationConfig.isUserEnabledByDefault())
                 .created(new Date())
                 .defaultLocale(authenticationConfig.getDefaultLocale())
-                .role(LegacyRole.USER)
+                .role(roleDAO.findLocalDefault().orElseThrow(MissingDefaultRoleException::internal))
                 .accountType(AccountType.LOCAL)
                 .build();
     }

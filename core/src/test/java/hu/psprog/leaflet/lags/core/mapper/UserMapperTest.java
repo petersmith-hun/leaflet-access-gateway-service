@@ -1,11 +1,12 @@
 package hu.psprog.leaflet.lags.core.mapper;
 
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.domain.entity.SupportedLocale;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.request.UserRequest;
 import hu.psprog.leaflet.lags.core.domain.response.ProfileModel;
+import hu.psprog.leaflet.lags.core.domain.response.RoleResponse;
 import hu.psprog.leaflet.lags.core.domain.response.UserDetailsResponse;
 import hu.psprog.leaflet.lags.core.service.util.SecretGenerator;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -42,6 +44,9 @@ class UserMapperTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private RoleMapper roleMapper;
+
     @InjectMocks
     private UserMapper userMapper;
 
@@ -49,11 +54,19 @@ class UserMapperTest {
     public void shouldMapUserEntityToResponse() {
 
         // given
+        var role = Role.builder()
+                .name("role")
+                .build();
+
+        var expectedRole = RoleResponse.builder()
+                .name("role")
+                .build();
+
         var user = User.builder()
                 .id(1L)
                 .username("username")
                 .email("user1@dev.local")
-                .role(LegacyRole.EXTERNAL_USER)
+                .role(role)
                 .defaultLocale(SupportedLocale.EN)
                 .accountType(AccountType.GITHUB)
                 .externalID("githubID=1")
@@ -67,7 +80,7 @@ class UserMapperTest {
                 .id(1L)
                 .username("username")
                 .email("user1@dev.local")
-                .role(LegacyRole.EXTERNAL_USER)
+                .role(expectedRole)
                 .locale(SupportedLocale.EN)
                 .accountType(AccountType.GITHUB)
                 .externalID("githubID=1")
@@ -76,6 +89,8 @@ class UserMapperTest {
                 .lastModified(ZonedDateTime.ofInstant(BASELINE_INSTANT_UPDATED, ZoneId.systemDefault()))
                 .lastLogin(ZonedDateTime.ofInstant(BASELINE_INSTANT_LAST_LOGIN, ZoneId.systemDefault()))
                 .build();
+
+        given(roleMapper.map(role)).willReturn(expectedRole);
 
         // when
         var result = userMapper.map(user);
@@ -88,18 +103,22 @@ class UserMapperTest {
     public void shouldMapRequestToEntity() {
 
         // given
+        var roleID = UUID.randomUUID();
+
         var request = UserRequest.builder()
                 .username("username")
                 .email("user2@dev.local")
                 .defaultLocale(SupportedLocale.HU)
-                .role(LegacyRole.ADMIN)
+                .roleID(roleID)
                 .build();
 
         var expectedUser = User.builder()
                 .username("username")
                 .email("user2@dev.local")
                 .defaultLocale(SupportedLocale.HU)
-                .role(LegacyRole.ADMIN)
+                .role(Role.builder()
+                        .id(roleID)
+                        .build())
                 .password("encrypted-password")
                 .enabled(true)
                 .accountType(AccountType.LOCAL)

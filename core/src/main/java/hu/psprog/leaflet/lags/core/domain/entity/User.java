@@ -1,22 +1,24 @@
 package hu.psprog.leaflet.lags.core.domain.entity;
 
-import jakarta.persistence.EntityListeners;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -55,10 +57,11 @@ public class User {
     @Size(max = 255)
     private String email;
 
-    @Column(name = DatabaseConstants.COLUMN_ROLE)
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private LegacyRole role;
+    @ManyToOne
+    @JoinColumn(
+            name = DatabaseConstants.COLUMN_ROLE_ID,
+            foreignKey = @ForeignKey(name = DatabaseConstants.FK_USER_ROLE))
+    private Role role;
 
     @Column(name = DatabaseConstants.COLUMN_PASSWORD)
     @Size(max = 255)

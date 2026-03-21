@@ -1,12 +1,13 @@
 package hu.psprog.leaflet.lags.core.domain.request;
 
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.domain.entity.SupportedLocale;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
+
+import java.util.UUID;
 
 /**
  * Request model representing a new user.
@@ -31,5 +32,5 @@ public record UserRequest(
         SupportedLocale defaultLocale,
 
         @NotNull
-        LegacyRole role
+        UUID roleID
 ) { }

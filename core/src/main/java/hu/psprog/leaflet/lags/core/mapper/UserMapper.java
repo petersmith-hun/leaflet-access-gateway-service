@@ -1,6 +1,7 @@
 package hu.psprog.leaflet.lags.core.mapper;
 
 import hu.psprog.leaflet.lags.core.domain.entity.AccountType;
+import hu.psprog.leaflet.lags.core.domain.entity.Role;
 import hu.psprog.leaflet.lags.core.domain.entity.User;
 import hu.psprog.leaflet.lags.core.domain.request.UserRequest;
 import hu.psprog.leaflet.lags.core.domain.response.ProfileModel;
@@ -23,11 +24,13 @@ public class UserMapper extends AbstractCommonMapper {
 
     private final SecretGenerator secretGenerator;
     private final PasswordEncoder passwordEncoder;
+    private final RoleMapper roleMapper;
 
     @Autowired
-    public UserMapper(SecretGenerator secretGenerator, PasswordEncoder passwordEncoder) {
+    public UserMapper(SecretGenerator secretGenerator, PasswordEncoder passwordEncoder, RoleMapper roleMapper) {
         this.secretGenerator = secretGenerator;
         this.passwordEncoder = passwordEncoder;
+        this.roleMapper = roleMapper;
     }
 
     /**
@@ -42,7 +45,7 @@ public class UserMapper extends AbstractCommonMapper {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .role(user.getRole())
+                .role(roleMapper.map(user.getRole()))
                 .locale(user.getDefaultLocale())
                 .accountType(user.getAccountType())
                 .externalID(user.getExternalID())
@@ -80,7 +83,9 @@ public class UserMapper extends AbstractCommonMapper {
                 .username(request.username())
                 .email(request.email())
                 .defaultLocale(request.defaultLocale())
-                .role(request.role())
+                .role(Role.builder()
+                        .id(request.roleID())
+                        .build())
                 .password(passwordEncoder.encode(secretGenerator.generateSecret()))
                 .enabled(DEFAULT_ENABLED)
                 .accountType(DEFAULT_ACCOUNT_TYPE)

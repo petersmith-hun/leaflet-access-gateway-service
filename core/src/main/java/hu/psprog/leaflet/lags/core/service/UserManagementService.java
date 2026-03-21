@@ -1,10 +1,11 @@
 package hu.psprog.leaflet.lags.core.service;
 
-import hu.psprog.leaflet.lags.core.domain.entity.LegacyRole;
 import hu.psprog.leaflet.lags.core.domain.request.UserRequest;
 import hu.psprog.leaflet.lags.core.domain.response.UserDetailsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
+
+import java.util.UUID;
 
 /**
  * User management operations.
@@ -41,10 +42,10 @@ public interface UserManagementService {
      * Updates the assigned role of the given user.
      *
      * @param userID user ID to update role of
-     * @param role target role of the user
+     * @param roleID ID of the target role to assign to the user
      * @return user details
      */
-    UserDetailsResponse updateUserRole(Long userID, LegacyRole role);
+    UserDetailsResponse updateUserRole(Long userID, UUID roleID);
 
     /**
      * Enables/disables the given user.

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -15,6 +16,22 @@ import java.util.UUID;
  */
 @Repository
 public interface RoleRepository extends JpaRepository<Role, UUID> {
+
+    /**
+     * Returns the role entry marked as local default (assigned to users registered locally).
+     *
+     * @return local default role
+     */
+    @Query("select r from Role r where r.localDefault = true")
+    Optional<Role> findLocalDefault();
+
+    /**
+     * Returns the role entry marked as external default (assigned to users registered via external IDP).
+     *
+     * @return local default role
+     */
+    @Query("select r from Role r where r.externalDefault = true")
+    Optional<Role> findExternalDefault();
 
     /**
      * Disables the "local default" flag of the entity currently having that enabled.

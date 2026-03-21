@@ -31,6 +31,20 @@ public interface RoleDAO {
     Optional<Role> findByID(UUID id);
 
     /**
+     * Returns the role entry marked as local default (assigned to users registered locally).
+     *
+     * @return local default role
+     */
+    Optional<Role> findLocalDefault();
+
+    /**
+     * Returns the role entry marked as external default (assigned to users registered via external IDP).
+     *
+     * @return local default role
+     */
+    Optional<Role> findExternalDefault();
+
+    /**
      * Stores (creates or updates) the given {@link Role} entity.
      *
      * @param role entity data to be stored

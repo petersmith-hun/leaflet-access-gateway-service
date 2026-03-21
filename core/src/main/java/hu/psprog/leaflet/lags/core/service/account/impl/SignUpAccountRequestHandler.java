@@ -45,11 +45,12 @@ public class SignUpAccountRequestHandler implements AccountRequestHandler<SignUp
     @Override
     public SignUpResult processAccountRequest(SignUpRequestModel signUpRequestModel) {
 
-        User user = conversionService.convert(signUpRequestModel, User.class);
         SignUpStatus status;
 
         try {
+            User user = conversionService.convert(signUpRequestModel, User.class);
             userDAO.save(user);
+
             status = SignUpStatus.SUCCESS;
             log.info("User account successfully created with userID=[{}].", user.getId());
 

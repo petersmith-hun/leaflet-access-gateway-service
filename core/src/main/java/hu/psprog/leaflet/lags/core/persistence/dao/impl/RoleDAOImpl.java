@@ -37,6 +37,16 @@ public class RoleDAOImpl implements RoleDAO {
     }
 
     @Override
+    public Optional<Role> findLocalDefault() {
+        return roleRepository.findLocalDefault();
+    }
+
+    @Override
+    public Optional<Role> findExternalDefault() {
+        return roleRepository.findExternalDefault();
+    }
+
+    @Override
     public Role save(Role role) {
         return roleRepository.save(role);
     }
