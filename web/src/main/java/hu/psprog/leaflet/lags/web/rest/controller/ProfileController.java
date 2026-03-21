@@ -8,6 +8,7 @@ import hu.psprog.leaflet.lags.core.domain.response.UserDetailsResponse;
 import hu.psprog.leaflet.lags.core.service.UserProfileService;
 import hu.psprog.leaflet.lags.web.factory.ProfileViewFactory;
 import hu.psprog.leaflet.lags.web.model.ProfileScreen;
+import hu.psprog.leaflet.lags.web.security.Permit;
 import hu.psprog.leaflet.lags.web.utility.AccountVerificationUtility;
 import hu.psprog.leaflet.lags.web.utility.ReturnDirectiveUtility;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,6 +56,7 @@ public class ProfileController {
      * @param authentication {@link Authentication} object to extract the ID of the currently active user
      * @return populated {@link ModelAndView} object
      */
+    @Permit.Read.Profile
     @GetMapping("/profile")
     public ModelAndView renderProfileMainScreen(HttpServletRequest request, Authentication authentication) {
 
@@ -77,6 +79,7 @@ public class ProfileController {
      * @param profileModel {@link ProfileModel} model attribute to bind the form to
      * @return populated {@link ModelAndView} object
      */
+    @Permit.Read.Profile
     @GetMapping("/profile/edit-account")
     public ModelAndView renderEditAccountScreen(HttpServletRequest request, Authentication authentication, @ModelAttribute ProfileModel profileModel) {
 
@@ -97,6 +100,7 @@ public class ProfileController {
      * @param bindingResult {@link BindingResult} object to check if there was any validation error while processing the request
      * @return populated {@link ModelAndView} object
      */
+    @Permit.Write.Profile
     @PostMapping("/profile/edit-account")
     public ModelAndView saveProfile(Authentication authentication, @Valid @ModelAttribute ProfileModel profileModel, BindingResult bindingResult) {
 
@@ -114,6 +118,7 @@ public class ProfileController {
      * @param authentication {@link Authentication} object to extract the ID of the currently active user
      * @return populated {@link ModelAndView} object
      */
+    @Permit.Read.Profile
     @GetMapping("/profile/change-password")
     public ModelAndView renderChangePasswordScreen(HttpServletRequest request, Authentication authentication) {
 
@@ -132,6 +137,7 @@ public class ProfileController {
      * @param bindingResult {@link BindingResult} object to check if there was any validation error while processing the request
      * @return populated {@link ModelAndView} object
      */
+    @Permit.Write.Profile
     @PostMapping("/profile/change-password")
     public ModelAndView savePassword(Authentication authentication, @ModelAttribute PasswordUpdateModel passwordUpdateModel, BindingResult bindingResult) {
 
@@ -149,6 +155,7 @@ public class ProfileController {
      * @param authentication {@link Authentication} object to extract the ID of the currently active user
      * @return populated {@link ModelAndView} object
      */
+    @Permit.Read.Profile
     @GetMapping("/profile/delete-account")
     public ModelAndView renderDeleteAccountScreen(HttpServletRequest request, Authentication authentication) {
 
@@ -168,6 +175,7 @@ public class ProfileController {
      * @param bindingResult {@link BindingResult} object to check if there was any validation error while processing the request
      * @return populated {@link ModelAndView} object
      */
+    @Permit.Write.ProfileDelete
     @PostMapping("/profile/delete-account")
     public ModelAndView deleteAccount(Authentication authentication, @ModelAttribute AccountDeletionModel accountDeletionModel, BindingResult bindingResult) {
 
