@@ -9,7 +9,7 @@ domino:
         hosts:
           - psproghu
       execution:
-        command-name: app_lags
+        command-name: app_lags_standby
         via: STANDARD
         args:
           ports:

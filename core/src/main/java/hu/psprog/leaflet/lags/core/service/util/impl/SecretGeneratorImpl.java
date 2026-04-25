@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * Default implementation of {@link SecretGenerator}. Implementation creates a 48-character long secure random string,
+ * Default implementation of {@link SecretGenerator}. Implementation creates a 36-character long secure random string,
  * encoded into Base64.
  *
  * @author Peter Smith
@@ -15,7 +15,7 @@ import java.util.Base64;
 @Component
 public class SecretGeneratorImpl implements SecretGenerator {
 
-    private static final int SECURE_STRING_LENGTH = 48;
+    private static final int SECURE_STRING_LENGTH = 36;
 
     private final SecureRandom secureRandom = new SecureRandom();
     private final Base64.Encoder base64Encoder = Base64.getEncoder();
@@ -26,6 +26,9 @@ public class SecretGeneratorImpl implements SecretGenerator {
         byte[] randomBytes = new byte[SECURE_STRING_LENGTH];
         secureRandom.nextBytes(randomBytes);
 
-        return base64Encoder.encodeToString(randomBytes);
+        return base64Encoder.encodeToString(randomBytes)
+                // (url-encoded) special characters in Basic auth header are not properly handled by Spring Security
+                .replace('+', '-')
+                .replace('/', '_');
     }
 }
