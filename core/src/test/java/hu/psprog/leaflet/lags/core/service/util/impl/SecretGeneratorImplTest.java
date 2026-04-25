@@ -28,7 +28,9 @@ class SecretGeneratorImplTest {
         var result = secretGenerator.generateSecret();
 
         // then
-        var decoded = Base64.getDecoder().decode(result);
-        assertThat(decoded.length, equalTo(48));
+        var decoded = Base64.getDecoder().decode(result
+                .replace('_', '/')
+                .replace('-', '+'));
+        assertThat(decoded.length, equalTo(36));
     }
 }
