@@ -1,0 +1,49 @@
+domino:
+  oauth:
+    lags:
+      behavior:
+        target-provider: gateway-psproghu
+        roll-client-secret-on-deploy: true
+        use-secret-manager-for:
+          - client-secret
+          - client-id
+      tenant:
+        environment: prod
+        name: psproghu
+      client:
+        required-permissions:
+          - write:mail:pw_reset_confirmation
+          - write:mail:pw_reset_request
+          - write:mail:signup_confirmation
+          - write:mail:system_startup
+      resource-server:
+        use-audience: true
+        registered-permissions:
+          - read:access:applications
+          - read:access:permissions
+          - read:access:profile
+          - read:access:roles
+          - read:access:users
+          - write:access:applications
+          - write:access:permissions
+          - write:access:profile
+          - write:access:profile:delete
+          - write:access:roles
+          - write:access:users
+          - write:reclaim
+        allowed-clients:
+          - name: domino
+            allowed-permissions:
+              - read:access:applications
+              - read:access:permissions
+              - write:access:applications
+          - name: lpmc
+            allowed-permissions:
+              - read:access:applications
+              - read:access:permissions
+              - read:access:roles
+              - read:access:users
+              - write:access:applications
+              - write:access:permissions
+              - write:access:roles
+              - write:access:users

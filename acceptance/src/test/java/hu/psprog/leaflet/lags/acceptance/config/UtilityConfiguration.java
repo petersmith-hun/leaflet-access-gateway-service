@@ -8,23 +8,27 @@ import hu.psprog.leaflet.recaptcha.api.client.ReCaptchaClient;
 import hu.psprog.leaflet.recaptcha.api.domain.ReCaptchaRequest;
 import hu.psprog.leaflet.recaptcha.api.domain.ReCaptchaResponse;
 import jakarta.annotation.PostConstruct;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.util.TimeValue;
 import org.jspecify.annotations.NonNull;
 import org.mockito.Mockito;
 import org.mockito.quality.Strictness;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.restclient.RestTemplateBuilder;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
-import wiremock.com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.withSettings;
@@ -81,8 +85,19 @@ public class UtilityConfiguration implements ApplicationContextAware {
     }
 
     @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+    public TestRestTemplate testRestTemplate() {
+
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        requestFactory.setHttpClient(HttpClientBuilder.create()
+                .disableAuthCaching()
+                .disableAutomaticRetries()
+                .disableConnectionState()
+                .disableCookieManagement()
+                .disableRedirectHandling()
+                .evictIdleConnections(TimeValue.ofSeconds(3L))
+                .build());
+
+        return new TestRestTemplate(new RestTemplateBuilder().requestFactory(() -> requestFactory));
     }
 
     @Override

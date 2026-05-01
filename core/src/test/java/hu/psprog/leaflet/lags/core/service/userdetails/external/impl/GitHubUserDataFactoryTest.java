@@ -22,8 +22,8 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import tools.jackson.core.type.TypeReference;
 
-import jakarta.ws.rs.core.GenericType;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +35,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 
@@ -56,7 +55,7 @@ class GitHubUserDataFactoryTest {
     private static final OAuth2User OAUTH_USER = prepareOAuth2User();
     private static final ExternalUserDefinition<Long> EXPECTED_EXTERNAL_USER_DEFINITION = prepareExternalUserDefinition();
 
-    private static final GenericType<List<GitHubEmailItem>> GITHUB_API_EMAIL_ENDPOINT_GENERIC_TYPE = new GenericType<>() {};
+    private static final TypeReference<List<GitHubEmailItem>> GITHUB_API_EMAIL_ENDPOINT_TYPE_REFERENCE = new TypeReference<>() {};
     private static final List<GitHubEmailItem> GITHUB_EMAIL_ITEMS = prepareGitHubEmailResponse(true);
     private static final List<GitHubEmailItem> GITHUB_EMAIL_ITEMS_WITHOUT_PRIMARY = prepareGitHubEmailResponse(false);
 
@@ -66,6 +65,9 @@ class GitHubUserDataFactoryTest {
     @Captor
     private ArgumentCaptor<RESTRequest> restRequestCaptor;
 
+    @Captor
+    private ArgumentCaptor<TypeReference<List<GitHubEmailItem>>> typeReferenceCaptor;
+
     @InjectMocks
     private GitHubUserDataFactory gitHubUserDataFactory;
 
@@ -73,7 +75,7 @@ class GitHubUserDataFactoryTest {
     public void shouldCreateUserDefinitionProcessRequestSuccessfully() throws CommunicationFailureException {
 
         // given
-        given(bridgeClient.call(restRequestCaptor.capture(), eq(GITHUB_API_EMAIL_ENDPOINT_GENERIC_TYPE))).willReturn(GITHUB_EMAIL_ITEMS);
+        given(bridgeClient.call(restRequestCaptor.capture(), typeReferenceCaptor.capture())).willReturn(GITHUB_EMAIL_ITEMS);
 
         // when
         ExternalUserDefinition<Long> result = gitHubUserDataFactory.createUserDefinition(OAUTH_USER_REQUEST, OAUTH_USER);
@@ -81,32 +83,35 @@ class GitHubUserDataFactoryTest {
         // then
         assertThat(result, equalTo(EXPECTED_EXTERNAL_USER_DEFINITION));
         assertRESTRequest(restRequestCaptor.getValue());
+        assertThat(typeReferenceCaptor.getValue().getType(), equalTo(GITHUB_API_EMAIL_ENDPOINT_TYPE_REFERENCE.getType()));
     }
 
     @Test
     public void shouldCreateUserDefinitionFailForExternalUserNotHavingPrimaryEmailAddress() throws CommunicationFailureException {
 
         // given
-        given(bridgeClient.call(any(), eq(GITHUB_API_EMAIL_ENDPOINT_GENERIC_TYPE))).willReturn(GITHUB_EMAIL_ITEMS_WITHOUT_PRIMARY);
+        given(bridgeClient.call(any(), typeReferenceCaptor.capture())).willReturn(GITHUB_EMAIL_ITEMS_WITHOUT_PRIMARY);
 
         // when
         assertThrows(ExternalAuthenticationException.class, () -> gitHubUserDataFactory.createUserDefinition(OAUTH_USER_REQUEST, OAUTH_USER));
 
         // then
         // exception expected
+        assertThat(typeReferenceCaptor.getValue().getType(), equalTo(GITHUB_API_EMAIL_ENDPOINT_TYPE_REFERENCE.getType()));
     }
 
     @Test
     public void shouldCreateUserDefinitionFailWhenContactGitHubAPIFails() throws CommunicationFailureException {
 
         // given
-        doThrow(ForbiddenOperationException.class).when(bridgeClient).call(any(), eq(GITHUB_API_EMAIL_ENDPOINT_GENERIC_TYPE));
+        doThrow(ForbiddenOperationException.class).when(bridgeClient).call(any(), typeReferenceCaptor.capture());
 
         // when
         assertThrows(ExternalAuthenticationException.class, () -> gitHubUserDataFactory.createUserDefinition(OAUTH_USER_REQUEST, OAUTH_USER));
 
         // then
         // exception expected
+        assertThat(typeReferenceCaptor.getValue().getType(), equalTo(GITHUB_API_EMAIL_ENDPOINT_TYPE_REFERENCE.getType()));
     }
 
     @Test

@@ -3,7 +3,6 @@ package hu.psprog.leaflet.lags.core.service.registry.impl;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigurationProperties;
 import hu.psprog.leaflet.lags.core.service.registry.KeyRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +19,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -112,6 +112,6 @@ public class RSAKeyRegistry implements KeyRegistry {
                 .skip(1)
                 .collect(Collectors.joining());
 
-        return Base64.decodeBase64(rsaKeyContent);
+        return Base64.getDecoder().decode(rsaKeyContent);
     }
 }

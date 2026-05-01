@@ -1,7 +1,5 @@
 package hu.psprog.leaflet.lags.core.service.token.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import hu.psprog.leaflet.lags.core.domain.config.OAuthConfigTestHelper;
@@ -24,8 +22,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.security.interfaces.RSAPublicKey;
@@ -55,7 +54,7 @@ class JWTTokenHandlerTest {
     private static final OAuthConfigurationProperties O_AUTH_CONFIGURATION_PROPERTIES = prepareOAuthConfigurationProperties();
     private static final OAuthTokenRequest O_AUTH_TOKEN_REQUEST = prepareValidOAuthTokenRequest();
     private static final TokenClaims CLAIMS = prepareClaims();
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final JsonMapper JSON_MAPPER = new JsonMapper();
     private static final String EMAIL = "user@dev.local";
     private static final String AUDIENCE = "target-svc-aud-1";
     private static final long USER_ID = 6643L;
@@ -83,7 +82,7 @@ class JWTTokenHandlerTest {
     }
 
     @Test
-    public void shouldGenerateTokenSuccessfullyCreateJWTToken() throws IOException {
+    public void shouldGenerateTokenSuccessfullyCreateJWTToken() {
 
         int expirationInSeconds = O_AUTH_CONFIGURATION_PROPERTIES.getToken().getExpiration();
 
@@ -99,7 +98,7 @@ class JWTTokenHandlerTest {
     }
 
     @Test
-    public void shouldGenerateTokenSuccessfullyCreateJWTTokenWithCustomExpiration() throws IOException {
+    public void shouldGenerateTokenSuccessfullyCreateJWTTokenWithCustomExpiration() {
 
         // given
         int customExpirationInSeconds = 600;
@@ -152,7 +151,7 @@ class JWTTokenHandlerTest {
         assertThat(result.getMessage().contains("Malformed token"), is(true));
     }
 
-    private void assertToken(String token, int expectedExpiration) throws IOException {
+    private void assertToken(String token, int expectedExpiration) {
 
         String[] tokenParts = token.split("\\.");
         assertThat(tokenParts.length, equalTo(3));
@@ -195,11 +194,11 @@ class JWTTokenHandlerTest {
         }
     }
 
-    private Map<String, Object> readTokenPart(String tokenPart) throws IOException {
+    private Map<String, Object> readTokenPart(String tokenPart) {
 
         byte[] decodedString = Base64.getDecoder().decode(tokenPart);
 
-        return OBJECT_MAPPER.readValue(decodedString, CLAIMS_TYPE_REFERENCE);
+        return JSON_MAPPER.readValue(decodedString, CLAIMS_TYPE_REFERENCE);
     }
 
     private static OAuthConfigurationProperties prepareOAuthConfigurationProperties() {

@@ -1,7 +1,5 @@
 package hu.psprog.leaflet.lags.acceptance.stub;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import hu.psprog.leaflet.lags.acceptance.model.TestConstants;
@@ -11,7 +9,9 @@ import hu.psprog.leaflet.lags.core.domain.internal.GitHubEmailItem;
 import hu.psprog.leaflet.lags.core.domain.response.OAuthTokenResponse;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.net.URI;
 import java.util.Collections;
@@ -25,7 +25,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.jsonResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * WireMock based mock server component for simulating external OAuth provider based login flows.
@@ -40,11 +39,11 @@ public class ExternalAuthenticationMock {
     private static final int EXTERNAL_USER_ID = 558890;
     private static final String EXTERNAL_USER_NAME = "Test User";
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
     private WireMockServer wireMockServer;
 
-    public ExternalAuthenticationMock(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public ExternalAuthenticationMock(JsonMapper jsonMapper) {
+        this.jsonMapper = jsonMapper;
     }
 
     @PostConstruct
@@ -88,18 +87,14 @@ public class ExternalAuthenticationMock {
         URI location = ThreadLocalDataRegistry.getResponseEntity().getHeaders().getLocation();
         String scope = HTTPUtility.getQueryParameter(location, TestConstants.Attribute.SCOPE);
 
-        try {
-            String tokenResponse = objectMapper.writeValueAsString(OAuthTokenResponse.builder()
-                    .accessToken(UUID.randomUUID().toString())
-                    .expiresIn(EXPIRES_IN)
-                    .scope(scope)
-                    .build());
+        String tokenResponse = jsonMapper.writeValueAsString(OAuthTokenResponse.builder()
+                .accessToken(UUID.randomUUID().toString())
+                .expiresIn(EXPIRES_IN)
+                .scope(scope)
+                .build());
 
-            givenThat(post(tokenEndpoint)
-                    .willReturn(jsonResponse(tokenResponse, 200)));
-        } catch (JsonProcessingException e) {
-            fail("Failed to prepare mocked OAuth provider response");
-        }
+        givenThat(post(tokenEndpoint)
+                .willReturn(jsonResponse(tokenResponse, 200)));
     }
 
     private static void registerUserInfoEndpoint(String userInfoEndpoint) {
@@ -131,6 +126,7 @@ public class ExternalAuthenticationMock {
         return emailItem;
     }
 
+    @Getter
     public enum Provider {
 
         GITHUB("/githubmock/token", "/githubmock/userinfo", List.of(ExternalAuthenticationMock::registerGitHubEmailsEndpoint)),
@@ -146,16 +142,5 @@ public class ExternalAuthenticationMock {
             this.furtherRegistrations = furtherRegistrations;
         }
 
-        public String getTokenEndpoint() {
-            return tokenEndpoint;
-        }
-
-        public String getUserinfoEndpoint() {
-            return userinfoEndpoint;
-        }
-
-        public List<Runnable> getFurtherRegistrations() {
-            return furtherRegistrations;
-        }
     }
 }

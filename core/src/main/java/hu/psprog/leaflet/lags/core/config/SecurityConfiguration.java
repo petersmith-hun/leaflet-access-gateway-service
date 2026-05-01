@@ -165,7 +165,7 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
-                                                   SavedRequestAwareAuthenticationSuccessHandler authenticationSuccessHandler) throws Exception {
+                                                   SavedRequestAwareAuthenticationSuccessHandler authenticationSuccessHandler) {
 
         return http
                 .addFilterBefore(new PasswordResetTokenCopyFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -220,9 +220,8 @@ public class SecurityConfiguration {
     private AuthenticationProvider createAuthenticationProvider(PasswordEncoder passwordEncoder,
                                                                 UserDetailsService userDetailsService) {
 
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
-        authenticationProvider.setUserDetailsService(userDetailsService);
 
         return authenticationProvider;
     }
