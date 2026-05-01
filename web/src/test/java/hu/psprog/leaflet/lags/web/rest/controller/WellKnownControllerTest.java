@@ -1,8 +1,5 @@
 package hu.psprog.leaflet.lags.web.rest.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWKSet;
 import hu.psprog.leaflet.lags.web.model.AuthServerMetaInfo;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -37,14 +36,14 @@ class WellKnownControllerTest {
     @Mock
     private JWKSet jwkSet;
 
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     private WellKnownController wellKnownController;
 
     @BeforeEach
     public void setup() {
         wellKnownController = new WellKnownController(jwkSet, AUTH_SERVER_META_INFO);
-        objectMapper = new ObjectMapper();
+        jsonMapper = new JsonMapper();
     }
 
     @Test
@@ -63,7 +62,7 @@ class WellKnownControllerTest {
     }
 
     @Test
-    public void shouldGetServerMetaInfoReturnExposedMetaInfo() throws JsonProcessingException {
+    public void shouldGetServerMetaInfoReturnExposedMetaInfo() {
 
         // when
         ResponseEntity<AuthServerMetaInfo> result = wellKnownController.getServerMetaInfo();
@@ -74,10 +73,10 @@ class WellKnownControllerTest {
         assertResultAsJSON(result.getBody());
     }
 
-    private void assertResultAsJSON(AuthServerMetaInfo authServerMetaInfo) throws JsonProcessingException {
+    private void assertResultAsJSON(AuthServerMetaInfo authServerMetaInfo) {
 
-        String jsonString = objectMapper.writeValueAsString(authServerMetaInfo);
-        Map<String, Object> deserialized = objectMapper.readValue(jsonString, MAP_TYPE_REFERENCE);
+        String jsonString = jsonMapper.writeValueAsString(authServerMetaInfo);
+        Map<String, Object> deserialized = jsonMapper.readValue(jsonString, MAP_TYPE_REFERENCE);
 
         assertThat(deserialized, equalTo(Map.of(
                 "issuer", "http://localhost:9999",

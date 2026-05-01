@@ -16,8 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import tools.jackson.core.type.TypeReference;
 
-import jakarta.ws.rs.core.GenericType;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -41,7 +41,7 @@ public class GitHubUserDataFactory implements UserDataFactory<Long> {
     private static final String ATTRIBUTE_USER_ID = "id";
     private static final String ATTRIBUTE_USERNAME = "name";
 
-    private static final GenericType<List<GitHubEmailItem>> GITHUB_API_EMAIL_ENDPOINT_GENERIC_TYPE = new GenericType<>() {};
+    private static final TypeReference<List<GitHubEmailItem>> GITHUB_API_EMAIL_ENDPOINT_GENERIC_TYPE = new TypeReference<>() {};
     private static final String PATH_USER_EMAILS = "/user/emails";
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private static final String BEARER_TOKEN_TEMPLATE = "Bearer %s";

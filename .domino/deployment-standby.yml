@@ -19,6 +19,8 @@ domino:
             APP_ARGS: |
               --spring.profiles.active=production
               --spring.config.location=/opt/lags/appconfig_lags.yml
+              --spring.datasource.username=[dsm:common.mysql.username]
+              --spring.datasource.password=[dsm:common.mysql.password]
               --server.port=9185
           volumes:
             "[dsm:volume.logs]": "/opt/lags/logs:rw"
