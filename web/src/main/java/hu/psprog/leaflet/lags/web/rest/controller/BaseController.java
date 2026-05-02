@@ -45,6 +45,8 @@ public class BaseController {
     public static final String PATH_WELL_KNOWN_OAUTH_AUTHORIZATION_SERVER = "/.well-known/oauth-authorization-server";
     public static final String PATH_WELL_KNOWN_OPENID_CONFIGURATION = "/.well-known/openid-configuration";
 
+    public static final String CONTENT_TYPE_APPLICATION_JSON = "application/json";
+
     private static final String VIEW_ERROR = "views/error";
 
     private static final String ATTRIBUTE_ERROR_CODE = "error_code";

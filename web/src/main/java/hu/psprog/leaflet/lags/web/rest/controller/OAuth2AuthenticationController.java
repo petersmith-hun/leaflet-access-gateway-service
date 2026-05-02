@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static hu.psprog.leaflet.lags.core.domain.internal.SecurityConstants.PATH_OAUTH_USERINFO;
+import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.CONTENT_TYPE_APPLICATION_JSON;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_AUTHORIZE;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_INTROSPECT;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_OAUTH_TOKEN;
@@ -118,7 +119,7 @@ public class OAuth2AuthenticationController {
      * @param authentication {@link Authentication} object containing the result of the client pre-authentication
      * @return response entity containing the generated access token with HTTP 200 OK status.
      */
-    @PostMapping(PATH_OAUTH_TOKEN)
+    @PostMapping(value = PATH_OAUTH_TOKEN, produces = CONTENT_TYPE_APPLICATION_JSON)
     public ResponseEntity<OAuthTokenResponse> claimToken(@RequestParam Map<String, String> requestParameters, Authentication authentication) {
 
         UserDetails principal = (UserDetails) authentication.getPrincipal();
@@ -139,7 +140,7 @@ public class OAuth2AuthenticationController {
      * @param authentication current {@link Authentication} object
      * @return introspection results as {@link TokenIntrospectionResult} object wrapped in {@link ResponseEntity}
      */
-    @PostMapping(PATH_OAUTH_INTROSPECT)
+    @PostMapping(value = PATH_OAUTH_INTROSPECT, produces = CONTENT_TYPE_APPLICATION_JSON)
     public ResponseEntity<TokenIntrospectionResult> introspectToken(@RequestParam String token, Authentication authentication) {
 
         log.info("Token introspection requested by client={}", authentication.getName());
@@ -154,7 +155,7 @@ public class OAuth2AuthenticationController {
      * @param authentication object of type {@link Authentication} to extract the user information
      * @return extracted user information
      */
-    @GetMapping(PATH_OAUTH_USERINFO)
+    @GetMapping(value = PATH_OAUTH_USERINFO, produces = CONTENT_TYPE_APPLICATION_JSON)
     public ResponseEntity<UserInfoResponse> getUserInfo(Authentication authentication) {
 
         JwtAuthenticationToken token = (JwtAuthenticationToken) authentication;

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.CONTENT_TYPE_APPLICATION_JSON;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_WELL_KNOWN_JWKS;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_WELL_KNOWN_OAUTH_AUTHORIZATION_SERVER;
 import static hu.psprog.leaflet.lags.web.rest.controller.BaseController.PATH_WELL_KNOWN_OPENID_CONFIGURATION;
@@ -40,7 +41,7 @@ public class WellKnownController {
      *
      * @return JWK set response as JSON document
      */
-    @GetMapping(PATH_WELL_KNOWN_JWKS)
+    @GetMapping(value = PATH_WELL_KNOWN_JWKS, produces = CONTENT_TYPE_APPLICATION_JSON)
     public ResponseEntity<Map<String, Object>> getJWKs() {
 
         log.info("JWK Set requested.");
@@ -55,7 +56,7 @@ public class WellKnownController {
      *
      * @return server meta-information
      */
-    @GetMapping(PATH_WELL_KNOWN_OAUTH_AUTHORIZATION_SERVER)
+    @GetMapping(value = PATH_WELL_KNOWN_OAUTH_AUTHORIZATION_SERVER, produces = CONTENT_TYPE_APPLICATION_JSON)
     public ResponseEntity<AuthServerMetaInfo> getServerMetaInfo() {
 
         log.info("Server meta-information requested.");
@@ -69,7 +70,7 @@ public class WellKnownController {
      * Note: Required due to a recent change in Boot's error resolution. Statically returns 404, indicating that OpenID
      * is not supported by the OAuth Authorization server.
      */
-    @GetMapping(PATH_WELL_KNOWN_OPENID_CONFIGURATION)
+    @GetMapping(value = PATH_WELL_KNOWN_OPENID_CONFIGURATION, produces = CONTENT_TYPE_APPLICATION_JSON)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void getOpenIDConfiguration() {
         log.debug("Unsupported OpenID configuration requested");
