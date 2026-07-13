@@ -8,6 +8,16 @@ domino:
       target:
         hosts:
           - psproghu
+        multi-instance:
+          enabled: true
+          instance-count: 2
+          spread-mode: replicate
+          naming-strategy: custom-predefined
+          defined-names:
+            - primary
+            - standby
+          port-offset: 100
+          host-network-base-port: 9085
       execution:
         command-name: app_lags
         via: STANDARD
